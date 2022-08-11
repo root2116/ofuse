@@ -16,18 +16,36 @@ struct EditFlowView: View {
     @State private var name = ""
     @State private var amount = 0
     @State private var date = Date()
+    @State private var isSpending = true
+    @State private var status = ""
+    
+    let status_list = ["Confirmed", "Pending", "Uncertain"]
     
     var body: some View {
         Form {
             Section {
+                Picker("Status", selection: $status) {
+                                        ForEach(status_list, id: \.self) {
+                                            Text($0)
+                                        }
+                                    }
+                                    .pickerStyle(SegmentedPickerStyle())
+                                    .onAppear{
+                                        name = flow.name!
+                                        amount = Int(flow.amount)
+                                        date = flow.date!
+                                        status = status_list[Int(flow.status)]
+                                    }
                 TextField("\(flow.name!)",text: $name)
-                    .onAppear{
-                        name = flow.name!
-                        amount = Int(flow.amount)
-                        date = flow.date!
-                    }
+                    
+                
+                
                 HStack{
-                    Text("Amount: ")
+                    Button {
+                        isSpending.toggle()
+                    } label: {
+                        Label("", systemImage: isSpending ?  "minus.circle" : "plus.circle").font(.system(size: 25))
+                    }
                     TextField("\(Int(amount))", value: $amount, formatter: NumberFormatter()).keyboardType(.numberPad)
                     
                 }
@@ -36,7 +54,7 @@ struct EditFlowView: View {
                 HStack{
                     Spacer()
                     Button("Submit"){
-                        DataController().editFlow(flow: flow, name: name, amount: Int32(amount), date: date, context: managedObjContext)
+                        DataController().editFlow(flow: flow, name: name, amount: Int32(amount), date: date, status: Int16(status_list.firstIndex(of: status)!), context: managedObjContext)
                         dismiss()
                     }
                     Spacer()

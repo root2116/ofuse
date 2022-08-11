@@ -29,26 +29,27 @@ class DataController: ObservableObject {
         }
     }
     
-    func addFlow(name: String, amount: Int32, date: Date, context: NSManagedObjectContext){
+    func addFlow(name: String, amount: Int32, date: Date, status: Int16, context: NSManagedObjectContext){
         let flow = Flow(context:context)
         flow.id = UUID()
         flow.createdAt = Date()
         flow.amount = amount
         flow.date = date
         flow.name = name
+        
 //        flow.capacitor_id = capacitor_id
-//        flow.status = status
+        flow.status = status
         
         save(context: context)
         
     }
     
-    func editFlow(flow: Flow, name: String, amount: Int32, date: Date, context: NSManagedObjectContext){
+    func editFlow(flow: Flow, name: String, amount: Int32, date: Date,status:Int16, context: NSManagedObjectContext){
         flow.date = date
         flow.name = name
         flow.amount = amount
 //        flow.capacitor_id = capacitor_id
-//        flow.status = status
+        flow.status = status
         
         save(context: context)
     }

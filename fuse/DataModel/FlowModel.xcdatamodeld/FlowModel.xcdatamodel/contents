@@ -6,8 +6,9 @@
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="Flow" positionX="-63" positionY="-18" width="128" height="104"/>
+        <element name="Flow" positionX="-63" positionY="-18" width="128" height="119"/>
     </elements>
 </model>

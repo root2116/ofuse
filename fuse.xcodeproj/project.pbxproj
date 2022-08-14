@@ -8,6 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		E920732028A54F60004AB410 /* TimeFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920731F28A54F60004AB410 /* TimeFormatting.swift */; };
+		E920732228A6B936004AB410 /* CapacitorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920732128A6B936004AB410 /* CapacitorsView.swift */; };
+		E920732428A6B9A8004AB410 /* ConductorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920732328A6B9A8004AB410 /* ConductorsView.swift */; };
+		E920732628A6BDC5004AB410 /* CapacitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920732528A6BDC5004AB410 /* CapacitorView.swift */; };
+		E920732828A6C0E8004AB410 /* AddCapacitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920732728A6C0E8004AB410 /* AddCapacitorView.swift */; };
+		E920732A28A6F34C004AB410 /* FlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920732928A6F34C004AB410 /* FlowView.swift */; };
+		E920732E28A93F4B004AB410 /* CoreDataUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920732D28A93F4B004AB410 /* CoreDataUtility.swift */; };
 		E97B5F2F28A3FE2E005802AF /* AddFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97B5F2E28A3FE2E005802AF /* AddFlowView.swift */; };
 		E97B5F3228A41B96005802AF /* FlowModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E97B5F3028A41B96005802AF /* FlowModel.xcdatamodeld */; };
 		E9CE1A0A28A425100019975E /* EditFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9CE1A0928A425100019975E /* EditFlowView.swift */; };
@@ -20,6 +26,12 @@
 
 /* Begin PBXFileReference section */
 		E920731F28A54F60004AB410 /* TimeFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
+		E920732128A6B936004AB410 /* CapacitorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapacitorsView.swift; sourceTree = "<group>"; };
+		E920732328A6B9A8004AB410 /* ConductorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConductorsView.swift; sourceTree = "<group>"; };
+		E920732528A6BDC5004AB410 /* CapacitorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapacitorView.swift; sourceTree = "<group>"; };
+		E920732728A6C0E8004AB410 /* AddCapacitorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCapacitorView.swift; sourceTree = "<group>"; };
+		E920732928A6F34C004AB410 /* FlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowView.swift; sourceTree = "<group>"; };
+		E920732D28A93F4B004AB410 /* CoreDataUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataUtility.swift; sourceTree = "<group>"; };
 		E97B5F2E28A3FE2E005802AF /* AddFlowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFlowView.swift; sourceTree = "<group>"; };
 		E97B5F3128A41B96005802AF /* FlowModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FlowModel.xcdatamodel; sourceTree = "<group>"; };
 		E9CE1A0928A425100019975E /* EditFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFlowView.swift; sourceTree = "<group>"; };
@@ -94,6 +106,11 @@
 				E97B5F2E28A3FE2E005802AF /* AddFlowView.swift */,
 				E9EA36CC2851404600529C5E /* ContentView.swift */,
 				E9CE1A0928A425100019975E /* EditFlowView.swift */,
+				E920732128A6B936004AB410 /* CapacitorsView.swift */,
+				E920732328A6B9A8004AB410 /* ConductorsView.swift */,
+				E920732528A6BDC5004AB410 /* CapacitorView.swift */,
+				E920732728A6C0E8004AB410 /* AddCapacitorView.swift */,
+				E920732928A6F34C004AB410 /* FlowView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -102,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				E920731F28A54F60004AB410 /* TimeFormatting.swift */,
+				E920732D28A93F4B004AB410 /* CoreDataUtility.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -176,12 +194,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E920732428A6B9A8004AB410 /* ConductorsView.swift in Sources */,
 				E9EA36DD28517AA400529C5E /* DataController.swift in Sources */,
 				E920732028A54F60004AB410 /* TimeFormatting.swift in Sources */,
 				E97B5F2F28A3FE2E005802AF /* AddFlowView.swift in Sources */,
+				E920732228A6B936004AB410 /* CapacitorsView.swift in Sources */,
+				E920732628A6BDC5004AB410 /* CapacitorView.swift in Sources */,
 				E9EA36CD2851404600529C5E /* ContentView.swift in Sources */,
 				E9EA36CB2851404600529C5E /* fuseApp.swift in Sources */,
+				E920732A28A6F34C004AB410 /* FlowView.swift in Sources */,
+				E920732828A6C0E8004AB410 /* AddCapacitorView.swift in Sources */,
 				E9CE1A0A28A425100019975E /* EditFlowView.swift in Sources */,
+				E920732E28A93F4B004AB410 /* CoreDataUtility.swift in Sources */,
 				E97B5F3228A41B96005802AF /* FlowModel.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

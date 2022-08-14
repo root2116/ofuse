@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21D62" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Capacitor" representedClassName="Capacitor" syncable="YES" codeGenerationType="class">
+        <attribute name="balance" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="in_flows" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Flow" inverseName="to" inverseEntity="Flow"/>
+        <relationship name="out_flows" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Flow" inverseName="from" inverseEntity="Flow"/>
+    </entity>
     <entity name="Flow" representedClassName="Flow" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -7,8 +15,11 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="from" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="out_flows" inverseEntity="Capacitor"/>
+        <relationship name="to" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="in_flows" inverseEntity="Capacitor"/>
     </entity>
     <elements>
-        <element name="Flow" positionX="-63" positionY="-18" width="128" height="119"/>
+        <element name="Capacitor" positionX="-63" positionY="36" width="128" height="119"/>
+        <element name="Flow" positionX="-63" positionY="-18" width="128" height="149"/>
     </elements>
 </model>

@@ -6,14 +6,29 @@
 //
 
 import SwiftUI
-
+struct CapacitorItem: Identifiable {
+    var id = UUID()
+    
+    let name: String
+    let entity: [SectionItem]
+}
+struct SectionItem: Identifiable,Hashable {
+    var id = UUID()
+    
+    let sectionName: String
+    var items : [Flow]
+}
 
 
 struct CapacitorsView: View {
     @Environment(\.managedObjectContext) var managedObjContext
-    @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitor: FetchedResults<Capacitor>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
     @State private var showingAddView = false
+    
+    
+
+    
     
     var body: some View {
         NavigationView {
@@ -22,8 +37,8 @@ struct CapacitorsView: View {
 //                    .foregroundColor(.gray)
 //                    .padding(.horizontal)
                 List {
-                    ForEach(capacitor) { capacitor in
-                        NavigationLink(destination: CapacitorView(capacitor: capacitor)) {
+                    ForEach(capacitors, id: \.id) { capacitor in
+                        NavigationLink(destination: CapacitorView(capacitor_id: capacitor.id!)) {
                             HStack {
 //                                        Text(getDay(date: flowEntry.date!))
 //                                            .foregroundColor(.gray).font(.title3)
@@ -40,7 +55,8 @@ struct CapacitorsView: View {
 
                             }
                         }
-                    }.onDelete(perform: deleteCapacitor)
+                    }
+//                    .onDelete(perform: deleteCapacitor)
         }
         .listStyle(.plain)
 
@@ -69,19 +85,24 @@ struct CapacitorsView: View {
     }
         
     
-    private func deleteCapacitor(at offsets: IndexSet){
-        withAnimation{
-            offsets.map { capacitor[$0] }.forEach(managedObjContext.delete)
-
-            DataController().save(context: managedObjContext)
-        }
-    }
+//    private func deleteCapacitor(at offsets: IndexSet){
+//        withAnimation{
+//            offsets.map { capacitor[$0] }.forEach(managedObjContext.delete)
+//
+//            DataController().save(context: managedObjContext)
+//        }
+//    }
+    
+    
     
     
 }
 
-struct CapacitorsView_Previews: PreviewProvider {
-    static var previews: some View {
-        CapacitorsView()
-    }
-}
+//struct CapacitorsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        CapacitorsView()
+//    }
+//}
+
+
+

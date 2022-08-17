@@ -79,6 +79,8 @@ func registSampleData(context: NSManagedObjectContext) {
 //        newFlow.to = UUID(uuidString: flow[1])
         newFlow.amount = Int32(flow[3])!
         newFlow.status = Int16(flow[4])!
+        newFlow.from_id = UUID(uuidString: flow[0])
+        newFlow.to_id = UUID(uuidString: flow[1])
  
         /// from リレーションの設定
         
@@ -138,6 +140,8 @@ class DataController: ObservableObject {
         newFlow.date = date
         newFlow.name = name
         newFlow.status = status
+        newFlow.from_id = from
+        newFlow.to_id = to
         
         let fetchRequestCapacitor : NSFetchRequest<Capacitor>
         fetchRequestCapacitor = Capacitor.fetchRequest()
@@ -174,6 +178,8 @@ class DataController: ObservableObject {
         flow.amount = amount
         
         flow.status = status
+        flow.from_id = from
+        flow.to_id = to
         
         
         let fetchRequestCapacitor : NSFetchRequest<Capacitor>

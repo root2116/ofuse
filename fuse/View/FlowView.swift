@@ -9,15 +9,15 @@ import SwiftUI
 
 struct FlowView: View {
     var flow: Flow
-    var capacitor: FetchedResults<Capacitor>.Element
     
+    var capacitor_id : UUID
     @Environment(\.managedObjectContext) private var managedObjectContext
     
     var body: some View {
         
             NavigationLink(destination: EditFlowView(flow: flow)) {
                 HStack {
-                    Text(getDay(date: flow.date ?? Date()))
+                    Text(getDay(flow: flow))
                         .foregroundColor(.gray).font(.title3)
                         .padding(.leading,5)
                         .frame(width:30)
@@ -33,11 +33,11 @@ struct FlowView: View {
                                 Image(systemName: "questionmark.circle.fill").foregroundColor(.gray)
                             }
 
-                            Text(flow.name ?? "")
+                            Text(flow.name!)
                                 .bold()
                         }
                         
-                        if capacitor.id! == flow.from!.id! {
+                        if capacitor_id == flow.from!.id! {
                             Text("¥ ") + Text("-\(Int(flow.amount))").foregroundColor(.red)
                         } else {
                             Text("¥ ") + Text("+\(Int(flow.amount))").foregroundColor(.green)
@@ -51,11 +51,14 @@ struct FlowView: View {
             }
     }
     
-    private func getDay(date dt : Date) -> String{
+    private func getDay(flow: FetchedResults<Flow>.Element) -> String{
+        print(flow)
+        let dt = Date()
         let format = DateFormatter()
         format.dateFormat = "dd"
         return format.string(from: dt)
     }
+    
 }
 
 //struct FlowView_Previews: PreviewProvider {

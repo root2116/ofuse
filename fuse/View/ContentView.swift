@@ -19,6 +19,9 @@ enum Status: Int {
 
 struct ContentView: View {
     
+    
+    
+    
     var body: some View {
             TabView{
                 CapacitorsView() //1枚目の子ビュー
@@ -38,11 +41,11 @@ struct ContentView: View {
 }
 
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
 
 
 extension Flow {
@@ -64,3 +67,5 @@ extension String {
         return (self as NSString).size(withAttributes: attributes)
     }
 }
+
+

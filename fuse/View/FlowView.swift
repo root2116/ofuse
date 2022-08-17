@@ -11,6 +11,7 @@ struct FlowView: View {
     var flow: Flow
     
     var capacitor_id : UUID
+    var balance: Int
     @Environment(\.managedObjectContext) private var managedObjectContext
     
     var body: some View {
@@ -28,7 +29,7 @@ struct FlowView: View {
                             if flow.status == Int16(Status.confirmed.rawValue) {
                                 Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
                             } else if flow.status == Int16(Status.pending.rawValue) {
-                                Image(systemName: "arrow.clockwise.circle.fill").foregroundColor(.orange)
+                                Image(systemName: "hourglass.circle.fill").foregroundColor(.orange)
                             } else {
                                 Image(systemName: "questionmark.circle.fill").foregroundColor(.gray)
                             }
@@ -37,26 +38,29 @@ struct FlowView: View {
                                 .bold()
                         }
                         
-                        if capacitor_id == flow.from!.id! {
-                            Text("¥ ") + Text("-\(Int(flow.amount))").foregroundColor(.red)
-                        } else {
-                            Text("¥ ") + Text("+\(Int(flow.amount))").foregroundColor(.green)
-                        }
-                        
+                       
+                        Text("Balance: ¥ \(balance)").foregroundColor(.gray).font(.callout)
 
                     }
+                    
                     Spacer()
-
+                    
+                    if capacitor_id == flow.from!.id! {
+                        Text("¥ ") + Text("-\(Int(flow.amount))").foregroundColor(.red)
+                    } else {
+                        Text("¥ ") + Text("+\(Int(flow.amount))").foregroundColor(.green)
+                    }
+                    
                 }
             }
     }
     
     private func getDay(flow: FetchedResults<Flow>.Element) -> String{
-        print(flow)
-        let dt = Date()
+        
+        
         let format = DateFormatter()
         format.dateFormat = "dd"
-        return format.string(from: dt)
+        return format.string(from: flow.date!)
     }
     
 }

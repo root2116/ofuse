@@ -34,8 +34,8 @@ func registSampleData(context: NSManagedObjectContext) {
     /// Capacitorテーブル初期値
     let capacitorList = [
         [outside_id,"Outside", "0"],
-        [bank_id,"Bank", "0"],
-        [credit_id,"Credit Card", "0"]
+        [bank_id,"Bank", "10000"],
+        [credit_id,"Credit Card", "10000"]
     ]
     
     /// Flowテーブル全消去
@@ -60,6 +60,7 @@ func registSampleData(context: NSManagedObjectContext) {
         newCapacitor.id = UUID(uuidString: capacitor[0])
         newCapacitor.createdAt = Date()
         newCapacitor.name = capacitor[1]
+        newCapacitor.init_balance = Int32(capacitor[2])!
         newCapacitor.balance = Int32(capacitor[2])!
         
     }
@@ -75,6 +76,7 @@ func registSampleData(context: NSManagedObjectContext) {
         newFlow.id = UUID()
         newFlow.name = flow[2]
         newFlow.date = format.date(from: flow[5])
+        newFlow.createdAt = Date()
 //        newFlow.from = UUID(uuidString: flow[0])
 //        newFlow.to = UUID(uuidString: flow[1])
         newFlow.amount = Int32(flow[3])!
@@ -92,7 +94,8 @@ func registSampleData(context: NSManagedObjectContext) {
             /// Flow -> Capacitorへのリレーション
             newFlow.from = result1![0]
             result1![0].addToOut_flows(newFlow)
-            print("Set FROM relation!!")
+            result1![0].balance -= newFlow.amount
+           
         }
         
         /// to リレーションの設定
@@ -102,7 +105,8 @@ func registSampleData(context: NSManagedObjectContext) {
             /// Flow -> Capacitorへのリレーション
             newFlow.to = result2![0]
             result2![0].addToIn_flows(newFlow)
-            print("Set TO relation!!")
+            result2![0].balance += newFlow.amount
+           
         }
     }
     
@@ -151,9 +155,10 @@ class DataController: ObservableObject {
         let result1 = try? context.fetch(fetchRequestCapacitor)
         if result1!.count > 0 {
             /// Flow -> Capacitorへのリレーション
-            print("Set FROM relation!!")
+            
             newFlow.from = result1![0]
             result1![0].addToOut_flows(newFlow)
+            result1![0].balance -= newFlow.amount
         }
         
         /// to リレーションの設定
@@ -161,9 +166,10 @@ class DataController: ObservableObject {
         let result2 = try? context.fetch(fetchRequestCapacitor)
         if result2!.count > 0 {
             /// Flow -> Capacitorへのリレーション
-            print("Set TO relation!!")
+            
             newFlow.to = result2![0]
             result2![0].addToIn_flows(newFlow)
+            result2![0].balance += newFlow.amount
         }
         
         
@@ -173,6 +179,8 @@ class DataController: ObservableObject {
     }
     
     func editFlow(flow: Flow, name: String, amount: Int32, date: Date,status:Int16,from: UUID, to:UUID, context: NSManagedObjectContext){
+        
+        let old_amount = flow.amount
         flow.date = date
         flow.name = name
         flow.amount = amount
@@ -191,6 +199,8 @@ class DataController: ObservableObject {
             /// Flow -> Capacitorへのリレーション
             flow.from = result1![0]
             result1![0].addToOut_flows(flow)
+            result1![0].balance += Int32(old_amount)
+            result1![0].balance -= flow.amount
         }
         
         /// to リレーションの設定
@@ -200,6 +210,8 @@ class DataController: ObservableObject {
             /// Flow -> Capacitorへのリレーション
             flow.to = result2![0]
             result2![0].addToIn_flows(flow)
+            result2![0].balance -= Int32(old_amount)
+            result2![0].balance += flow.amount
         }
         
         

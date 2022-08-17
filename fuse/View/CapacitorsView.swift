@@ -38,7 +38,7 @@ struct CapacitorsView: View {
 //                    .padding(.horizontal)
                 List {
                     ForEach(capacitors, id: \.id) { capacitor in
-                        NavigationLink(destination: CapacitorView(capacitor_id: capacitor.id!)) {
+                        NavigationLink(destination: CapacitorView(capacitor_id: capacitor.id!,capacitor_name: capacitor.name!, init_balance: capacitor.init_balance)) {
                             HStack {
 //                                        Text(getDay(date: flowEntry.date!))
 //                                            .foregroundColor(.gray).font(.title3)
@@ -48,15 +48,26 @@ struct CapacitorsView: View {
                                 VStack(alignment: .leading, spacing: 6){
                                     
                                  Text(capacitor.name!)
-
+                                 
 
                                 }
+                                
+                                
                                 Spacer()
+                                
+                                if capacitor.balance > 0 {
+                                    Text("¥ ") + Text("\(capacitor.balance)").foregroundColor(.green)
+                                } else if capacitor.balance < 0 {
+                                    Text("¥ ") + Text("\(capacitor.balance)").foregroundColor(.red)
+                                } else {
+                                    Text("¥ ") + Text("\(capacitor.balance)")
+                                }
+                                
 
                             }
                         }
                     }
-//                    .onDelete(perform: deleteCapacitor)
+                    .onDelete(perform: deleteCapacitor)
         }
         .listStyle(.plain)
 
@@ -85,13 +96,13 @@ struct CapacitorsView: View {
     }
         
     
-//    private func deleteCapacitor(at offsets: IndexSet){
-//        withAnimation{
-//            offsets.map { capacitor[$0] }.forEach(managedObjContext.delete)
-//
-//            DataController().save(context: managedObjContext)
-//        }
-//    }
+    private func deleteCapacitor(at offsets: IndexSet){
+        withAnimation{
+            offsets.map { capacitors[$0] }.forEach(managedObjContext.delete)
+
+            DataController().save(context: managedObjContext)
+        }
+    }
     
     
     

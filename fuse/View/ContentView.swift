@@ -15,12 +15,18 @@ enum Status: Int {
     case uncertain = 2
 }
 
+enum CapType: Int16 {
+    case cash = 0
+    case bank = 1
+    case card = 2
+}
+
 
 
 struct ContentView: View {
     
-    
-    
+    @State var timer :Timer?
+    @Environment(\.managedObjectContext) var managedObjContext
     
     var body: some View {
             TabView{
@@ -34,6 +40,13 @@ struct ContentView: View {
                         Image(systemName: "arrow.triangle.pull")
                         Text("Conductors")
                     }
+            }.onAppear{
+//                registSampleData(context: managedObjContext)
+                registerOutside(context: managedObjContext)
+                timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                    // Conductorから追加するべきFlowがあればCapacitorに追加する。
+                    DataController().applyConductors(context: managedObjContext)
+                }
             }
         }
     
@@ -61,11 +74,25 @@ extension Flow {
     }
 }
 
+extension Capacitor {
+    @objc
+    var typeText: String {
+        if self.type == CapType.bank.rawValue {
+            return "Account"
+        } else if self.type == CapType.cash.rawValue {
+            return "Cash"
+        } else {
+            return "Credit Card"
+        }
+    }
+}
+
 extension String {
     func size(with font: UIFont) -> CGSize {
         let attributes = [NSAttributedString.Key.font : font]
         return (self as NSString).size(withAttributes: attributes)
     }
 }
+
 
 

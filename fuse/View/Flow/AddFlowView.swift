@@ -14,7 +14,6 @@ struct AddFlowView: View {
     @Environment(\.dismiss) var dismiss
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
-    @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)],predicate: NSPredicate(format: "name == %@","Outside")) var outside_id: FetchedResults<Capacitor>
     
     
     @State private var name = ""
@@ -44,6 +43,9 @@ struct AddFlowView: View {
 
     
     var body: some View {
+        NavigationView{
+            
+        
         Form {
             Section {
                 Picker("Status", selection: $status) {
@@ -126,13 +128,15 @@ struct AddFlowView: View {
 //                    .frame(width: metrics.size.width * 0.40)
                 HStack {
                     Spacer()
-                    Button("Submit"){
+                    Button("Save"){
                         DataController().addFlow(name: name, amount: Int32(amount), date: date, status: Int16(status_list.firstIndex(of: status)!), from: right ? from! : to!, to: right ? to! : from! , context: managedObjContext)
                         dismiss()
                     }
                     Spacer()
                 }
             }
+        }.navigationTitle("Add a flow")
+            
         }
     }
     

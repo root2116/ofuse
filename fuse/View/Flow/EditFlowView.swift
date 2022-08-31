@@ -20,8 +20,8 @@ struct EditFlowView: View {
     @State private var date = Date()
     @State private var right = true
     @State private var status = ""
-    @State private var from = UUID()
-    @State private var to = UUID()
+    @State private var from: UUID? = UUID()
+    @State private var to: UUID? = UUID()
     
     let status_list = ["Confirmed", "Pending", "Uncertain"]
     
@@ -58,7 +58,7 @@ struct EditFlowView: View {
                     
                         
                         HStack(alignment: .center) {
-                            Menu(getName(items:capacitors,id: from)) {
+                            Menu(getName(items:capacitors,id: from!)) {
                                 Picker("From Capacitor",selection: $from){
                                     ForEach(capacitors, id: \.id){ cap in
                                         Text(cap.name!)
@@ -75,7 +75,7 @@ struct EditFlowView: View {
                                 Label("", systemImage: right ?  "arrow.right.square.fill" : "arrow.left.square.fill").font(.system(size: 25))
                             }.frame(width: metrics.size.width * 0.20)
         
-                            Menu(getName(items:capacitors,id: to)) {
+                            Menu(getName(items:capacitors,id: to!)) {
                                 Picker("To Capacitor",selection: $to){
                                     ForEach(capacitors, id: \.id){ cap in
                                         Text(cap.name!)
@@ -90,14 +90,14 @@ struct EditFlowView: View {
                 
                 HStack{
                     Spacer()
-                    Button("Submit"){
-                        DataController().editFlow(flow: flow, name: name, amount: Int32(amount), date: date, status: Int16(status_list.firstIndex(of: status)!),from : right ? from : to , to: right ? to : from, context: managedObjContext)
+                    Button("Save"){
+                        DataController().editFlow(flow: flow, name: name, amount: Int32(amount), date: date, status: Int16(status_list.firstIndex(of: status)!),from : right ? from! : to! , to: right ? to! : from!, context: managedObjContext)
                         dismiss()
                     }
                     Spacer()
                 }
             }
-        }
+        }.navigationTitle("Edit the flow")
     }
 }
 

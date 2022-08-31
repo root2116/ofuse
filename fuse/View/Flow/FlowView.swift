@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FlowView: View {
-    var flow: Flow
+    @ObservedObject var flow: Flow
     
     var capacitor_id : UUID
     var balance: Int
@@ -18,11 +18,19 @@ struct FlowView: View {
         
             NavigationLink(destination: EditFlowView(flow: flow)) {
                 HStack {
-                    Text(getDay(flow: flow))
-                        .foregroundColor(.gray).font(.title3)
-                        .padding(.leading,5)
-                        .frame(width:30)
+                    VStack {
+                        Text(getYearAndMonth(flow:flow))
+                            .foregroundColor(.gray)
+                            .font(.caption2)
+                            .padding(.leading,5)
                         
+                        Text(getDay(flow: flow))
+                            .foregroundColor(.gray).font(.title3)
+                            .padding(.leading,5)
+                            .frame(width:30)
+                            
+                    }
+                    
                     VStack(alignment: .leading, spacing: 6){
                         
                         HStack{
@@ -59,7 +67,13 @@ struct FlowView: View {
         
         
         let format = DateFormatter()
-        format.dateFormat = "dd"
+        format.dateFormat = "d"
+        return format.string(from: flow.date!)
+    }
+    
+    private func getYearAndMonth(flow: FetchedResults<Flow>.Element) -> String {
+        let format = DateFormatter()
+        format.dateFormat = "yy.MM"
         return format.string(from: flow.date!)
     }
     

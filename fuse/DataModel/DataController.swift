@@ -7,9 +7,65 @@
 
 import Foundation
 import CoreData
+import SwiftUI
 
 
+func registerOutside(context: NSManagedObjectContext){
+    let outside_id = "CE130F1C-3B2F-42CA-8339-1549531E0102"
+    
+    
+//    /// Flowテーブル全消去
+//    let fetchRequestFlow = NSFetchRequest<NSFetchRequestResult>()
+//    fetchRequestFlow.entity = Flow.entity()
+//    let flows = try? context.fetch(fetchRequestFlow) as? [Flow]
+//    for flow in flows! {
+//        context.delete(flow)
+//    }
+//
+//    /// Capacitorテーブル全消去
+//    let fetchRequestCapacitor = NSFetchRequest<NSFetchRequestResult>()
+//    fetchRequestCapacitor.entity = Capacitor.entity()
+//    let capacitors = try? context.fetch(fetchRequestCapacitor) as? [Capacitor]
+//    for capacitor in capacitors! {
+//        context.delete(capacitor)
+//    }
+//
+//
+//    /// Conductorテーブル全消去
+//    let fetchRequestConductor = NSFetchRequest<NSFetchRequestResult>()
+//    fetchRequestConductor.entity = Conductor.entity()
+//    let conductors = try? context.fetch(fetchRequestConductor) as? [Conductor]
+//    for conductor in conductors! {
+//        context.delete(conductor)
+//    }
+//
+//    /// Categoryテーブル全消去
+//    let fetchRequestCategory = NSFetchRequest<NSFetchRequestResult>()
+//    fetchRequestCategory.entity = Category.entity()
+//    let categories = try? context.fetch(fetchRequestCategory) as? [Category]
+//    for category in categories! {
+//        context.delete(category)
+//    }
+    
+    let outside = [outside_id,"Outside", "0","0","0"]
 
+    let fetchRequestCapacitor = NSFetchRequest<NSFetchRequestResult>()
+    fetchRequestCapacitor.entity = Capacitor.entity()
+    let capacitors = try? context.fetch(fetchRequestCapacitor) as? [Capacitor]
+    if capacitors!.count == 0 {
+        let newCapacitor = Capacitor(context: context)
+        newCapacitor.id = UUID(uuidString: outside[0])
+        newCapacitor.createdAt = Date()
+        newCapacitor.name = outside[1]
+        newCapacitor.init_balance = Int32(outside[2])!
+        newCapacitor.balance = Int32(outside[2])!
+        newCapacitor.settlement = Int16(outside[3])!
+        newCapacitor.payment = Int16(outside[4])!
+    }
+
+    try? context.save()
+    
+}
 
 func registSampleData(context: NSManagedObjectContext) {
     
@@ -18,6 +74,12 @@ func registSampleData(context: NSManagedObjectContext) {
     let outside_id = "CE130F1C-3B2F-42CA-8339-1549531E0102"
     let bank_id = UUID().uuidString
     let credit_id = UUID().uuidString
+    
+    
+    let subscription_id = UUID().uuidString
+    let uncategorized_id = UUID().uuidString
+    
+    let categoryList = [[uncategorized_id,"Uncategorized"],[subscription_id,"Subscription"]]
     
     print("Outside: \(outside_id)")
     print("Bank: \(bank_id)")
@@ -33,9 +95,17 @@ func registSampleData(context: NSManagedObjectContext) {
         
     /// Capacitorテーブル初期値
     let capacitorList = [
-        [outside_id,"Outside", "0"],
-        [bank_id,"Bank", "10000"],
-        [credit_id,"Credit Card", "10000"]
+        [outside_id,"Outside", "0","0","0"],
+        [bank_id,"Bank", "10000","0","0"],
+        [credit_id,"Credit Card", "10000","10","2"]
+    ]
+    
+    
+    /// 0は*, -1は月末を表す
+    let conductorList = [
+        // from_id, to_id, name, amount,every,span, day, month, weekday, category
+        [credit_id,outside_id,"日向坂ファンクラブ","440","1","month","25","0","0","Subscription"]
+    
     ]
     
     /// Flowテーブル全消去
@@ -54,6 +124,23 @@ func registSampleData(context: NSManagedObjectContext) {
         context.delete(capacitor)
     }
     
+    
+    /// Conductorテーブル全消去
+    let fetchRequestConductor = NSFetchRequest<NSFetchRequestResult>()
+    fetchRequestConductor.entity = Conductor.entity()
+    let conductors = try? context.fetch(fetchRequestConductor) as? [Conductor]
+    for conductor in conductors! {
+        context.delete(conductor)
+    }
+    
+    /// Categoryテーブル全消去
+    let fetchRequestCategory = NSFetchRequest<NSFetchRequestResult>()
+    fetchRequestCategory.entity = Category.entity()
+    let categories = try? context.fetch(fetchRequestCategory) as? [Category]
+    for category in categories! {
+        context.delete(category)
+    }
+    
     /// Capacitorテーブル登録
     for capacitor in capacitorList {
         let newCapacitor = Capacitor(context: context)
@@ -62,6 +149,8 @@ func registSampleData(context: NSManagedObjectContext) {
         newCapacitor.name = capacitor[1]
         newCapacitor.init_balance = Int32(capacitor[2])!
         newCapacitor.balance = Int32(capacitor[2])!
+        newCapacitor.settlement = Int16(capacitor[3])!
+        newCapacitor.payment = Int16(capacitor[4])!
         
     }
  
@@ -110,13 +199,68 @@ func registSampleData(context: NSManagedObjectContext) {
         }
     }
     
+    
+    /// Conductorテーブル登録
+    for conductor in conductorList {
+        let newConductor = Conductor(context: context)
+        newConductor.id = UUID()
+        newConductor.from_id = UUID(uuidString: conductor[0])
+        newConductor.to_id = UUID(uuidString: conductor[1])
+        
+        newConductor.createdAt = Date()
+        
+        newConductor.name = conductor[2]
+        newConductor.amount = Int32(conductor[3])!
+        newConductor.every = Int16(conductor[4])!
+        newConductor.span = conductor[5]
+        newConductor.day = Int16(conductor[6])!
+        newConductor.month = Int16(conductor[7])!
+        newConductor.weekday = Int16(conductor[8])!
+        newConductor.next = Calendar.current.date(byAdding: .day, value: Int.random(in: 1..<10), to: Date())!
+        newConductor.category = conductor[9]
+        
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", UUID(uuidString: conductor[0])! as CVarArg)
+        
+        let result1 = try? context.fetch(fetchRequestCapacitor) as? [Capacitor]
+
+        if result1!.count > 0 {
+            /// Conductor -> Capacitorへのリレーション
+            newConductor.from = result1![0]
+            result1![0].addToOut_conductors(newConductor)
+            
+           
+        }
+        
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", UUID(uuidString: conductor[1])! as CVarArg)
+        let result2 = try? context.fetch(fetchRequestCapacitor) as? [Capacitor]
+
+        if result2!.count > 0 {
+            /// Conductor -> Capacitorへのリレーション
+            newConductor.to = result1![0]
+            result2![0].addToIn_conductors(newConductor)
+            
+           
+        }
+        
+        
+        
+        
+    }
+    
+    
+    for category in categoryList {
+        let newCategory = Category(context: context)
+        newCategory.id = UUID(uuidString: category[0])
+        newCategory.name = category[1]
+    }
+    
     /// コミット
     try? context.save()
 }
  
 
 class DataController: ObservableObject {
-    let container = NSPersistentContainer(name: "FlowModel")
+    let container = NSPersistentContainer(name: "FuseModel")
     
     init(){
         container.loadPersistentStores{ desc, error in
@@ -158,7 +302,10 @@ class DataController: ObservableObject {
             
             newFlow.from = result1![0]
             result1![0].addToOut_flows(newFlow)
-            result1![0].balance -= newFlow.amount
+            if status == Status.confirmed.rawValue {
+                result1![0].balance -= newFlow.amount
+            }
+            
         }
         
         /// to リレーションの設定
@@ -169,11 +316,16 @@ class DataController: ObservableObject {
             
             newFlow.to = result2![0]
             result2![0].addToIn_flows(newFlow)
-            result2![0].balance += newFlow.amount
+            if status == Status.confirmed.rawValue {
+                result2![0].balance += newFlow.amount
+            }
+            
         }
         
         
         save(context: context)
+        
+        updatePaymentConductor(context: context, capacitor: result1![0])
         
         
     }
@@ -181,6 +333,7 @@ class DataController: ObservableObject {
     func editFlow(flow: Flow, name: String, amount: Int32, date: Date,status:Int16,from: UUID, to:UUID, context: NSManagedObjectContext){
         
         let old_amount = flow.amount
+        let old_status = flow.status
         flow.date = date
         flow.name = name
         flow.amount = amount
@@ -199,8 +352,26 @@ class DataController: ObservableObject {
             /// Flow -> Capacitorへのリレーション
             flow.from = result1![0]
             result1![0].addToOut_flows(flow)
-            result1![0].balance += Int32(old_amount)
-            result1![0].balance -= flow.amount
+            if old_status == Status.confirmed.rawValue {
+                if status == Status.confirmed.rawValue { // Confirmed -> Confirmed
+                    result1![0].balance += Int32(old_amount)
+                    result1![0].balance -= flow.amount
+                    
+                } else { // Confirmed -> Pending,Uncertain
+                    result1![0].balance += Int32(old_amount)
+                    
+                }
+            } else {
+                if status == Status.confirmed.rawValue { // Pending,Uncertain -> Confirmed
+                    result1![0].balance -= flow.amount
+                    
+                } else { // Pending,Uncertain -> Pending,Uncertain
+                    // Nothing to do
+                }
+            }
+            
+            
+            
         }
         
         /// to リレーションの設定
@@ -210,9 +381,202 @@ class DataController: ObservableObject {
             /// Flow -> Capacitorへのリレーション
             flow.to = result2![0]
             result2![0].addToIn_flows(flow)
-            result2![0].balance -= Int32(old_amount)
-            result2![0].balance += flow.amount
+            
+            
+            if old_status == Status.confirmed.rawValue {
+                if status == Status.confirmed.rawValue { // Confirmed -> Confirmed
+                    result2![0].balance -= Int32(old_amount)
+                    result2![0].balance += flow.amount
+                    
+                } else { // Confirmed -> Pending,Uncertain
+                    result2![0].balance -= Int32(old_amount)
+                    
+                }
+            } else {
+                if status == Status.confirmed.rawValue { // Pending,Uncertain -> Confirmed
+                    result2![0].balance += flow.amount
+                    
+                } else { // Pending,Uncertain -> Pending,Uncertain
+                    // Nothing to do
+                }
+            }
+            
+            
         }
+        
+        
+        
+        
+        save(context: context)
+        
+        updatePaymentConductor(context: context, capacitor: result1![0])
+    }
+    
+    func addCapacitor(name:String, init_balance: Int32, type: Int16, settlement: Int16, payment: Int16, from: UUID, context: NSManagedObjectContext){
+        let capacitor = Capacitor(context: context)
+        capacitor.id = UUID()
+        capacitor.createdAt = Date()
+        capacitor.name = name
+        capacitor.balance = init_balance
+        capacitor.init_balance = init_balance
+        capacitor.type = type
+        capacitor.settlement = settlement
+        capacitor.payment = payment
+        
+//        capacitor.payment_conductor =
+        
+        
+        save(context: context)
+        
+        let today = Date()
+        let month = Calendar.current.component(.month, from: today)
+        let day = Calendar.current.component(.day, from: today)
+        var component1 = Calendar.current.dateComponents([.year], from: today)
+        if day > settlement {
+            
+            component1.month = month + 2
+        } else {
+            component1.month = month + 1
+        }
+        
+        component1.day = Int(payment)
+        let next = Calendar.current.date(from:component1)
+    
+        
+        
+        if type == CapType.card.rawValue {
+            
+       
+            capacitor.payment_conductor = addConductor(name: name+" payment", amount: 0, from: from , to: capacitor.id! , every: 1, span: "month", day: payment, month: 0, weekday: 0, category: "Uncategorized", next:next!,  context: context)
+            
+            save(context: context)
+            
+        }
+    }
+    
+    func addConductor(name: String, amount: Int32, from: UUID, to:UUID, every: Int16, span: String, day: Int16, month:Int16, weekday: Int16, category: String, next: Date, context: NSManagedObjectContext) -> Conductor {
+        let conductor = Conductor(context: context)
+        conductor.id = UUID()
+        conductor.createdAt = Date()
+        conductor.name = name
+        conductor.amount = amount
+        conductor.from_id = from
+        conductor.to_id = to
+        conductor.every = every
+        conductor.span = span
+        conductor.day = day
+        conductor.month = month
+        conductor.weekday = weekday
+        conductor.next = next
+        conductor.category = category
+        
+        
+        
+        let fetchRequestCapacitor : NSFetchRequest<Capacitor>
+        fetchRequestCapacitor = Capacitor.fetchRequest()
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@",from as CVarArg)
+        
+        let result1 = try? context.fetch(fetchRequestCapacitor)
+
+        if result1!.count > 0 {
+            /// Conductor -> Capacitorへのリレーション
+            
+            conductor.from = result1![0]
+            result1![0].addToOut_conductors(conductor)
+            
+           
+        }
+        
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", to as CVarArg)
+        let result2 = try? context.fetch(fetchRequestCapacitor)
+
+        if result2!.count > 0 {
+            /// Conductor -> Capacitorへのリレーション
+            conductor.to = result2![0]
+            result2![0].addToIn_conductors(conductor)
+           
+        }
+        
+        save(context: context)
+        
+        return conductor
+        
+    }
+    
+    func editConductor(conductor: Conductor, name: String, amount: Int32, from: UUID, to: UUID, every: Int16, span: String, day: Int16, month: Int16, weekday: Int16, category: String, next: Date, context: NSManagedObjectContext){
+        
+        let old_from = conductor.from_id!
+        let old_to = conductor.to_id!
+        
+        conductor.name = name
+        conductor.amount = amount
+        conductor.from_id = from
+        conductor.to_id = to
+        conductor.every = every
+        conductor.span = span
+        conductor.day = day
+        conductor.month = month
+        conductor.weekday = weekday
+        conductor.next = next
+        conductor.category = category
+        
+        
+        
+        let fetchRequestCapacitor : NSFetchRequest<Capacitor>
+        fetchRequestCapacitor = Capacitor.fetchRequest()
+        
+        
+        // もともとあったrelationの削除
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@",old_from as CVarArg)
+        let result1 = try? context.fetch(fetchRequestCapacitor)
+        
+        if result1!.count > 0 {
+            result1![0].removeFromOut_conductors(conductor)
+        }
+        
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@",old_to as CVarArg)
+        let result2 = try? context.fetch(fetchRequestCapacitor)
+        
+        if result2!.count > 0 {
+            result2![0].removeFromIn_conductors(conductor)
+        }
+        
+        
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@",from as CVarArg)
+        
+        let result3 = try? context.fetch(fetchRequestCapacitor)
+
+        if result3!.count > 0 {
+            /// Conductor -> Capacitorへのリレーション
+            
+            conductor.from = result3![0]
+            result3![0].addToOut_conductors(conductor)
+           
+           
+        }
+        
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", to as CVarArg)
+        let result4 = try? context.fetch(fetchRequestCapacitor)
+
+        if result4!.count > 0 {
+            /// Conductor -> Capacitorへのリレーション
+            conductor.to = result4![0]
+            result4![0].addToIn_conductors(conductor)
+           
+        }
+        
+        save(context: context)
+        
+        
+        
+    }
+    
+    func addCategory(name: String, context: NSManagedObjectContext){
+        let category = Category(context: context)
+        category.id = UUID()
+        
+        category.createdAt = Date()
+        category.name = name
         
         
         
@@ -220,14 +584,179 @@ class DataController: ObservableObject {
         save(context: context)
     }
     
-    func addCapacitor(name:String, init_balance: Int32, context: NSManagedObjectContext){
-        let capacitor = Capacitor(context: context)
-        capacitor.id = UUID()
-        capacitor.createdAt = Date()
-        capacitor.name = name
-        capacitor.balance = init_balance
+    func applyConductors(context: NSManagedObjectContext){
         
-        save(context: context)
+        let fetchRequestConductor : NSFetchRequest<Conductor>
+        fetchRequestConductor = Conductor.fetchRequest()
+        
+        let today = Date()
+        
+        let this_month = Calendar.current.component(.month, from: today)
+        
+        
+        var component = NSCalendar.current.dateComponents([.year], from: today)
+        component.month = this_month + 2
+        component.day = 1
+        component.hour = 0
+        component.minute = 0
+        component.second = 0
+        
+        let the_end_of_the_next_month:NSDate = NSCalendar.current.date(from:component)! as NSDate
+        
+       
+        
+        
+        
+        fetchRequestConductor.predicate = NSPredicate(format: "next <= %@",the_end_of_the_next_month as CVarArg)
+        let results = try? context.fetch(fetchRequestConductor)
+        
+        
+        if results!.count > 0 {
+            
+            print("Found a conductor!!")
+            for conductor in results! {
+                let newFlow = Flow(context:context)
+                newFlow.id = UUID()
+                newFlow.createdAt = Date()
+                newFlow.amount = conductor.amount
+                newFlow.date = conductor.next
+                newFlow.name = conductor.name
+                newFlow.status = Int16(Status.pending.rawValue)
+                newFlow.from_id = conductor.from_id
+                newFlow.to_id = conductor.to_id
+                
+                let fetchRequestCapacitor : NSFetchRequest<Capacitor>
+                fetchRequestCapacitor = Capacitor.fetchRequest()
+
+                
+                fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", conductor.from_id! as CVarArg)
+                let result1 = try? context.fetch(fetchRequestCapacitor)
+                if result1!.count > 0 {
+                    /// Flow -> Capacitorへのリレーション
+                    
+                    newFlow.from = result1![0]
+                    result1![0].addToOut_flows(newFlow)
+
+                }
+                
+                /// to リレーションの設定
+                fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", conductor.to_id! as CVarArg)
+                let result2 = try? context.fetch(fetchRequestCapacitor)
+                if result2!.count > 0 {
+                    /// Flow -> Capacitorへのリレーション
+                    
+                    newFlow.to = result2![0]
+                    result2![0].addToIn_flows(newFlow)
+
+                }
+                
+                // Flow と Conductorのリレーションの設定
+                newFlow.conductor = conductor
+                conductor.addToFlows(newFlow)
+                conductor.next = calcNext(previous: conductor.next!, every: Int(conductor.every), span: conductor.span!, on_day: Int(conductor.day), on_month: Int(conductor.month), on_weekday: Int(conductor.weekday))
+                
+                
+            }
+        }
+        
+        
+        
+        
+    }
+    
+    //そのCapacitorのstartからendまでのFlowの合計金額を返す
+    private func total_flows(start: Date, end: Date, capacitor: Capacitor, context: NSManagedObjectContext) -> Int32 {
+        var sum: Int32 = 0
+        
+        var component1 = NSCalendar.current.dateComponents([.year,.month,.day], from: start)
+        
+        component1.hour = 0
+        component1.minute = 0
+        component1.second = 0
+        
+        let start:NSDate = NSCalendar.current.date(from:component1)! as NSDate
+        
+        var component2 = NSCalendar.current.dateComponents([.year,.month,.day], from: end)
+        
+        component2.day = component2.day! + 1
+        component2.hour = 0
+        component2.minute = 0
+        component2.second = 0
+        
+        let fetchRequestFlow : NSFetchRequest<Flow>
+        fetchRequestFlow = Flow.fetchRequest()
+        
+        fetchRequestFlow.predicate = NSPredicate(format: "date >= %@ && date < %@ && from_id = %@", start as CVarArg, end as CVarArg, capacitor.id! as CVarArg)
+        
+        let out_flows = try? context.fetch(fetchRequestFlow)
+        
+        
+        for out_flow in out_flows! {
+            sum -= out_flow.amount
+        }
+        
+        fetchRequestFlow.predicate = NSPredicate(format: "date >= %@ && date < %@ && to_id = %@", start as CVarArg, end as CVarArg, capacitor.id! as CVarArg)
+        
+        let in_flows = try? context.fetch(fetchRequestFlow)
+        
+        for in_flow in in_flows! {
+            sum += in_flow.amount
+        }
+        
+        return sum
+        
+        
+    
+        
+        
+    }
+    
+    private func flowArray(_ flows: NSSet?) -> [Flow] {
+        let set = flows as? Set<Flow> ?? []
+        return set.sorted {
+            $0.date! < $1.date!
+        }
+    }
+    
+    func updatePaymentConductor(context: NSManagedObjectContext, capacitor: Capacitor) {
+        
+        
+        if capacitor.type == CapType.card.rawValue {
+            
+            
+            let payment_conductor = capacitor.payment_conductor!
+            if payment_conductor.flows!.count > 0 {
+                
+                let payment_flows = flowArray(payment_conductor.flows!)
+                
+                for (index,payment_flow) in payment_flows.enumerated() {
+                    
+                    var component = Calendar.current.dateComponents([.year,.month,.day], from: payment_flow.date!)
+                    let payment_month = component.month!
+                    component.month = payment_month - 2
+                    component.day = Int(capacitor.settlement) + 1
+                    
+                    let start = Calendar.current.date(from: component)
+                    
+                    component.month = payment_month - 1
+                    component.day = Int(capacitor.settlement)
+                    
+                    let end = Calendar.current.date(from: component)
+                    
+                    
+                    let new_amount = total_flows(start:start! , end: end!, capacitor: capacitor, context: context)
+                    
+                    payment_flow.amount = -new_amount
+                    
+                    if index == 0 {
+                        payment_conductor.amount = -new_amount
+                    }
+                }
+                
+                save(context: context)
+            }
+            
+        }
     }
     
     

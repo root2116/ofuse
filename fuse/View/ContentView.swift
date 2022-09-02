@@ -20,6 +20,16 @@ enum CapType: Int16 {
     case bank = 1
     case card = 2
 }
+struct OutsideId: EnvironmentKey {
+    static var defaultValue: UUID = UUID()
+}
+
+extension EnvironmentValues {
+    var outsideId: UUID {
+        get { self[OutsideId.self] }
+        set { self[OutsideId.self] = newValue}
+    }
+}
 
 
 
@@ -46,6 +56,8 @@ struct ContentView: View {
                 timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
                     // Conductorから追加するべきFlowがあればCapacitorに追加する。
                     DataController().applyConductors(context: managedObjContext)
+                    
+                    
                 }
             }
         }
@@ -86,6 +98,24 @@ extension Capacitor {
         }
     }
 }
+
+//extension Conductor {
+//    @objc
+//    var next: Date {
+////        let flows = flowArray(self.flows)
+////        let today = Date()
+////        var old: Date?
+////        for flow in flows {
+////            old = flow.date
+////            if flow.date! > today {
+////                return old!
+////            }
+////        }
+//
+//        return Date()
+//
+//    }
+//}
 
 extension String {
     func size(with font: UIFont) -> CGSize {

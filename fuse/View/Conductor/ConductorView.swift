@@ -17,13 +17,13 @@ struct ConductorView: View {
                 
                 VStack{
                     Text("Next").font(.footnote).foregroundColor(.green)
-                    Text(formatDate(date:conductor.next!))
+                    Text(formatDate(date:conductor.nextToPay ?? Date(), formatStr: "M.d"))
                     
                 }.frame(width:46)
                 
                 VStack(alignment: .leading){
                    
-                    Text(conductor.name!).padding(EdgeInsets(
+                    Text(conductor.name ?? "").padding(EdgeInsets(
                         top: 5,
                         leading: 10,
                         bottom: 2,
@@ -32,14 +32,21 @@ struct ConductorView: View {
                         
                     
                     HStack{
+                        if conductor.from != nil && conductor.to != nil {
+                            
+                        
                         Text(conductor.from!.name!).font(.footnote).foregroundColor(.gray)
                         Image(systemName: "arrow.right").foregroundColor(.gray).font(.system(size: 12))
                         Text(conductor.to!.name!).font(.footnote).foregroundColor(.gray)
+                            
+                        }
                     }.padding(.leading,10)
                     
                 }
                 
                 Spacer()
+                
+                
                 Text("¥ \(conductor.amount)")
                
                 
@@ -49,11 +56,10 @@ struct ConductorView: View {
         }
     }
     
-    private func formatDate(date: Date) -> String {
-        let format = DateFormatter()
-        format.dateFormat = "M.d"
-        return format.string(from: date)
-    }
+    
+    
+    
+    
 }
 
 //struct ConductorView_Previews: PreviewProvider {

@@ -10,8 +10,11 @@ import CoreData
 import SwiftUI
 
 
+
+let outside_id = "CE130F1C-3B2F-42CA-8339-1549531E0102"
+
 func registerOutside(context: NSManagedObjectContext){
-    let outside_id = "CE130F1C-3B2F-42CA-8339-1549531E0102"
+//    let outside_id = "CE130F1C-3B2F-42CA-8339-1549531E0102"
     
     
 //    /// Flowテーブル全消去
@@ -61,6 +64,27 @@ func registerOutside(context: NSManagedObjectContext){
         newCapacitor.balance = Int32(outside[2])!
         newCapacitor.settlement = Int16(outside[3])!
         newCapacitor.payment = Int16(outside[4])!
+    }
+    
+    let fetchRequestCategory = NSFetchRequest<NSFetchRequestResult>()
+    fetchRequestCategory.entity = Category.entity()
+    
+    
+    var hasUncategorized = false
+    let categories = try? context.fetch(fetchRequestCategory) as? [Category]
+    if categories!.count > 0 {
+        for category in categories! {
+            if category.name == "Uncategorized" {
+                hasUncategorized = true
+            }
+        }
+    }
+    
+    if hasUncategorized == false {
+        let newCategory = Category(context: context)
+        newCategory.id = UUID()
+        newCategory.createdAt = Date()
+        newCategory.name = "Uncategorized"
     }
 
     try? context.save()
@@ -216,7 +240,7 @@ func registSampleData(context: NSManagedObjectContext) {
         newConductor.day = Int16(conductor[6])!
         newConductor.month = Int16(conductor[7])!
         newConductor.weekday = Int16(conductor[8])!
-        newConductor.next = Calendar.current.date(byAdding: .day, value: Int.random(in: 1..<10), to: Date())!
+        newConductor.nextToConduct = Calendar.current.date(byAdding: .day, value: Int.random(in: 1..<10), to: Date())!
         newConductor.category = conductor[9]
         
         fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", UUID(uuidString: conductor[0])! as CVarArg)
@@ -404,12 +428,16 @@ class DataController: ObservableObject {
             
         }
         
-        
-        
-        
+    
+
         save(context: context)
         
         updatePaymentConductor(context: context, capacitor: result1![0])
+        
+        if flow.conductor != nil {
+            updateNextToPay(conductor: flow.conductor!, context: context)
+        }
+        
     }
     
     func addCapacitor(name:String, init_balance: Int32, type: Int16, settlement: Int16, payment: Int16, from: UUID, context: NSManagedObjectContext){
@@ -432,7 +460,12 @@ class DataController: ObservableObject {
         let month = Calendar.current.component(.month, from: today)
         let day = Calendar.current.component(.day, from: today)
         var component1 = Calendar.current.dateComponents([.year], from: today)
-        if day > settlement {
+        
+        
+        if settlement % 31 == 0 {
+            component1.month = month + 1
+        }
+        else if day > settlement {
             
             component1.month = month + 2
         } else {
@@ -447,14 +480,17 @@ class DataController: ObservableObject {
         if type == CapType.card.rawValue {
             
        
-            capacitor.payment_conductor = addConductor(name: name+" payment", amount: 0, from: from , to: capacitor.id! , every: 1, span: "month", day: payment, month: 0, weekday: 0, category: "Uncategorized", next:next!,  context: context)
+            capacitor.payment_conductor = addConductor(name: name+" payment", amount: 0, from: from , to: capacitor.id! , every: 1, span: "month", day: payment, month: 0, weekday: 0, category: "Uncategorized", nextToPay:next!,  context: context)
             
             save(context: context)
             
         }
     }
     
-    func addConductor(name: String, amount: Int32, from: UUID, to:UUID, every: Int16, span: String, day: Int16, month:Int16, weekday: Int16, category: String, next: Date, context: NSManagedObjectContext) -> Conductor {
+    func addConductor(name: String, amount: Int32, from: UUID, to:UUID, every: Int16, span: String, day: Int16, month:Int16, weekday: Int16, category: String, nextToPay: Date, context: NSManagedObjectContext) -> Conductor {
+        
+      
+        
         let conductor = Conductor(context: context)
         conductor.id = UUID()
         conductor.createdAt = Date()
@@ -467,7 +503,8 @@ class DataController: ObservableObject {
         conductor.day = day
         conductor.month = month
         conductor.weekday = weekday
-        conductor.next = next
+        conductor.nextToConduct = nextToPay
+        conductor.nextToPay = nextToPay
         conductor.category = category
         
         
@@ -503,7 +540,8 @@ class DataController: ObservableObject {
         
     }
     
-    func editConductor(conductor: Conductor, name: String, amount: Int32, from: UUID, to: UUID, every: Int16, span: String, day: Int16, month: Int16, weekday: Int16, category: String, next: Date, context: NSManagedObjectContext){
+    func editConductor(conductor: Conductor, name: String, amount: Int32, from: UUID, to: UUID, every: Int16, span: String, day: Int16, month: Int16, weekday: Int16, category: String, nextToPay: Date, context: NSManagedObjectContext){
+        
         
         let old_from = conductor.from_id!
         let old_to = conductor.to_id!
@@ -517,8 +555,8 @@ class DataController: ObservableObject {
         conductor.day = day
         conductor.month = month
         conductor.weekday = weekday
-        conductor.next = next
         conductor.category = category
+        conductor.nextToPay = nextToPay
         
         
         
@@ -565,6 +603,16 @@ class DataController: ObservableObject {
            
         }
         
+        
+        let nearest = nearestFlow(conductor: conductor)
+        
+        if nearest != nil {
+            nearest!.date = nextToPay
+        }
+        
+        
+        
+        
         save(context: context)
         
         
@@ -580,6 +628,14 @@ class DataController: ObservableObject {
         
         
         
+        
+        save(context: context)
+    }
+    
+    func updateNextToPay(conductor: Conductor, context:NSManagedObjectContext ){
+        
+        let nearest = nearestPayment(conductor: conductor)
+        conductor.nextToPay = nearest
         
         save(context: context)
     }
@@ -603,11 +659,12 @@ class DataController: ObservableObject {
         
         let the_end_of_the_next_month:NSDate = NSCalendar.current.date(from:component)! as NSDate
         
+        
        
         
         
         
-        fetchRequestConductor.predicate = NSPredicate(format: "next <= %@",the_end_of_the_next_month as CVarArg)
+        fetchRequestConductor.predicate = NSPredicate(format: "nextToConduct <= %@",the_end_of_the_next_month as CVarArg)
         let results = try? context.fetch(fetchRequestConductor)
         
         
@@ -619,7 +676,7 @@ class DataController: ObservableObject {
                 newFlow.id = UUID()
                 newFlow.createdAt = Date()
                 newFlow.amount = conductor.amount
-                newFlow.date = conductor.next
+                newFlow.date = conductor.nextToConduct
                 newFlow.name = conductor.name
                 newFlow.status = Int16(Status.pending.rawValue)
                 newFlow.from_id = conductor.from_id
@@ -653,7 +710,15 @@ class DataController: ObservableObject {
                 // Flow と Conductorのリレーションの設定
                 newFlow.conductor = conductor
                 conductor.addToFlows(newFlow)
-                conductor.next = calcNext(previous: conductor.next!, every: Int(conductor.every), span: conductor.span!, on_day: Int(conductor.day), on_month: Int(conductor.month), on_weekday: Int(conductor.weekday))
+//                print("every: \(conductor.every)")
+//                print("span: \(conductor.span!)")
+//                print("day: \(conductor.day)")
+//                print("month: \(conductor.month)")
+//                print("weekday: \(conductor.weekday)")
+                
+                conductor.nextToConduct = calcNext(previous: conductor.nextToConduct!, every: Int(conductor.every), span: conductor.span!, on_day: Int(conductor.day), on_month: Int(conductor.month), on_weekday: Int(conductor.weekday))
+                
+//                print(conductor.next!)
                 
                 
             }
@@ -691,6 +756,7 @@ class DataController: ObservableObject {
         let out_flows = try? context.fetch(fetchRequestFlow)
         
         
+        
         for out_flow in out_flows! {
             sum -= out_flow.amount
         }
@@ -700,7 +766,9 @@ class DataController: ObservableObject {
         let in_flows = try? context.fetch(fetchRequestFlow)
         
         for in_flow in in_flows! {
-            sum += in_flow.amount
+            if in_flow.from!.name == "Outside" {
+                sum += in_flow.amount
+            }
         }
         
         return sum
@@ -711,12 +779,7 @@ class DataController: ObservableObject {
         
     }
     
-    private func flowArray(_ flows: NSSet?) -> [Flow] {
-        let set = flows as? Set<Flow> ?? []
-        return set.sorted {
-            $0.date! < $1.date!
-        }
-    }
+    
     
     func updatePaymentConductor(context: NSManagedObjectContext, capacitor: Capacitor) {
         
@@ -732,14 +795,31 @@ class DataController: ObservableObject {
                 for (index,payment_flow) in payment_flows.enumerated() {
                     
                     var component = Calendar.current.dateComponents([.year,.month,.day], from: payment_flow.date!)
+                    
+                    let year = Calendar.current.component(.year, from: payment_flow.date!)
+                    
                     let payment_month = component.month!
+                    
+                    
+                    var start_settlement = capacitor.settlement
+                    var end_settlement = capacitor.settlement
+                    // last だったら
+                    if capacitor.settlement % 31 == 0 {
+                        
+                        start_settlement = Int16(lastDay(year: year, month: payment_month - 2))
+                        
+                        end_settlement = Int16(lastDay(year:year, month: payment_month - 1))
+                    }
+                    
+                    
                     component.month = payment_month - 2
-                    component.day = Int(capacitor.settlement) + 1
+                    
+                    component.day = Int(start_settlement) + 1
                     
                     let start = Calendar.current.date(from: component)
                     
                     component.month = payment_month - 1
-                    component.day = Int(capacitor.settlement)
+                    component.day = Int(end_settlement)
                     
                     let end = Calendar.current.date(from: component)
                     

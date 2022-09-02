@@ -17,7 +17,7 @@ struct AddFlowView: View {
     
     
     @State private var name = ""
-    @State private var amount = 0
+    @State private var amount: Int?
     @State private var date = Date()
     @State private var right = true
     @State private var status = "Confirmed"
@@ -129,7 +129,7 @@ struct AddFlowView: View {
                 HStack {
                     Spacer()
                     Button("Save"){
-                        DataController().addFlow(name: name, amount: Int32(amount), date: date, status: Int16(status_list.firstIndex(of: status)!), from: right ? from! : to!, to: right ? to! : from! , context: managedObjContext)
+                        DataController().addFlow(name: name, amount: Int32(amount ?? 0), date: date, status: Int16(status_list.firstIndex(of: status)!), from: right ? from! : to!, to: right ? to! : from! , context: managedObjContext)
                         dismiss()
                     }
                     Spacer()

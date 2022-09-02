@@ -23,10 +23,11 @@ struct DatePickerPopupView: View {
             })
         }.frame(width: 280, alignment: .center)
             .padding()
-            .background(.white)
+            .background(Color(UIColor.systemBackground))
             .cornerRadius(12)
             .compositingGroup()
-            .shadow(color:Color(red:0.90,green:0.90,blue:0.90) , radius: 30)
+            .shadow(color:Color(UIColor.systemBackground), radius: 30)
+            
           
        
     }

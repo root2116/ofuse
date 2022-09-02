@@ -7,10 +7,19 @@
 
 import SwiftUI
 
+
+enum Field: Hashable {
+    case name
+    case amount
+}
+
+
 struct AddConductorView: View {
     @Environment (\.managedObjectContext) var managedObjContext
     @Environment(\.dismiss) var dismiss
     
+    
+    @FocusState private var focusedField: Field?
     
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
@@ -18,16 +27,12 @@ struct AddConductorView: View {
     @State private var showingPopUp = false
     
     @State private var name = ""
-    @State private var amount = 0
-    @State private var day : Int16 = 0
-    @State private var month : Int16 = 0
-    @State private var weekday: Int16 = 0
+    @State private var amount: Int?
     
-    @State private var day_buffer : Int16 = 0
-    @State private var month_buffer : Int16 = 0
-    @State private var weekday_buffer : Int16 = 0
     
-    @State private var next = Date()
+ 
+    
+    @State private var nextToPay = Date()
     @State private var category = "Uncategorized"
     @State private var right = true
     @State private var to = UUID(uuidString:"CE130F1C-3B2F-42CA-8339-1549531E0102")
@@ -82,7 +87,14 @@ struct AddConductorView: View {
     let numbers: [Int] = Array(1...100)
     
     
-    
+    var gesture: some Gesture {
+            DragGesture()
+                .onChanged{ value in
+                    if value.translation.height != 0 {
+                        self.focusedField = nil
+                    }
+                }
+        }
     
     var body: some View {
         ZStack{
@@ -99,9 +111,12 @@ struct AddConductorView: View {
                     Section {
                         
                         TextField("Conductor name", text: $name)
+                            .focused($focusedField, equals: .name)
+                           
                         HStack{
                             Text("¥ ")
                             TextField("Amount", value: $amount,format: .number).keyboardType(.numberPad)
+                                .focused($focusedField, equals: .amount)
                         }
                         
                         NavigationLink(destination: HStack {
@@ -242,7 +257,7 @@ struct AddConductorView: View {
                                         }, label: {
                                             
                                             
-                                            Text(formatDate(date: next))
+                                            Text(formatDate(date: nextToPay, formatStr: "yyyy/MM/dd"))
                                               
                                         })
                             }
@@ -250,30 +265,67 @@ struct AddConductorView: View {
                         
                         
                         
-                        HStack{
-                            Text("From")
-                            Spacer()
-                            Menu(getName(items:capacitors,id: from!)) {
-                                Picker("From Capacitor",selection: $from){
-                                    ForEach(capacitors, id: \.id){ cap in
-                                        Text(cap.name!)
-                                    }
-                                }
+//                        HStack{
+//                            Text("From")
+//                            Spacer()
+//                            Menu(getName(items:capacitors,id: from!)) {
+//                                Picker("From Capacitor",selection: $from){
+//                                    ForEach(capacitors, id: \.id){ cap in
+//                                        Text(cap.name!)
+//                                    }
+//                                }
+//
+//                            }
+//                        }
+//
+//                        HStack{
+//                            Text("To")
+//                            Spacer()
+//                            Menu(getName(items:capacitors,id: to!)) {
+//                                Picker("To Capacitor",selection: $to){
+//                                    ForEach(capacitors, id: \.id){ cap in
+//                                        Text(cap.name!)
+//                                    }
+//                                }
+//                            }
+//                        }
+                        
+                        GeometryReader { metrics in
+                            
                                 
-                            }
+                                HStack(alignment: .center) {
+                                    Menu(getName(items:capacitors,id: from!)) {
+                                        Picker("From Capacitor",selection: $from){
+                                            ForEach(capacitors, id: \.id){ cap in
+                                                Text(cap.name!)
+                                            }
+                                        }
+                                        
+                                    }.frame(width:metrics.size.width * 0.40)
+                                    
+                                    
+                                    Button {
+                                        right.toggle()
+                //                        let tmp = from
+                //                        from = to
+                //                        to = tmp
+                                    } label: {
+                                        Label("", systemImage: right ?  "arrow.right.square.fill" : "arrow.left.square.fill").font(.system(size: 25))
+                                    }.frame(width: metrics.size.width * 0.20)
+                
+                                    Menu(getName(items:capacitors,id: to!)) {
+                                        Picker("To Capacitor",selection: $to){
+                                            ForEach(capacitors, id: \.id){ cap in
+                                                Text(cap.name!)
+                                            }
+                                        }
+                                    }.frame(width:metrics.size.width * 0.40)
+                                        
+                                }.frame(width:metrics.size.width, height: metrics.size.height, alignment: .center)
+                               
+                            
                         }
                         
-                        HStack{
-                            Text("To")
-                            Spacer()
-                            Menu(getName(items:capacitors,id: to!)) {
-                                Picker("To Capacitor",selection: $to){
-                                    ForEach(capacitors, id: \.id){ cap in
-                                        Text(cap.name!)
-                                    }
-                                }
-                            }
-                        }
                         
 //                        GeometryReader { metrics in
 //
@@ -340,25 +392,30 @@ struct AddConductorView: View {
                         HStack{
                             Spacer()
                             Button("Save"){
-                                DataController().addConductor(name: name, amount: Int32(amount), from: right ? from! : to!, to: right ? to! : from! , every: Int16(every), span: span, day: Int16(day), month: Int16(month), weekday: Int16(weekday), category: category, next: next, context: managedObjContext)
+                                DataController().addConductor(name: name, amount: Int32(amount!), from: right ? from! : to!, to: right ? to! : from! , every: Int16(every), span: span, day: Int16(on_day), month: Int16(on_month), weekday: Int16(on_weekday), category: category, nextToPay: nextToPay, context: managedObjContext)
                                 dismiss()
                             }
                             Spacer()
                         }
                     }.onChange(of: every){ newValue in
-                        next = tempNext(every: newValue, span: span, on_day: on_day, on_month: on_month, on_weekday: on_weekday)
+                        
+                        nextToPay = tempNext(every: newValue, span: span, on_day: Int(on_day), on_month: on_month, on_weekday: on_weekday)
                     }.onChange(of: span){ newValue in
-                        next = tempNext(every: every, span: newValue, on_day: on_day, on_month: on_month, on_weekday: on_weekday)
+                        
+                        nextToPay = tempNext(every: every, span: newValue, on_day: Int(on_day), on_month: on_month, on_weekday: on_weekday)
                     }.onChange(of: on_day){ newValue in
-                        next = tempNext(every: every, span: span, on_day: newValue, on_month: on_month, on_weekday: on_weekday)
+                        
+                        nextToPay = tempNext(every: every, span: span, on_day: Int(newValue), on_month: on_month, on_weekday: on_weekday)
                     }.onChange(of: on_month){ newValue in
-                        next = tempNext(every: every, span: span, on_day: on_day, on_month: newValue, on_weekday: on_weekday)
+                        
+                        nextToPay = tempNext(every: every, span: span, on_day: Int(on_day), on_month: newValue, on_weekday: on_weekday)
                     }.onChange(of: on_weekday){ newValue in
-                        next = tempNext(every: every, span: span, on_day: on_day, on_month: on_month, on_weekday: newValue)
+                        
+                        nextToPay = tempNext(every: every, span: span, on_day: Int(on_day), on_month: on_month, on_weekday: newValue)
                     }
                         
                     
-                }.navigationTitle("Add a conductor")
+                }.navigationTitle("Add a conductor").gesture(self.gesture)
             
                 
                 
@@ -366,15 +423,23 @@ struct AddConductorView: View {
             if showingPopUp{
                 Rectangle().opacity(0.1)
             }
-        }.zIndex(1)
+                
+        }
+        .zIndex(1)
             
             if showingPopUp {
-                DatePickerPopupView(isPresent:$showingPopUp, selection: $next).zIndex(2)
+                DatePickerPopupView(isPresent:$showingPopUp, selection: $nextToPay).zIndex(2)
                 
             }
         
         
             
+        }.onAppear {
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                focusedField = .name
+               
+            }
         }
     }
     

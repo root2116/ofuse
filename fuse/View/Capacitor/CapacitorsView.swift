@@ -30,6 +30,7 @@ struct CapacitorsView: View {
     @SectionedFetchRequest<String,Capacitor>(
                             sectionIdentifier: \.typeText,
                             sortDescriptors: [
+                                SortDescriptor(\.type, order:.reverse),
                                 SortDescriptor(\.createdAt, order: .reverse)
                             ]
                            )  private var capacitors

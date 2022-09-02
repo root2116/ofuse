@@ -126,8 +126,11 @@ struct CapacitorView: View {
         var balance = self.init_balance
         for flowSection in flowSections {
             for flowEntry in flowSection {
+                
                 //自分より前のFlowと自分
-                if (flowEntry.date! <= date && flowEntry.createdAt! < flow.createdAt!) || flowEntry.id == flow.id {
+                if (flowEntry.date! < date) || ( flowEntry.date! == date && flowEntry.createdAt! < flow.createdAt!) || flowEntry.id == flow.id {
+                    
+                    
                     if flowEntry.status != Status.uncertain.rawValue {
                         if flowEntry.from_id == self.capacitor_id {
                             balance -= Int(flowEntry.amount)

@@ -42,3 +42,11 @@ func get_a_bank_capacitor(context:NSManagedObjectContext ) -> UUID {
     
     return UUID(uuidString: "CE130F1C-3B2F-42CA-8339-1549531E0102")!
 }
+
+
+func flowArray(_ flows: NSSet?) -> [Flow] {
+    let set = flows as? Set<Flow> ?? []
+    return set.sorted {
+        $0.date! < $1.date!
+    }
+}

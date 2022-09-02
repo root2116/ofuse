@@ -13,7 +13,7 @@ struct FlowView: View {
     var capacitor_id : UUID
     var balance: Int
     @Environment(\.managedObjectContext) private var managedObjectContext
-    
+    @Environment(\.outsideId) var outsideId
     var body: some View {
         
             NavigationLink(destination: EditFlowView(flow: flow)) {
@@ -42,7 +42,7 @@ struct FlowView: View {
                                 Image(systemName: "questionmark.circle.fill").foregroundColor(.gray)
                             }
 
-                            Text(flow.name!)
+                            Text(flow.name ?? "")
                                 .bold()
                         }
                         
@@ -52,11 +52,17 @@ struct FlowView: View {
                     }
                     
                     Spacer()
-                    
-                    if capacitor_id == flow.from!.id! {
-                        Text("¥ ") + Text("-\(Int(flow.amount))").foregroundColor(.red)
-                    } else {
-                        Text("¥ ") + Text("+\(Int(flow.amount))").foregroundColor(.green)
+                    if flow.from != nil {
+                        
+                        
+                        if capacitor_id == flow.from!.id! {
+                            Text("¥ ") + Text("-\(Int(flow.amount))").foregroundColor(.red)
+                        } else if flow.from!.id! == outsideId {
+                            Text("¥ ") + Text("+\(Int(flow.amount))").foregroundColor(.green)
+                        } else {
+                            Text("¥ ") + Text("\(Int(flow.amount))").foregroundColor(.orange)
+                        }
+                        
                     }
                     
                 }
@@ -68,13 +74,13 @@ struct FlowView: View {
         
         let format = DateFormatter()
         format.dateFormat = "d"
-        return format.string(from: flow.date!)
+        return format.string(from: flow.date ?? Date())
     }
     
     private func getYearAndMonth(flow: FetchedResults<Flow>.Element) -> String {
         let format = DateFormatter()
         format.dateFormat = "yy.MM"
-        return format.string(from: flow.date!)
+        return format.string(from: flow.date ?? Date())
     }
     
 }

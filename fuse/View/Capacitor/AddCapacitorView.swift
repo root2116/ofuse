@@ -16,12 +16,13 @@ struct AddCapacitorView: View {
     
     
     @State private var name = ""
-    @State private var init_balance = 0
+    @State private var init_balance: Int?
     @State private var type = 0
 
     @State private var settlement = 1
     @State private var payment = 1
     @State private var from = UUID(uuidString: "CE130F1C-3B2F-42CA-8339-1549531E0102")
+    
     let days: [Int] = Array(0...31)
     let day_list = ["last"] + Array(1...30).map {
         
@@ -55,8 +56,11 @@ struct AddCapacitorView: View {
                 
                 TextField("Capacitor name", text: $name)
                 HStack{
-                    Text("Init balance:  ")
-                    TextField("\(Int(init_balance))", value: $init_balance, formatter: NumberFormatter()).keyboardType(.numberPad)
+                    Text("¥ ")
+                    TextField("Init balance", value: $init_balance,format: .number).keyboardType(.numberPad)
+                        
+                    
+                    
                 }
                
                 
@@ -104,7 +108,7 @@ struct AddCapacitorView: View {
                 HStack {
                     Spacer()
                     Button("Save"){
-                        DataController().addCapacitor(name: name, init_balance: Int32(init_balance), type: Int16(type), settlement: Int16(settlement), payment: Int16(payment), from: from!, context: managedObjContext)
+                        DataController().addCapacitor(name: name, init_balance: Int32(init_balance ?? 0), type: Int16(type), settlement: Int16(settlement), payment: Int16(payment), from: from!, context: managedObjContext)
                         dismiss()
                     }
                     Spacer()

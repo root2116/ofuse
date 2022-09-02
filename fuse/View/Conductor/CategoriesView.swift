@@ -56,7 +56,7 @@ struct CategoriesView: View {
                             }
                             
                         }
-                    }.navigationTitle("Add Category")
+                    }.navigationTitle("Add a Category")
                         
                     }
                     

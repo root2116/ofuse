@@ -28,7 +28,7 @@ struct EditConductorView: View {
     @State private var month_buffer : Int16 = 0
     @State private var weekday_buffer : Int16 = 0
     
-    @State private var next = Date()
+    @State private var nextToPay = Date()
     @State private var category = "Uncategorized"
     @State private var right = true
     @State private var to: UUID? = UUID()
@@ -107,10 +107,11 @@ struct EditConductorView: View {
                                     on_weekday = Int(conductor.weekday)
                                     on_day = Int(conductor.day)
                                     on_month = Int(conductor.month)
-                                    next = conductor.next!
+                                    nextToPay = conductor.nextToPay ?? Date()
                                     from = conductor.from_id!
                                     to = conductor.to_id!
                                     category = conductor.category!
+                                    
                                     opened = true
                                 }
                                 
@@ -258,7 +259,7 @@ struct EditConductorView: View {
                                         }, label: {
                                             
                                             
-                                            Text(formatDate(date: next))
+                                            Text(formatDate(date: nextToPay, formatStr: "yyyy/MM/dd"))
                                               
                                         })
                             }
@@ -267,67 +268,67 @@ struct EditConductorView: View {
                         
                         
                         
-                        HStack{
-                            Text("From")
-                            Spacer()
-                            Menu(getName(items:capacitors,id: from!)) {
-                                Picker("From Capacitor",selection: $from){
-                                    ForEach(capacitors, id: \.id){ cap in
-                                        Text(cap.name!)
-                                    }
-                                }
-                                
-                            }
-                        }
-                        
-                        HStack{
-                            Text("To")
-                            Spacer()
-                            Menu(getName(items:capacitors,id: to!)) {
-                                Picker("To Capacitor",selection: $to){
-                                    ForEach(capacitors, id: \.id){ cap in
-                                        Text(cap.name!)
-                                    }
-                                }
-                            }
-                        }
-//                        GeometryReader { metrics in
+//                        HStack{
+//                            Text("From")
+//                            Spacer()
+//                            Menu(getName(items:capacitors,id: from!)) {
+//                                Picker("From Capacitor",selection: $from){
+//                                    ForEach(capacitors, id: \.id){ cap in
+//                                        Text(cap.name!)
+//                                    }
+//                                }
 //
-//
-//                                HStack(alignment: .center) {
-//                                    Menu(getName(items:capacitors,id: from!)) {
-//                                        Picker("From Capacitor",selection: $from){
-//                                            ForEach(capacitors, id: \.id){ cap in
-//                                                Text(cap.name!)
-//                                            }
-//                                        }
-//
-//                                    }.frame(width:metrics.size.width * 0.40)
-//
-//
-//                                    Button {
-//                                        right.toggle()
-//                //                        let tmp = from
-//                //                        from = to
-//                //                        to = tmp
-//                                    } label: {
-//                                        Label("", systemImage: right ?  "arrow.right.square.fill" : "arrow.left.square.fill").font(.system(size: 25))
-//                                    }.frame(width: metrics.size.width * 0.20)
-//
-//                                    Menu(getName(items:capacitors,id: to!)) {
-//                                        Picker("To Capacitor",selection: $to){
-//                                            ForEach(capacitors, id: \.id){ cap in
-//                                                Text(cap.name!)
-//                                            }
-//                                        }
-//                                    }.frame(width:metrics.size.width * 0.40)
-//
-//                                }.frame(width:metrics.size.width, height: metrics.size.height, alignment: .center)
-//
-//
+//                            }
 //                        }
 //
+//                        HStack{
+//                            Text("To")
+//                            Spacer()
+//                            Menu(getName(items:capacitors,id: to!)) {
+//                                Picker("To Capacitor",selection: $to){
+//                                    ForEach(capacitors, id: \.id){ cap in
+//                                        Text(cap.name!)
+//                                    }
+//                                }
+//                            }
+//                        }
+                        GeometryReader { metrics in
+                            
+                                
+                                HStack(alignment: .center) {
+                                    Menu(getName(items:capacitors,id: from!)) {
+                                        Picker("From Capacitor",selection: $from){
+                                            ForEach(capacitors, id: \.id){ cap in
+                                                Text(cap.name!)
+                                            }
+                                        }
+                                        
+                                    }.frame(width:metrics.size.width * 0.40)
+                                    
+                                    
+                                    Button {
+                                        right.toggle()
+                //                        let tmp = from
+                //                        from = to
+                //                        to = tmp
+                                    } label: {
+                                        Label("", systemImage: right ?  "arrow.right.square.fill" : "arrow.left.square.fill").font(.system(size: 25))
+                                    }.frame(width: metrics.size.width * 0.20)
+                
+                                    Menu(getName(items:capacitors,id: to!)) {
+                                        Picker("To Capacitor",selection: $to){
+                                            ForEach(capacitors, id: \.id){ cap in
+                                                Text(cap.name!)
+                                            }
+                                        }
+                                    }.frame(width:metrics.size.width * 0.40)
+                                        
+                                }.frame(width:metrics.size.width, height: metrics.size.height, alignment: .center)
+                               
+                            
+                        }
                         
+//                       
                         HStack{
                             Text("Category")
                             Spacer()
@@ -356,7 +357,7 @@ struct EditConductorView: View {
                         HStack{
                             Spacer()
                             Button("Save"){
-                                DataController().editConductor(conductor: conductor, name: name, amount: Int32(amount), from: right ? from! : to!, to: right ? to! : from! ,every: Int16(every), span: span, day: Int16(day), month: Int16(month), weekday: Int16(weekday), category: category, next: next, context: managedObjContext)
+                                DataController().editConductor(conductor: conductor, name: name, amount: Int32(amount), from: right ? from! : to!, to: right ? to! : from! ,every: Int16(every), span: span, day: Int16(day), month: Int16(month), weekday: Int16(weekday), category: category, nextToPay: nextToPay, context: managedObjContext)
                                 dismiss()
                             }
                             Spacer()
@@ -364,29 +365,29 @@ struct EditConductorView: View {
                     }.onChange(of: every){ newValue in
                         if filled {
                             
-                            next = tempNext(every: newValue, span: span, on_day: on_day, on_month: on_month, on_weekday: on_weekday)
+                            nextToPay = tempNext(every: newValue, span: span, on_day: on_day, on_month: on_month, on_weekday: on_weekday)
                         }
                         
                         
                         
                     }.onChange(of: span){ newValue in
                         if filled {
-                            next = tempNext(every: every, span: newValue, on_day: on_day, on_month: on_month, on_weekday: on_weekday)
+                            nextToPay = tempNext(every: every, span: newValue, on_day: on_day, on_month: on_month, on_weekday: on_weekday)
                         }
                         
                     }.onChange(of: on_day){ newValue in
                         if filled {
-                            next = tempNext(every: every, span: span, on_day: newValue, on_month: on_month, on_weekday: on_weekday)
+                            nextToPay = tempNext(every: every, span: span, on_day: newValue, on_month: on_month, on_weekday: on_weekday)
                         }
                         
                     }.onChange(of: on_month){ newValue in
                         if filled {
-                            next = tempNext(every: every, span: span, on_day: on_day, on_month: newValue, on_weekday: on_weekday)
+                            nextToPay = tempNext(every: every, span: span, on_day: on_day, on_month: newValue, on_weekday: on_weekday)
                         }
                         
                     }.onChange(of: on_weekday){ newValue in
                         if filled {
-                            next = tempNext(every: every, span: span, on_day: on_day, on_month: on_month, on_weekday: newValue)
+                            nextToPay = tempNext(every: every, span: span, on_day: on_day, on_month: on_month, on_weekday: newValue)
                         }
                         filled = true
                        
@@ -398,7 +399,7 @@ struct EditConductorView: View {
             
             if showingPopUp {
                 
-                DatePickerPopupView(isPresent:$showingPopUp, selection: $next).zIndex(3)
+                DatePickerPopupView(isPresent:$showingPopUp, selection: $nextToPay).zIndex(3)
                 
             }
         

@@ -10,11 +10,12 @@ import SwiftUI
 struct ConductorsView: View {
     
     @Environment(\.managedObjectContext) var managedObjContext
+    
     @SectionedFetchRequest<String,Conductor>(
         sectionIdentifier: \.category!,
         sortDescriptors: [
-            SortDescriptor(\.next),
-            ]) var conductors : SectionedFetchResults<String,Conductor>
+            SortDescriptor(\.nextToPay),
+            ]) private var conductors
     
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
@@ -27,11 +28,13 @@ struct ConductorsView: View {
 //                    .foregroundColor(.gray)
 //                    .padding(.horizontal)
                 List {
-                    ForEach(conductors, id: \.id) { section in
+                    ForEach(conductors) { section in
                         Section(section.id){
                             ForEach(section){ conductor in
                                 ConductorView(conductor: conductor)
                                 
+                            }.onDelete{
+                                self.deleteConductor(at: $0, in: section)
                             }
                         }
                     }
@@ -63,9 +66,15 @@ struct ConductorsView: View {
     }
     
     
-    private func deleteConductor() {
+    private func deleteConductor(at offsets: IndexSet, in conductor: SectionedFetchResults<String, Conductor>.Element) {
+        withAnimation{
+            offsets.map { conductor[$0] }.forEach(managedObjContext.delete)
+
+            DataController().save(context: managedObjContext)
+        }
         
     }
+    
     
     private func categoryList() -> [String] {
         var category_set: Set<String> = []

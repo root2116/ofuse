@@ -88,11 +88,6 @@ func tempNext(every: Int, span: String, on_day: Int, on_month: Int, on_weekday: 
 }
 
 
-func formatDate(date: Date) -> String {
-    let format = DateFormatter()
-    format.dateFormat = "M/d/yyyy"
-    return format.string(from: date)
-}
 
 
 func calcNext(previous: Date, every: Int, span: String, on_day: Int, on_month: Int, on_weekday: Int) -> Date {
@@ -115,4 +110,55 @@ func calcNext(previous: Date, every: Int, span: String, on_day: Int, on_month: I
     } else {
         return Calendar.current.date(from: DateComponents(year:prev_year + every,month: on_month, day: on_day))!
     }
+}
+
+
+func lastDay(year:Int, month: Int) -> Int {
+    let calendar = Calendar(identifier: .gregorian)
+    let firstDay = calendar.date(from: DateComponents(year: year, month: month))!
+    
+    let add = DateComponents(month:1, day: -1)
+    let lastDay = calendar.date(byAdding: add, to: firstDay)!
+    
+    
+    return Calendar.current.component(.day, from: lastDay)
+    
+    
+}
+
+
+func formatDate(date: Date, formatStr: String) -> String {
+    let format = DateFormatter()
+    format.dateFormat = formatStr
+    return format.string(from: date)
+}
+
+
+
+
+
+func nearestFlow(conductor: Conductor) -> Flow? {
+    let flows = flowArray(conductor.flows)
+    
+    let today = Date()
+    var old : Flow?
+    
+    for flow in flows {
+        old = flow
+        
+        if flow.date! > today {
+            return old!
+        }
+    }
+    
+    return nil
+}
+
+func nearestPayment(conductor: Conductor) -> Date {
+    let nearest = nearestFlow(conductor: conductor)
+    
+    
+    return nearest!.date!
+    
+    
 }

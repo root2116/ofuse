@@ -42,7 +42,7 @@ struct EditFlowView: View {
                                         from = flow.from!.id!
                                         to = flow.to!.id!
                                     }
-                TextField("\(flow.name!)",text: $name)
+                TextField("Flow name",text: $name)
                     
                 
                 

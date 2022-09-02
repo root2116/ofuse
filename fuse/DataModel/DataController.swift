@@ -820,7 +820,9 @@ class DataController: ObservableObject {
         
         
         for out_flow in out_flows! {
-            sum -= out_flow.amount
+            if out_flow.status != Status.uncertain.rawValue {
+                sum -= out_flow.amount
+            }
         }
         
         fetchRequestFlow.predicate = NSPredicate(format: "date >= %@ && date < %@ && to_id = %@", start as CVarArg, end as CVarArg, capacitor.id! as CVarArg)
@@ -829,7 +831,9 @@ class DataController: ObservableObject {
         
         for in_flow in in_flows! {
             if in_flow.from!.name == "Outside" {
-                sum += in_flow.amount
+                if in_flow.status != Status.uncertain.rawValue {
+                    sum += in_flow.amount
+                }
             }
         }
         
@@ -907,6 +911,18 @@ class DataController: ObservableObject {
             flow.status = Int16(Status.tentative.rawValue)
         } else if flow.status == Status.tentative.rawValue {
             flow.status = Int16(Status.uncertain.rawValue)
+        }
+        
+        
+        if flow.from != nil {
+            
+        
+            if flow.from!.type == CapType.card.rawValue {
+                updatePaymentConductor(context: context, capacitor: flow.from!)
+            } else if flow.to!.type == CapType.card.rawValue {
+                updatePaymentConductor(context: context, capacitor: flow.to!)
+            }
+            
         }
         
         save(context: context)

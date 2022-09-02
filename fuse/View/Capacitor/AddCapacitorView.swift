@@ -23,6 +23,8 @@ struct AddCapacitorView: View {
     @State private var payment = 1
     @State private var from = UUID(uuidString: "CE130F1C-3B2F-42CA-8339-1549531E0102")
     
+    @State private var enable: Bool = true
+    
     let days: [Int] = Array(0...31)
     let day_list = ["last"] + Array(1...30).map {
         
@@ -108,9 +110,10 @@ struct AddCapacitorView: View {
                 HStack {
                     Spacer()
                     Button("Save"){
+                        enable = false
                         DataController().addCapacitor(name: name, init_balance: Int32(init_balance ?? 0), type: Int16(type), settlement: Int16(settlement), payment: Int16(payment), from: from!, context: managedObjContext)
                         dismiss()
-                    }
+                    }.disabled(!enable)
                     Spacer()
                 }
             }

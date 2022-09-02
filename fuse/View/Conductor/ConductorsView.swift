@@ -37,10 +37,10 @@ struct ConductorsView: View {
                                 self.deleteConductor(at: $0, in: section)
                             }
                         }
-                    }
+                    }.listRowBackground(Color.background)
 //                    .onDelete(perform: deleteCapacitor)
         }
-        .listStyle(.plain)
+                .listStyle(.plain).background(Color.background)
 
             }
             .navigationTitle("Conductors")

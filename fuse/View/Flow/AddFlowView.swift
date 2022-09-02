@@ -10,6 +10,9 @@ import SwiftUI
 import CoreData
 
 struct AddFlowView: View {
+    
+    
+    
     @Environment (\.managedObjectContext) var managedObjContext
     @Environment(\.dismiss) var dismiss
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
@@ -24,7 +27,7 @@ struct AddFlowView: View {
     @State private var to = UUID(uuidString:"CE130F1C-3B2F-42CA-8339-1549531E0102")
     @State private var from : UUID?
     
-   
+    @State var enable: Bool = true
 //    @State private var to_name = "Outside"
 //    @State private var from_name = ""
     let status_list = ["Confirmed", "Pending", "Uncertain"]
@@ -129,9 +132,10 @@ struct AddFlowView: View {
                 HStack {
                     Spacer()
                     Button("Save"){
+                        enable = false
                         DataController().addFlow(name: name, amount: Int32(amount ?? 0), date: date, status: Int16(status_list.firstIndex(of: status)!), from: right ? from! : to!, to: right ? to! : from! , context: managedObjContext)
                         dismiss()
-                    }
+                    }.disabled(!enable)
                     Spacer()
                 }
             }

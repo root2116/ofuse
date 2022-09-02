@@ -304,6 +304,37 @@ class DataController: ObservableObject {
         }
     }
     
+    func updateBalance(capacitor: Capacitor, context: NSManagedObjectContext) {
+        
+        var balance = capacitor.init_balance
+        
+        let in_flows = flowArray(capacitor.in_flows)
+        let out_flows = flowArray(capacitor.out_flows)
+        
+        
+        
+        for in_flow in in_flows {
+            
+            
+            if in_flow.status == Status.confirmed.rawValue {
+                balance += in_flow.amount
+            } 
+            
+            
+        }
+        
+        for out_flow in out_flows {
+            if out_flow.status == Status.confirmed.rawValue {
+                balance -= out_flow.amount
+            }
+           
+        }
+        
+        capacitor.balance = balance
+        
+        save(context: context)
+    }
+    
     func addFlow(name: String, amount: Int32, date: Date, status: Int16, from: UUID, to: UUID, context: NSManagedObjectContext){
         let newFlow = Flow(context:context)
         newFlow.id = UUID()
@@ -326,9 +357,12 @@ class DataController: ObservableObject {
             
             newFlow.from = result1![0]
             result1![0].addToOut_flows(newFlow)
-            if status == Status.confirmed.rawValue {
-                result1![0].balance -= newFlow.amount
-            }
+            
+            
+            // いちいちBalanceを全部計算し直すのが嫌になったら復活させるかも
+//            if status == Status.confirmed.rawValue {
+//                result1![0].balance -= newFlow.amount
+//            }
             
         }
         
@@ -340,9 +374,11 @@ class DataController: ObservableObject {
             
             newFlow.to = result2![0]
             result2![0].addToIn_flows(newFlow)
-            if status == Status.confirmed.rawValue {
-                result2![0].balance += newFlow.amount
-            }
+            
+            // いちいちBalanceを全部計算し直すのが嫌になったら復活させるかも
+//            if status == Status.confirmed.rawValue {
+//                result2![0].balance += newFlow.amount
+//            }
             
         }
         
@@ -351,13 +387,18 @@ class DataController: ObservableObject {
         
         updatePaymentConductor(context: context, capacitor: result1![0])
         
+        // Capacitorのbalanceをupdate
+        updateBalance(capacitor: result1![0], context: context)
+        updateBalance(capacitor: result2![0], context: context)
         
     }
     
     func editFlow(flow: Flow, name: String, amount: Int32, date: Date,status:Int16,from: UUID, to:UUID, context: NSManagedObjectContext){
         
-        let old_amount = flow.amount
-        let old_status = flow.status
+        let old_from = flow.from_id!
+        let old_to = flow.to_id!
+//        let old_amount = flow.amount
+//        let old_status = flow.status
         flow.date = date
         flow.name = name
         flow.amount = amount
@@ -370,30 +411,54 @@ class DataController: ObservableObject {
         let fetchRequestCapacitor : NSFetchRequest<Capacitor>
         fetchRequestCapacitor = Capacitor.fetchRequest()
         
+        
+        // 古いCapacitorとの縁を切る
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", old_from as CVarArg)
+        
+        let old_from_cap = try? context.fetch(fetchRequestCapacitor)
+        
+        if old_from_cap!.count > 0 {
+            old_from_cap![0].removeFromOut_flows(flow)
+            
+            
+            // いちいちBalanceを全部計算し直すのが嫌になったら復活させるかも
+//            if old_status == Status.confirmed.rawValue {
+//                old_from_cap![0].balance += old_amount
+//            }
+           
+        }
+        
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", old_to as CVarArg)
+        
+        let old_to_cap = try? context.fetch(fetchRequestCapacitor)
+        
+        if old_to_cap!.count > 0 {
+            old_to_cap![0].removeFromIn_flows(flow)
+            
+            
+            // いちいちBalanceを全部計算し直すのが嫌になったら復活させるかも
+//            if old_status == Status.confirmed.rawValue {
+//                old_to_cap![0].balance -= old_amount
+//            }
+            
+        }
+        
+        // 新しく設定されたCapacitorとの関係を作る
+        
+        
         fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", from as CVarArg)
         let result1 = try? context.fetch(fetchRequestCapacitor)
         if result1!.count > 0 {
             /// Flow -> Capacitorへのリレーション
             flow.from = result1![0]
             result1![0].addToOut_flows(flow)
-            if old_status == Status.confirmed.rawValue {
-                if status == Status.confirmed.rawValue { // Confirmed -> Confirmed
-                    result1![0].balance += Int32(old_amount)
-                    result1![0].balance -= flow.amount
-                    
-                } else { // Confirmed -> Pending,Uncertain
-                    result1![0].balance += Int32(old_amount)
-                    
-                }
-            } else {
-                if status == Status.confirmed.rawValue { // Pending,Uncertain -> Confirmed
-                    result1![0].balance -= flow.amount
-                    
-                } else { // Pending,Uncertain -> Pending,Uncertain
-                    // Nothing to do
-                }
-            }
+           
             
+            // いちいちBalanceを全部計算し直すのが嫌になったら復活させるかも
+//            if status == Status.confirmed.rawValue { // Confirmed -> Confirmed
+//                result1![0].balance -= flow.amount
+//
+//            }
             
             
         }
@@ -405,25 +470,13 @@ class DataController: ObservableObject {
             /// Flow -> Capacitorへのリレーション
             flow.to = result2![0]
             result2![0].addToIn_flows(flow)
+        
             
-            
-            if old_status == Status.confirmed.rawValue {
-                if status == Status.confirmed.rawValue { // Confirmed -> Confirmed
-                    result2![0].balance -= Int32(old_amount)
-                    result2![0].balance += flow.amount
-                    
-                } else { // Confirmed -> Pending,Uncertain
-                    result2![0].balance -= Int32(old_amount)
-                    
-                }
-            } else {
-                if status == Status.confirmed.rawValue { // Pending,Uncertain -> Confirmed
-                    result2![0].balance += flow.amount
-                    
-                } else { // Pending,Uncertain -> Pending,Uncertain
-                    // Nothing to do
-                }
-            }
+            // いちいちBalanceを全部計算し直すのが嫌になったら復活させるかも
+//            if status == Status.confirmed.rawValue { // Confirmed -> Confirmed
+//                result2![0].balance += flow.amount
+//
+//            }
             
             
         }
@@ -437,6 +490,13 @@ class DataController: ObservableObject {
         if flow.conductor != nil {
             updateNextToPay(conductor: flow.conductor!, context: context)
         }
+        
+        
+        // Capacitorのbalanceをupdate
+        updateBalance(capacitor: old_from_cap![0], context: context)
+        updateBalance(capacitor: old_to_cap![0], context: context)
+        updateBalance(capacitor: result1![0], context: context)
+        updateBalance(capacitor: result2![0], context: context)
         
     }
     
@@ -632,6 +692,7 @@ class DataController: ObservableObject {
         save(context: context)
     }
     
+    // Capacitor内で、ConductorにとってのNextのdateが変更されたら、それをConductorのnextToPayに反映
     func updateNextToPay(conductor: Conductor, context:NSManagedObjectContext ){
         
         let nearest = nearestPayment(conductor: conductor)
@@ -640,6 +701,7 @@ class DataController: ObservableObject {
         save(context: context)
     }
     
+    // 来月の末日までにConductorのnextToConductが入っていたら、Conductorの内容をFlowとして実体化する
     func applyConductors(context: NSManagedObjectContext){
         
         let fetchRequestConductor : NSFetchRequest<Conductor>
@@ -780,7 +842,7 @@ class DataController: ObservableObject {
     }
     
     
-    
+    // flowが追加、あるいはそのamountが編集されたら、payment_conductorの値を更新するための関数
     func updatePaymentConductor(context: NSManagedObjectContext, capacitor: Capacitor) {
         
         
@@ -839,6 +901,16 @@ class DataController: ObservableObject {
         }
     }
     
+    func toggleUncertain(flow: Flow, context: NSManagedObjectContext){
+        
+        if flow.status == Status.uncertain.rawValue {
+            flow.status = Int16(Status.tentative.rawValue)
+        } else if flow.status == Status.tentative.rawValue {
+            flow.status = Int16(Status.uncertain.rawValue)
+        }
+        
+        save(context: context)
+    }
     
     
 }

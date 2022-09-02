@@ -98,6 +98,13 @@ struct EditFlowView: View {
                 }
             }
         }.navigationTitle("Edit the flow")
+        .background(Color.background)
+        .onAppear {
+          UITableView.appearance().backgroundColor = .clear
+        }
+        .onDisappear {
+          UITableView.appearance().backgroundColor = .systemGroupedBackground
+        }
     }
 }
 

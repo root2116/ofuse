@@ -23,7 +23,7 @@ struct AddConductorView: View {
     
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
-    
+    @State private var enable: Bool = true
     @State private var showingPopUp = false
     
     @State private var name = ""
@@ -392,9 +392,10 @@ struct AddConductorView: View {
                         HStack{
                             Spacer()
                             Button("Save"){
+                                enable = false
                                 DataController().addConductor(name: name, amount: Int32(amount!), from: right ? from! : to!, to: right ? to! : from! , every: Int16(every), span: span, day: Int16(on_day), month: Int16(on_month), weekday: Int16(on_weekday), category: category, nextToPay: nextToPay, context: managedObjContext)
                                 dismiss()
-                            }
+                            }.disabled(!enable)
                             Spacer()
                         }
                     }.onChange(of: every){ newValue in

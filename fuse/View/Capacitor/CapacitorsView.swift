@@ -88,13 +88,13 @@ struct CapacitorsView: View {
                                 self.deleteCapacitor(at: $0, in: section)
                             }
                         }
-                    }
+                    }.listRowBackground(Color.background)
                     
                         
                 
                 
         }
-        .listStyle(.plain)
+                .listStyle(.plain).background(Color.background)
 
             }
             .navigationTitle("Capacitors")

@@ -34,12 +34,14 @@ struct FlowView: View {
                     VStack(alignment: .leading, spacing: 6){
                         
                         HStack{
-                            if flow.status == Int16(Status.confirmed.rawValue) {
+                            if flow.status == Status.confirmed.rawValue {
                                 Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-                            } else if flow.status == Int16(Status.pending.rawValue) {
+                            } else if flow.status == Status.pending.rawValue {
                                 Image(systemName: "hourglass.circle.fill").foregroundColor(.orange)
-                            } else {
+                            } else if flow.status == Status.uncertain.rawValue {
                                 Image(systemName: "questionmark.circle.fill").foregroundColor(.gray)
+                            } else {
+                                Image(systemName:"link.circle.fill").foregroundColor(.cyan)
                             }
 
                             Text(flow.name ?? "")
@@ -55,10 +57,12 @@ struct FlowView: View {
                     if flow.from != nil {
                         
                         
-                        if capacitor_id == flow.from!.id! {
+                        if flow.to!.id! == outsideId {
                             Text("¥ ") + Text("-\(Int(flow.amount))").foregroundColor(.red)
                         } else if flow.from!.id! == outsideId {
                             Text("¥ ") + Text("+\(Int(flow.amount))").foregroundColor(.green)
+                        } else if flow.from!.id! == capacitor_id {
+                            Text("¥ ") + Text("-\(Int(flow.amount))").foregroundColor(.red)
                         } else {
                             Text("¥ ") + Text("\(Int(flow.amount))").foregroundColor(.orange)
                         }

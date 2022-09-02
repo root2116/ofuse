@@ -13,6 +13,7 @@ enum Status: Int {
     case confirmed = 0
     case pending = 1
     case uncertain = 2
+    case tentative = 3
 }
 
 enum CapType: Int16 {
@@ -39,6 +40,7 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) var managedObjContext
     
     var body: some View {
+        
             TabView{
                 CapacitorsView() //1枚目の子ビュー
                     .tabItem {
@@ -97,6 +99,16 @@ extension Capacitor {
             return "Credit Card"
         }
     }
+}
+
+//extension Color {
+//        static var backgroundColor: Color {
+//            Color("backgroundColor")
+//        }
+//    }
+
+extension Color {
+    static let background = Color("background")
 }
 
 //extension Conductor {

@@ -394,8 +394,13 @@ struct EditConductorView: View {
                     }
                     
                 }.navigationTitle("Edit the conductor").zIndex(1)
-            
-            
+                .background(Color.background)
+                .onAppear {
+                  UITableView.appearance().backgroundColor = .clear
+                }
+                .onDisappear {
+                  UITableView.appearance().backgroundColor = .systemGroupedBackground
+                }
             
             if showingPopUp {
                 

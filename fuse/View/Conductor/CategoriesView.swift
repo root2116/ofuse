@@ -21,7 +21,8 @@ struct CategoriesView: View {
     @Binding var selection : String
     @State private var showingAddView = false
     @State private var newName = ""
-  
+    
+    @State private var enable: Bool = true
         
     var body: some View {
             VStack {
@@ -48,10 +49,11 @@ struct CategoriesView: View {
                             HStack{
                                 Spacer()
                                 Button("Save"){
+                                    enable = false
                                     DataController().addCategory(name: newName, context: managedObjContext)
                                     selection = newName
                                     showingAddView = false
-                                }
+                                }.disabled(!enable)
                                 Spacer()
                             }
                             

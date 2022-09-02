@@ -60,15 +60,39 @@ struct CapacitorView: View {
                     ForEach(flowSections){ section in
                         Section(section.id) {
                             ForEach(section) { flowEntry in
-                                FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
+                                
+                                if flowEntry.status == Status.uncertain.rawValue {
+                                    FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
+                                        .swipeActions(edge: .leading) {
+                                        Button {
+                                            DataController().toggleUncertain(flow: flowEntry, context: managedObjContext)
+                                        } label: {
+                                            Image(systemName: "link")
+                                        }.tint(.cyan)
+                                    }
+                                } else if flowEntry.status == Status.tentative.rawValue {
+                                    FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
+                                        .swipeActions(edge: .leading) {
+                                        Button {
+                                            DataController().toggleUncertain(flow: flowEntry, context: managedObjContext)
+                                        } label: {
+                                            Image(systemName: "questionmark")
+                                        }.tint(.gray)
+                                        }
+                                    
+                                } else {
+                                    FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
+                                }
+                                    
+                                
                             }.onDelete {
                                 
                                 self.deleteFlow(at: $0, in: section)
                             }
                         }
-                    }
+                    }.listRowBackground(Color.background)
                 }
-                .listStyle(.plain)
+                .listStyle(.plain).background(Color.background)
                 
             }
             .navigationTitle(self.capacitor_name)
@@ -86,7 +110,7 @@ struct CapacitorView: View {
             }
             .sheet(isPresented: $showingAddView){
                 AddFlowView(from: capacitor_id)
-            }
+            }.background(Color.background)
             
             
         
@@ -95,8 +119,22 @@ struct CapacitorView: View {
         
         
         withAnimation{
+            
             offsets.map { flow[$0] }.forEach(managedObjContext.delete)
-
+            
+            
+            // CapacitorのBalanceを更新
+            for offset in offsets {
+                let from_cap = flow[offset].from
+                let to_cap = flow[offset].to
+                
+                DataController().updateBalance(capacitor: from_cap!, context: managedObjContext)
+                DataController().updateBalance(capacitor: to_cap!, context: managedObjContext)
+            }
+            
+           
+            
+            
             DataController().save(context: managedObjContext)
         }
     }

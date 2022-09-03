@@ -516,35 +516,103 @@ class DataController: ObservableObject {
         
         save(context: context)
         
-        let today = Date()
-        let month = Calendar.current.component(.month, from: today)
-        let day = Calendar.current.component(.day, from: today)
-        var component1 = Calendar.current.dateComponents([.year], from: today)
         
-        
-        if settlement % 31 == 0 {
-            component1.month = month + 1
-        }
-        else if day > settlement {
-            
-            component1.month = month + 2
-        } else {
-            component1.month = month + 1
-        }
-        
-        component1.day = Int(payment)
-        let next = Calendar.current.date(from:component1)
-    
         
         
         if type == CapType.card.rawValue {
             
+            let today = Date()
+            let month = Calendar.current.component(.month, from: today)
+            let day = Calendar.current.component(.day, from: today)
+            var component1 = Calendar.current.dateComponents([.year], from: today)
+            
+            
+            if settlement % 31 == 0 {
+                component1.month = month + 1
+            }
+            else if day > settlement {
+                
+                component1.month = month + 2
+            } else {
+                component1.month = month + 1
+            }
+            
+            component1.day = Int(payment)
+            let next = Calendar.current.date(from:component1)
+        
        
-            capacitor.payment_conductor = addConductor(name: name+" payment", amount: 0, from: from , to: capacitor.id! , every: 1, span: "month", day: payment, month: 0, weekday: 0, category: "Uncategorized", nextToPay:next!,  context: context)
+            capacitor.payment_conductor = addConductor(name: name+" Payment", amount: 0, from: from , to: capacitor.id! , every: 1, span: "month", day: payment, month: 0, weekday: 0, category: "Uncategorized", nextToPay:next!,  context: context)
             
             save(context: context)
             
         }
+    }
+    
+    func editCapacitor(capacitor: Capacitor, name:String, init_balance: Int32, type: Int16, settlement: Int16, payment: Int16, from: UUID, context: NSManagedObjectContext){
+        
+        capacitor.name = name
+        capacitor.balance = init_balance
+        capacitor.init_balance = init_balance
+        capacitor.type = type
+        capacitor.settlement = settlement
+        capacitor.payment = payment
+        
+        if type == CapType.card.rawValue {
+            
+            let today = Date()
+            let month = Calendar.current.component(.month, from: today)
+            let day = Calendar.current.component(.day, from: today)
+            var component1 = Calendar.current.dateComponents([.year], from: today)
+            
+            
+            if settlement % 31 == 0 {
+                component1.month = month + 1
+            }
+            else if day > settlement {
+                
+                component1.month = month + 2
+            } else {
+                component1.month = month + 1
+            }
+            
+            component1.day = Int(payment)
+            let next = Calendar.current.date(from:component1)
+        
+            
+            
+            // 既存のpayment_conductorを消す
+            let old_payment_conductor = capacitor.payment_conductor!
+            let from_cap = old_payment_conductor.from
+            let to_cap = old_payment_conductor.to
+            
+            let flows = flowArray(old_payment_conductor.flows)
+            
+            for flow in flows {
+                context.delete(flow)
+            }
+            
+            
+            //新たにpayment_conductorを作る
+            capacitor.payment_conductor = addConductor(name: name+" Payment", amount: 0, from: from , to: capacitor.id! , every: 1, span: "month", day: payment, month: 0, weekday: 0, category: old_payment_conductor.category!, nextToPay:next!,  context: context)
+            
+            
+            
+            
+            updateBalance(capacitor: from_cap!, context: context)
+            updateBalance(capacitor: to_cap!, context: context)
+            
+            context.delete(old_payment_conductor)
+            
+            save(context: context)
+            
+            applyConductors(context: context)
+            updatePaymentConductor(context: context, capacitor: capacitor)
+            
+            
+            
+           
+        }
+        
     }
     
     func addConductor(name: String, amount: Int32, from: UUID, to:UUID, every: Int16, span: String, day: Int16, month:Int16, weekday: Int16, category: String, nextToPay: Date, context: NSManagedObjectContext) -> Conductor {

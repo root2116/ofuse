@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-enum Field: Hashable {
+enum ConductorField: Hashable {
     case name
     case amount
 }
@@ -19,7 +19,7 @@ struct AddConductorView: View {
     @Environment(\.dismiss) var dismiss
     
     
-    @FocusState private var focusedField: Field?
+    @FocusState private var focusedField: ConductorField?
     
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
@@ -87,15 +87,15 @@ struct AddConductorView: View {
     let numbers: [Int] = Array(1...100)
     
     
-    var gesture: some Gesture {
-            DragGesture()
-                .onChanged{ value in
-                    if value.translation.height != 0 {
-                        self.focusedField = nil
-                    }
-                }
-        }
-    
+//    var gesture: some Gesture {
+//            DragGesture()
+//                .onChanged{ value in
+//                    if value.translation.height != 0 {
+//                        self.focusedField = nil
+//                    }
+//                }
+//        }
+//
     var body: some View {
         ZStack{
             
@@ -112,7 +112,14 @@ struct AddConductorView: View {
                         
                         TextField("Conductor name", text: $name)
                             .focused($focusedField, equals: .name)
-                           
+                            .toolbar {
+                                              ToolbarItemGroup(placement: .keyboard) {
+                                                  Spacer()         // 右寄せにする
+                                                  Button("Close") {
+                                                      focusedField = nil  //  フォーカスを外す
+                                                  }
+                                              }
+                                          }
                         HStack{
                             Text("¥ ")
                             TextField("Amount", value: $amount,format: .number).keyboardType(.numberPad)
@@ -416,7 +423,7 @@ struct AddConductorView: View {
                     }
                         
                     
-                }.navigationTitle("Add a conductor").gesture(self.gesture)
+                }.navigationTitle("Add a conductor")
             
                 
                 

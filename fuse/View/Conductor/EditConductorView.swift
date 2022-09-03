@@ -7,10 +7,15 @@
 
 import SwiftUI
 
+
+
+
 struct EditConductorView: View {
     @Environment (\.managedObjectContext) var managedObjContext
     @Environment(\.dismiss) var dismiss
     
+    
+    @FocusState private var focusedField: ConductorField?
     
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
@@ -81,6 +86,14 @@ struct EditConductorView: View {
     let numbers: [Int] = Array(1...100)
     
     
+//    var gesture: some Gesture {
+//            DragGesture()
+//                .onChanged{ value in
+//                    if value.translation.height != 0 {
+//                        self.focusedField = nil
+//                    }
+//                }
+//        }
     
     
     var body: some View {
@@ -97,6 +110,7 @@ struct EditConductorView: View {
                     Section {
                         
                         TextField("Conductor name", text: $name)
+                            .focused($focusedField, equals: .name)
                             .onAppear{
                                 
                                 if opened == false {
@@ -119,6 +133,15 @@ struct EditConductorView: View {
                         HStack{
                             Text("¥ ")
                             TextField("Amount", value: $amount,format: .number).keyboardType(.numberPad)
+                                .focused($focusedField, equals: .amount)
+                                .toolbar {
+                                                  ToolbarItemGroup(placement: .keyboard) {
+                                                      Spacer()         // 右寄せにする
+                                                      Button("Close") {
+                                                          focusedField = nil  //  フォーカスを外す
+                                                      }
+                                                  }
+                                              }
                         }
                         
                         NavigationLink(destination: HStack {

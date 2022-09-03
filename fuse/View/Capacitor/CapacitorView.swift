@@ -45,7 +45,7 @@ struct CapacitorView: View {
     
     
     
-
+    
     
     
     var body: some View {
@@ -69,7 +69,17 @@ struct CapacitorView: View {
                                         } label: {
                                             Image(systemName: "link")
                                         }.tint(.cyan)
-                                    }
+                                    
+                                        }.swipeActions(edge: .trailing){
+                                            Button(role: .destructive) {
+                                                
+//                                                capacitorToDelete = capacitor
+//                                                showingDeleteAlert = true
+                                                self.deleteFlow(flow: flowEntry)
+                                            } label: {
+                                                Image(systemName: "trash.fill")
+                                            }
+                                        }
                                 } else if flowEntry.status == Status.tentative.rawValue {
                                     FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
                                         .swipeActions(edge: .leading) {
@@ -78,17 +88,37 @@ struct CapacitorView: View {
                                         } label: {
                                             Image(systemName: "questionmark")
                                         }.tint(.gray)
+                                        }.swipeActions(edge: .trailing){
+                                            Button(role: .destructive) {
+                                                
+//                                                capacitorToDelete = capacitor
+//                                                showingDeleteAlert = true
+                                                self.deleteFlow(flow: flowEntry)
+                                            } label: {
+                                                Image(systemName: "trash.fill")
+                                            }
                                         }
                                     
                                 } else {
                                     FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
+                                        .swipeActions(edge: .trailing){
+                                        Button(role: .destructive) {
+                                            
+//                                                capacitorToDelete = capacitor
+//                                                showingDeleteAlert = true
+                                            self.deleteFlow(flow: flowEntry)
+                                        } label: {
+                                            Image(systemName: "trash.fill")
+                                        }
+                                    }
                                 }
                                     
                                 
-                            }.onDelete {
-                                
-                                self.deleteFlow(at: $0, in: section)
                             }
+//                            .onDelete {
+//
+//                                self.deleteFlow(at: $0, in: section)
+//                            }
                         }
                     }.listRowBackground(Color.background)
                 }
@@ -115,29 +145,44 @@ struct CapacitorView: View {
             
         
     }
-    private func deleteFlow(at offsets: IndexSet, in flow: SectionedFetchResults<String, Flow>.Element){
-        
+    
+    private func deleteFlow(flow: Flow){
         
         withAnimation{
+            let from_cap = flow.from
+            let to_cap = flow.to
             
-            offsets.map { flow[$0] }.forEach(managedObjContext.delete)
+            managedObjContext.delete(flow)
             
-            
-            // CapacitorのBalanceを更新
-            for offset in offsets {
-                let from_cap = flow[offset].from
-                let to_cap = flow[offset].to
-                
-                DataController().updateBalance(capacitor: from_cap!, context: managedObjContext)
-                DataController().updateBalance(capacitor: to_cap!, context: managedObjContext)
-            }
-            
-           
-            
+            DataController().updateBalance(capacitor: from_cap!, context: managedObjContext)
+            DataController().updateBalance(capacitor: to_cap!, context: managedObjContext)
             
             DataController().save(context: managedObjContext)
         }
     }
+//    private func deleteFlow(at offsets: IndexSet, in flow: SectionedFetchResults<String, Flow>.Element){
+//
+//
+//        withAnimation{
+//
+//            offsets.map { flow[$0] }.forEach(managedObjContext.delete)
+//
+//
+//            // CapacitorのBalanceを更新
+//            for offset in offsets {
+//                let from_cap = flow[offset].from
+//                let to_cap = flow[offset].to
+//
+//                DataController().updateBalance(capacitor: from_cap!, context: managedObjContext)
+//                DataController().updateBalance(capacitor: to_cap!, context: managedObjContext)
+//            }
+//
+//
+//
+//
+//            DataController().save(context: managedObjContext)
+//        }
+//    }
     private func currentBalance() -> Int {
         var totalBalance = self.init_balance
         

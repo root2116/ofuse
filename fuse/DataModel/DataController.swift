@@ -335,7 +335,7 @@ class DataController: ObservableObject {
         save(context: context)
     }
     
-    func addFlow(name: String, amount: Int32, date: Date, status: Int16, from: UUID, to: UUID, context: NSManagedObjectContext){
+    func addFlow(name: String, amount: Int32, date: Date, status: Int16, from: UUID, to: UUID, note: String, context: NSManagedObjectContext){
         let newFlow = Flow(context:context)
         newFlow.id = UUID()
         newFlow.createdAt = Date()
@@ -345,6 +345,7 @@ class DataController: ObservableObject {
         newFlow.status = status
         newFlow.from_id = from
         newFlow.to_id = to
+        newFlow.note = note
         
         let fetchRequestCapacitor : NSFetchRequest<Capacitor>
         fetchRequestCapacitor = Capacitor.fetchRequest()
@@ -393,7 +394,7 @@ class DataController: ObservableObject {
         
     }
     
-    func editFlow(flow: Flow, name: String, amount: Int32, date: Date,status:Int16,from: UUID, to:UUID, context: NSManagedObjectContext){
+    func editFlow(flow: Flow, name: String, amount: Int32, date: Date,status:Int16,from: UUID, to:UUID, note: String, context: NSManagedObjectContext){
         
         let old_from = flow.from_id!
         let old_to = flow.to_id!
@@ -406,6 +407,7 @@ class DataController: ObservableObject {
         flow.status = status
         flow.from_id = from
         flow.to_id = to
+        flow.note = note
         
         
         let fetchRequestCapacitor : NSFetchRequest<Capacitor>
@@ -605,6 +607,7 @@ class DataController: ObservableObject {
             
             save(context: context)
             
+            // あとのupdatePaymentConductorの操作対象を作るために、Flowを実体化する
             applyConductors(context: context)
             updatePaymentConductor(context: context, capacitor: capacitor)
             

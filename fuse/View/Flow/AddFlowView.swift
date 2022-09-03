@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import Introspect
 import CoreData
 
 struct AddFlowView: View {
@@ -17,16 +17,18 @@ struct AddFlowView: View {
     @Environment(\.dismiss) var dismiss
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
-    
+    @FocusState private var focusedField: FlowField?
     
     @State private var name = ""
     @State private var amount: Int?
     @State private var date = Date()
     @State private var right = true
-    @State private var status = "Confirmed"
+    @State private var status = 0
     @State private var to = UUID(uuidString:"CE130F1C-3B2F-42CA-8339-1549531E0102")
     @State private var from : UUID?
+    @State private var note = ""
     
+    @State private var isTentative = false
     @State var enable: Bool = true
 //    @State private var to_name = "Outside"
 //    @State private var from_name = ""
@@ -44,6 +46,15 @@ struct AddFlowView: View {
         
     }
 
+//    var gesture: some Gesture {
+//            DragGesture()
+//                .onChanged{ value in
+//                    if value.translation.height != 0 {
+//                        self.focusedField = nil
+//                    }
+//                }
+//        }
+    
     
     var body: some View {
         NavigationView{
@@ -52,12 +63,19 @@ struct AddFlowView: View {
         Form {
             Section {
                 Picker("Status", selection: $status) {
-                                        ForEach(status_list, id: \.self) {
-                                            Text($0)
-                                        }
+                            Text("Confirmed").tag(Status.confirmed.rawValue)
+                            Text("Pending").tag(Status.pending.rawValue)
+                            Text("Uncertain").tag(Status.uncertain.rawValue)
+                                    
                                     }
                                     .pickerStyle(SegmentedPickerStyle())
-                TextField("Flow name", text: $name)
+                
+                if status == Status.uncertain.rawValue || status == Status.tentative.rawValue {
+                    Toggle(isOn: $isTentative) {
+                        Label("Includes in the balance", systemImage: "link")
+                    }
+                }
+                TextField("Flow name", text: $name).focused($focusedField, equals: .name)
                 HStack{
                     
 //                    Button {
@@ -72,7 +90,7 @@ struct AddFlowView: View {
 //                    Text("Amount")
 //                    Divider()
                     Text("¥ ")
-                    TextField("Amount", value: $amount,format: .number).keyboardType(.numberPad)
+                    TextField("Amount", value: $amount,format: .number).keyboardType(.numberPad).focused($focusedField, equals: .amount)
                 }
                 
                 DatePicker("Date", selection: $date,displayedComponents: .date)
@@ -115,7 +133,37 @@ struct AddFlowView: View {
                 
                 
                 
-               
+                
+//                ZStack(alignment: .topLeading) {
+//                    TextEditor(text: $note)
+//                        .frame(height: 120)
+//                        .padding()
+//                        .focused($focusedField, equals: .note)
+////                        .ignoresSafeArea(.keyboard, edges: .bottom)
+//                    if note.isEmpty {
+//                        Text("Type something...")
+//                            .foregroundColor(Color(uiColor: .placeholderText))
+//                            .allowsHitTesting(false)
+//                            .padding(20)
+//                            .padding(.top, 5)
+//                    }
+//                }.ignoresSafeArea(.container, edges: .bottom)
+                TextEditor(text: $note)
+                    .introspectTextView { textView in
+                            textView.isScrollEnabled = false
+                        }
+                    .frame(height: 120)
+                    .focused($focusedField, equals: .note)
+                    .toolbar {
+                                      ToolbarItemGroup(placement: .keyboard) {
+                                          Spacer()         // 右寄せにする
+                                          Button("Close") {
+                                              focusedField = nil  //  フォーカスを外す
+                                          }
+                                      }
+                                  }
+                    
+                    
 //                    .frame(width: metrics.size.width * 0.40)
 
 //                Button {
@@ -133,7 +181,7 @@ struct AddFlowView: View {
                     Spacer()
                     Button("Save"){
                         enable = false
-                        DataController().addFlow(name: name, amount: Int32(amount ?? 0), date: date, status: Int16(status_list.firstIndex(of: status)!), from: right ? from! : to!, to: right ? to! : from! , context: managedObjContext)
+                        DataController().addFlow(name: name, amount: Int32(amount ?? 0), date: date, status: Int16((isTentative && status == Status.uncertain.rawValue) ? Status.tentative.rawValue : status) , from: right ? from! : to!, to: right ? to! : from! , note: note, context: managedObjContext)
                         dismiss()
                     }.disabled(!enable)
                     Spacer()

@@ -6,6 +6,12 @@
 //
 
 import SwiftUI
+enum CapacitorField: Hashable {
+    case name
+    case init_balance
+}
+
+
 
 struct AddCapacitorView: View {
     @Environment (\.managedObjectContext) var managedObjContext
@@ -14,6 +20,7 @@ struct AddCapacitorView: View {
     
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
+    @FocusState private var focusedField: CapacitorField?
     
     @State private var name = ""
     @State private var init_balance: Int?
@@ -44,6 +51,17 @@ struct AddCapacitorView: View {
         }
     } + ["last"]
     
+    
+//    var gesture: some Gesture {
+//            DragGesture()
+//                .onChanged{ value in
+//                    if value.translation.height != 0 {
+//                        self.focusedField = nil
+//                    }
+//                }
+//        }
+//
+    
     var body: some View {
         NavigationView{
             
@@ -56,10 +74,18 @@ struct AddCapacitorView: View {
                     Text("Card").tag(2)
                 }.pickerStyle(SegmentedPickerStyle())
                 
-                TextField("Capacitor name", text: $name)
+                TextField("Capacitor name", text: $name).focused($focusedField, equals: .name)
+                    .toolbar {
+                                      ToolbarItemGroup(placement: .keyboard) {
+                                          Spacer()         // 右寄せにする
+                                          Button("Close") {
+                                              focusedField = nil  //  フォーカスを外す
+                                          }
+                                      }
+                                  }
                 HStack{
                     Text("¥ ")
-                    TextField("Init balance", value: $init_balance,format: .number).keyboardType(.numberPad)
+                    TextField("Init balance", value: $init_balance,format: .number).keyboardType(.numberPad).focused($focusedField, equals: .init_balance)
                         
                     
                     
@@ -125,8 +151,8 @@ struct AddCapacitorView: View {
         
 }
 
-struct AddCapacitorView_Previews: PreviewProvider {
-    static var previews: some View {
-        AddCapacitorView()
-    }
-}
+//struct AddCapacitorView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        AddCapacitorView()
+//    }
+//}

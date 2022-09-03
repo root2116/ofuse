@@ -11,6 +11,10 @@ struct EditCapacitorView: View {
     @Environment (\.managedObjectContext) var managedObjContext
     @Environment(\.dismiss) var dismiss
     
+    
+    @FocusState private var focusedField: CapacitorField?
+    
+    
     var capacitor: Capacitor
     
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
@@ -47,6 +51,16 @@ struct EditCapacitorView: View {
         }
     } + ["last"]
     
+    
+//    var gesture: some Gesture {
+//            DragGesture()
+//                .onChanged{ value in
+//                    if value.translation.height != 0 {
+//                        self.focusedField = nil
+//                    }
+//                }
+//        }
+    
     var body: some View {
         NavigationView{
             
@@ -74,10 +88,18 @@ struct EditCapacitorView: View {
                     }
                 }
                 
-                TextField("Capacitor name", text: $name)
+                TextField("Capacitor name", text: $name).focused($focusedField, equals: .name)
+                    .toolbar {
+                                      ToolbarItemGroup(placement: .keyboard) {
+                                          Spacer()         // 右寄せにする
+                                          Button("Close") {
+                                              focusedField = nil  //  フォーカスを外す
+                                          }
+                                      }
+                                  }
                 HStack{
                     Text("¥ ")
-                    TextField("Init balance", value: $init_balance,format: .number).keyboardType(.numberPad)
+                    TextField("Init balance", value: $init_balance,format: .number).keyboardType(.numberPad).focused($focusedField, equals: .init_balance)
                         
                     
                     

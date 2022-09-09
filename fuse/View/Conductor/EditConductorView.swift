@@ -25,13 +25,7 @@ struct EditConductorView: View {
     
     @State private var name = ""
     @State private var amount = 0
-    @State private var day : Int16 = 0
-    @State private var month : Int16 = 0
-    @State private var weekday: Int16 = 0
-    
-    @State private var day_buffer : Int16 = 0
-    @State private var month_buffer : Int16 = 0
-    @State private var weekday_buffer : Int16 = 0
+   
     
     @State private var nextToPay = Date()
     @State private var category = "Uncategorized"
@@ -260,7 +254,7 @@ struct EditConductorView: View {
                                 } else if span == "month" {
                                     Text("\(day_list[on_day]) day")
                                 } else if span == "year" {
-                                    Text("\(month_list[on_month]) \(day_list[on_day])")
+                                    Text("\(month_list[on_month-1]) \(day_list[on_day])")
                                 }
                                
                             }
@@ -380,7 +374,7 @@ struct EditConductorView: View {
                         HStack{
                             Spacer()
                             Button("Save"){
-                                DataController().editConductor(conductor: conductor, name: name, amount: Int32(amount), from: right ? from! : to!, to: right ? to! : from! ,every: Int16(every), span: span, day: Int16(day), month: Int16(month), weekday: Int16(weekday), category: category, nextToPay: nextToPay, context: managedObjContext)
+                                DataController().editConductor(conductor: conductor, name: name, amount: Int32(amount), from: right ? from! : to!, to: right ? to! : from! ,every: Int16(every), span: span, day: Int16(on_day), month: Int16(on_month), weekday: Int16(on_weekday), category: category, nextToPay: nextToPay, context: managedObjContext)
                                 dismiss()
                             }
                             Spacer()

@@ -48,6 +48,7 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="note" optional="YES" attributeType="String"/>
+        <attribute name="notification_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="to_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <relationship name="conductor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Conductor" inverseName="flows" inverseEntity="Conductor"/>
@@ -58,6 +59,6 @@
         <element name="Capacitor" positionX="-27" positionY="18" width="128" height="224"/>
         <element name="Category" positionX="18" positionY="126" width="128" height="74"/>
         <element name="Conductor" positionX="54" positionY="153" width="128" height="299"/>
-        <element name="Flow" positionX="18" positionY="180" width="128" height="209"/>
+        <element name="Flow" positionX="18" positionY="180" width="128" height="224"/>
     </elements>
 </model>

@@ -7,12 +7,13 @@
 
 import SwiftUI
 import CoreData
+import UserNotifications
 
 
 enum Status: Int {
     case confirmed = 0
-    case pending = 1
-    case uncertain = 2
+    case coming = 1
+    case pending = 2
     case tentative = 3
 }
 
@@ -55,6 +56,10 @@ struct ContentView: View {
             }.onAppear{
 //                registSampleData(context: managedObjContext)
                 registerOutside(context: managedObjContext)
+                
+                
+                
+                
                 timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
                     // Conductorから追加するべきFlowがあればCapacitorに追加する。
                     DataController().applyConductors(context: managedObjContext)

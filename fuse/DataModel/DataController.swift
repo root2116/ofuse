@@ -11,9 +11,25 @@ import SwiftUI
 
 
 
-let outside_id = "CE130F1C-3B2F-42CA-8339-1549531E0102"
+let outside_id = UUID(uuidString: "CE130F1C-3B2F-42CA-8339-1549531E0102")
 
 func registerOutside(context: NSManagedObjectContext){
+    
+    let fetchRequestConductor = NSFetchRequest<NSFetchRequestResult>()
+    fetchRequestConductor.entity = Conductor.entity()
+    let conductors = try? context.fetch(fetchRequestConductor) as? [Conductor]
+    
+    for conductor in conductors! {
+        if conductor.flows!.count > 0 {
+            print("\(conductor.name!) has flows")
+        }else {
+            print("\(conductor.name!) doesn't have flows")
+        }
+        
+    }
+    
+        
+        
 //    let outside_id = "CE130F1C-3B2F-42CA-8339-1549531E0102"
     
     
@@ -50,7 +66,7 @@ func registerOutside(context: NSManagedObjectContext){
 //        context.delete(category)
 //    }
     
-    let outside = [outside_id,"Outside", "0","0","0"]
+    let outside = [outside_id!.uuidString,"Outside", "0","0","0"]
 
     let fetchRequestCapacitor = NSFetchRequest<NSFetchRequestResult>()
     fetchRequestCapacitor.entity = Capacitor.entity()
@@ -335,6 +351,73 @@ class DataController: ObservableObject {
         save(context: context)
     }
     
+    func makeNotification(title: String, body: String, date: Date) -> UUID {
+        
+        
+        let uuid = UUID()
+        
+        
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            
+            if granted {
+                
+                
+                        
+                print("Set a notification!!")
+                let content = UNMutableNotificationContent()
+//                content.title = name + " ¥ \(amount)"
+//                content.body = note
+                content.title = title
+                content.body = body
+                
+                
+                var dateComponents = DateComponents()
+                dateComponents.calendar = Calendar.current
+
+                dateComponents.year = Calendar.current.component(.year, from: date)
+                dateComponents.month = Calendar.current.component(.month, from: date)
+                dateComponents.day = Calendar.current.component(.day, from: date)
+                
+                dateComponents.hour = 9
+                dateComponents.minute = 0
+                
+            
+                   
+                // Create the trigger as a repeating event.
+                let trigger = UNCalendarNotificationTrigger(
+                         dateMatching: dateComponents, repeats: false)
+                
+                
+                
+//                newFlow.notification_id = uuid
+                
+                let uuidString = uuid.uuidString
+                let request = UNNotificationRequest(identifier: uuidString,
+                            content: content, trigger: trigger)
+
+                // Schedule the request with the system.
+                let notificationCenter = UNUserNotificationCenter.current()
+                notificationCenter.add(request) { (error) in
+                   if error != nil {
+                      // Handle any errors.
+                       print("An error has occurred!!")
+                   }
+                }
+                
+           
+            }else {
+                //通知が拒否されているときの処理
+              
+            }
+            // Enable or disable features based on the authorization.
+        }
+        
+        return uuid
+        
+    }
+    
+    
     func addFlow(name: String, amount: Int32, date: Date, status: Int16, from: UUID, to: UUID, note: String, context: NSManagedObjectContext){
         let newFlow = Flow(context:context)
         newFlow.id = UUID()
@@ -384,6 +467,19 @@ class DataController: ObservableObject {
         }
         
         
+       
+        
+        // Confirmedじゃなかった場合、期日に通知
+        if status != Status.confirmed.rawValue {
+           let uuid = makeNotification(title: name + " ¥ \(amount)", body: note, date: date)
+           newFlow.notification_id = uuid
+        }
+            
+            
+            
+        
+        
+        
         save(context: context)
         
         updatePaymentConductor(context: context, capacitor: result1![0])
@@ -394,8 +490,10 @@ class DataController: ObservableObject {
         
     }
     
+    
     func editFlow(flow: Flow, name: String, amount: Int32, date: Date,status:Int16,from: UUID, to:UUID, note: String, context: NSManagedObjectContext){
         
+        let old_status = flow.status
         let old_from = flow.from_id!
         let old_to = flow.to_id!
 //        let old_amount = flow.amount
@@ -483,7 +581,34 @@ class DataController: ObservableObject {
             
         }
         
+        
+        if old_status == Status.confirmed.rawValue{
+            if status == Status.confirmed.rawValue {
+                // Nothing to do
+                
+            } else{
+                let uuid = makeNotification(title: name + " ¥ \(amount)" , body: note, date: date)
+                flow.notification_id = uuid
+                
+            }
+        } else {
+            let center = UNUserNotificationCenter.current()
+            if flow.notification_id != nil {
+                center.removePendingNotificationRequests(withIdentifiers: [flow.notification_id!.uuidString])
+            }
+           
+            
+            if status == Status.confirmed.rawValue {
+               // Nothing to do
+                
+            } else{
+                let uuid = makeNotification(title: name + " ¥ \(amount)" , body: note, date: date)
+                flow.notification_id = uuid
+            }
+        }
+        
     
+        
 
         save(context: context)
         
@@ -499,6 +624,24 @@ class DataController: ObservableObject {
         updateBalance(capacitor: old_to_cap![0], context: context)
         updateBalance(capacitor: result1![0], context: context)
         updateBalance(capacitor: result2![0], context: context)
+        
+    }
+    
+    // Conductorによって生まれたFlowの中ですでにConfirmedになったもの以外のFlowを消す
+    func deleteRelevantFlows(conductor: Conductor, context: NSManagedObjectContext){
+        let flows = flowArray(conductor.flows)
+        
+        for flow in flows{
+            if flow.status != Status.confirmed.rawValue {
+                context.delete(flow)
+            }
+        }
+        
+        
+        save(context: context)
+        
+        updateBalance(capacitor: conductor.from!, context: context)
+        updateBalance(capacitor: conductor.to!, context: context)
         
     }
     
@@ -553,11 +696,13 @@ class DataController: ObservableObject {
     func editCapacitor(capacitor: Capacitor, name:String, init_balance: Int32, type: Int16, settlement: Int16, payment: Int16, from: UUID, context: NSManagedObjectContext){
         
         capacitor.name = name
-        capacitor.balance = init_balance
+        
         capacitor.init_balance = init_balance
         capacitor.type = type
         capacitor.settlement = settlement
         capacitor.payment = payment
+        
+        updateBalance(capacitor: capacitor, context: context)
         
         if type == CapType.card.rawValue {
             
@@ -582,28 +727,32 @@ class DataController: ObservableObject {
         
             
             
-            // 既存のpayment_conductorを消す
+            
             let old_payment_conductor = capacitor.payment_conductor!
             let from_cap = old_payment_conductor.from
             let to_cap = old_payment_conductor.to
             
-            let flows = flowArray(old_payment_conductor.flows)
-            
-            for flow in flows {
-                context.delete(flow)
-            }
+//            let flows = flowArray(old_payment_conductor.flows)
+//
+//            for flow in flows {
+//                context.delete(flow)
+//            }
             
             
             //新たにpayment_conductorを作る
             capacitor.payment_conductor = addConductor(name: name+" Payment", amount: 0, from: from , to: capacitor.id! , every: 1, span: "month", day: payment, month: 0, weekday: 0, category: old_payment_conductor.category!, nextToPay:next!,  context: context)
             
-            
-            
+            // すでにConfirmedになったFlowは消さない。それ以外を消す。
+            deleteRelevantFlows(conductor: old_payment_conductor, context: context)
+            // 既存のpayment_conductorを消す
+            context.delete(old_payment_conductor)
             
             updateBalance(capacitor: from_cap!, context: context)
             updateBalance(capacitor: to_cap!, context: context)
             
-            context.delete(old_payment_conductor)
+            
+            
+            
             
             save(context: context)
             
@@ -673,6 +822,15 @@ class DataController: ObservableObject {
     
     func editConductor(conductor: Conductor, name: String, amount: Int32, from: UUID, to: UUID, every: Int16, span: String, day: Int16, month: Int16, weekday: Int16, category: String, nextToPay: Date, context: NSManagedObjectContext){
         
+        print("every: \(every)")
+        print("span: \(span)")
+        print("month: \(month)")
+        print("day: \(day)")
+        print("weekday: \(weekday)")
+        print("category: \(category)")
+        print("nextToPay: \(nextToPay)")
+        
+        deleteRelevantFlows(conductor: conductor, context: context)
         
         let old_from = conductor.from_id!
         let old_to = conductor.to_id!
@@ -688,6 +846,8 @@ class DataController: ObservableObject {
         conductor.weekday = weekday
         conductor.category = category
         conductor.nextToPay = nextToPay
+        conductor.nextToConduct = nextToPay
+        
         
         
         
@@ -735,15 +895,17 @@ class DataController: ObservableObject {
         }
         
         
-        let nearest = nearestFlow(conductor: conductor)
-        
-        if nearest != nil {
-            nearest!.date = nextToPay
-        }
         
         
+//        let nearest = nearestFlow(conductor: conductor)
+//
+//        if nearest != nil {
+//            nearest!.date = nextToPay
+//        }
         
         
+        
+       
         save(context: context)
         
         
@@ -766,12 +928,14 @@ class DataController: ObservableObject {
     // Capacitor内で、ConductorにとってのNextのdateが変更されたら、それをConductorのnextToPayに反映
     func updateNextToPay(conductor: Conductor, context:NSManagedObjectContext ){
         
-        let nearest = nearestPayment(conductor: conductor)
+        
+        let nearest = nearestComingPayment(conductor: conductor)
         conductor.nextToPay = nearest
         
         save(context: context)
     }
     
+    // 毎秒実行
     // 来月の末日までにConductorのnextToConductが入っていたら、Conductorの内容をFlowとして実体化する
     func applyConductors(context: NSManagedObjectContext){
         
@@ -811,7 +975,7 @@ class DataController: ObservableObject {
                 newFlow.amount = conductor.amount
                 newFlow.date = conductor.nextToConduct
                 newFlow.name = conductor.name
-                newFlow.status = Int16(Status.pending.rawValue)
+                newFlow.status = Int16(Status.coming.rawValue)
                 newFlow.from_id = conductor.from_id
                 newFlow.to_id = conductor.to_id
                 
@@ -891,8 +1055,11 @@ class DataController: ObservableObject {
         
         
         for out_flow in out_flows! {
-            if out_flow.status != Status.uncertain.rawValue {
-                sum -= out_flow.amount
+            if out_flow.to!.id! == outside_id {
+                if out_flow.status != Status.pending.rawValue {
+                    sum -= out_flow.amount
+                }
+            
             }
         }
         
@@ -901,8 +1068,8 @@ class DataController: ObservableObject {
         let in_flows = try? context.fetch(fetchRequestFlow)
         
         for in_flow in in_flows! {
-            if in_flow.from!.name == "Outside" {
-                if in_flow.status != Status.uncertain.rawValue {
+            if in_flow.from!.id! == outside_id {
+                if in_flow.status != Status.pending.rawValue {
                     sum += in_flow.amount
                 }
             }
@@ -976,12 +1143,12 @@ class DataController: ObservableObject {
         }
     }
     
-    func toggleUncertain(flow: Flow, context: NSManagedObjectContext){
+    func togglePending(flow: Flow, context: NSManagedObjectContext){
         
-        if flow.status == Status.uncertain.rawValue {
+        if flow.status == Status.pending.rawValue {
             flow.status = Int16(Status.tentative.rawValue)
         } else if flow.status == Status.tentative.rawValue {
-            flow.status = Int16(Status.uncertain.rawValue)
+            flow.status = Int16(Status.pending.rawValue)
         }
         
         
@@ -994,9 +1161,39 @@ class DataController: ObservableObject {
                 updatePaymentConductor(context: context, capacitor: flow.to!)
             }
             
+            updateBalance(capacitor:flow.from! , context: context)
+            updateBalance(capacitor: flow.to!, context: context)
+            
         }
         
         save(context: context)
+    }
+    
+    func toggleComing(flow: Flow, context: NSManagedObjectContext){
+        if flow.status == Status.coming.rawValue {
+            flow.status = Int16(Status.confirmed.rawValue)
+        } else if flow.status == Status.confirmed.rawValue {
+            flow.status = Int16(Status.coming.rawValue)
+        }
+        
+        
+        if flow.from != nil {
+            
+        
+            if flow.from!.type == CapType.card.rawValue {
+                updatePaymentConductor(context: context, capacitor: flow.from!)
+            } else if flow.to!.type == CapType.card.rawValue {
+                updatePaymentConductor(context: context, capacitor: flow.to!)
+            }
+            
+            updateBalance(capacitor:flow.from! , context: context)
+            updateBalance(capacitor: flow.to!, context: context)
+            
+        }
+        
+        save(context: context)
+        
+        
     }
     
     

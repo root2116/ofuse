@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct FlowView: View {
     @ObservedObject var flow: Flow
@@ -36,9 +37,9 @@ struct FlowView: View {
                         HStack{
                             if flow.status == Status.confirmed.rawValue {
                                 Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
-                            } else if flow.status == Status.pending.rawValue {
+                            } else if flow.status == Status.coming.rawValue {
                                 Image(systemName: "hourglass.circle.fill").foregroundColor(.orange)
-                            } else if flow.status == Status.uncertain.rawValue {
+                            } else if flow.status == Status.pending.rawValue {
                                 Image(systemName: "questionmark.circle.fill").foregroundColor(.gray)
                             } else {
                                 Image(systemName:"link.circle.fill").foregroundColor(.cyan)
@@ -48,9 +49,14 @@ struct FlowView: View {
                                 .bold()
                         }
                         
-                       
+                        
                         Text("Balance: ¥ \(balance)").foregroundColor(.gray).font(.callout)
-
+                        if flow.from != nil {
+                            if flow.from!.type == CapType.bank.rawValue && flow.to!.id! == capacitor_id {
+                                Text("Bank: ¥ \(balance_of_the_related_bank(flow:flow, capacitor_id: capacitor_id))").foregroundColor(.gray).font(.footnote)
+                            }
+                        }
+                        
                     }
                     
                     Spacer()
@@ -85,6 +91,50 @@ struct FlowView: View {
         let format = DateFormatter()
         format.dateFormat = "yy.MM"
         return format.string(from: flow.date ?? Date())
+    }
+    
+    
+    private func balance_of_the_related_bank(flow: Flow, capacitor_id: UUID) -> Int {
+        
+//        let fetchRequestCapacitor = NSFetchRequest<NSFetchRequestResult>()
+//        fetchRequestCapacitor.entity = Capacitor.entity()
+//        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", flow.from as CVarArg)
+//        let capacitors = try? managedObjectContext.fetch(fetchRequestCapacitor) as? [Capacitor]
+//
+        
+        let capacitor = flow.from!
+        
+        var balance = capacitor.init_balance
+        print("Capacitor Name: \(capacitor.name!)")
+        print("Init: \(capacitor.init_balance)")
+        
+        let in_flows = flowArray(capacitor.in_flows)
+        let out_flows = flowArray(capacitor.out_flows)
+        
+        for in_flow in in_flows {
+            if (in_flow.date! < flow.date!) || ( in_flow.date! == flow.date! && in_flow.createdAt! < flow.createdAt!) || in_flow.id == flow.id {
+                if in_flow.status != Status.pending.rawValue {
+                    
+                    print("Flow name: \(in_flow.name!), Amount: +\(in_flow.amount)")
+                    balance += in_flow.amount
+                    
+                }
+            }
+                
+        }
+        
+        for out_flow in out_flows {
+            if (out_flow.date! < flow.date!) || ( out_flow.date! == flow.date! && out_flow.createdAt! < flow.createdAt!) || out_flow.id == flow.id {
+                if out_flow.status != Status.pending.rawValue {
+                   
+                    print("Flow name: \(out_flow.name!), Amount: -\(out_flow.amount)")
+                    balance -= out_flow.amount
+                    
+                }
+            }
+        }
+        
+        return Int(balance)
     }
     
 }

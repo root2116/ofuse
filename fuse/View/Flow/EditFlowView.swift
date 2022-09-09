@@ -35,7 +35,7 @@ struct EditFlowView: View {
     
     @State private var isTentative = false
     
-    let status_list = ["Confirmed", "Pending", "Uncertain"]
+    let status_list = ["Confirmed", "Coming", "Pending"]
     
     
     var gesture: some Gesture {
@@ -53,8 +53,8 @@ struct EditFlowView: View {
             Section {
                 Picker("Status", selection: $status) {
                     Text("Confirmed").tag(Status.confirmed.rawValue)
+                    Text("Coming").tag(Status.coming.rawValue)
                     Text("Pending").tag(Status.pending.rawValue)
-                    Text("Uncertain").tag(Status.uncertain.rawValue)
                                     
                                        
                                     }
@@ -65,8 +65,8 @@ struct EditFlowView: View {
                                         date = flow.date!
                                         
                                         if flow.status == Status.tentative.rawValue {
-                                            status = Status.uncertain.rawValue
-//                                            status_list[Status.uncertain.rawValue]
+                                            status = Status.pending.rawValue
+//                                            status_list[Status.pending.rawValue]
                                             isTentative = true
                                         } else {
 //                                            status = status_list[Int(flow.status)]
@@ -78,7 +78,7 @@ struct EditFlowView: View {
                                         note = flow.note ?? ""
                                     }
                 
-                if status == Status.uncertain.rawValue {
+                if status == Status.pending.rawValue {
                     
                     Toggle(isOn: $isTentative) {
                         Label("Included in the balance", systemImage: "link")
@@ -150,7 +150,7 @@ struct EditFlowView: View {
                 HStack{
                     Spacer()
                     Button("Save"){
-                        DataController().editFlow(flow: flow, name: name, amount: Int32(amount), date: date, status: Int16((isTentative && status == Status.uncertain.rawValue) ? Status.tentative.rawValue : status) ,from : right ? from! : to! , to: right ? to! : from!, note: note, context: managedObjContext)
+                        DataController().editFlow(flow: flow, name: name, amount: Int32(amount), date: date, status: Int16((isTentative && status == Status.pending.rawValue) ? Status.tentative.rawValue : status) ,from : right ? from! : to! , to: right ? to! : from!, note: note, context: managedObjContext)
                         dismiss()
                     }
                     Spacer()

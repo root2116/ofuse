@@ -242,7 +242,7 @@ struct AddConductorView: View {
                                 } else if span == "month" {
                                     Text("\(day_list[on_day]) day")
                                 } else if span == "year" {
-                                    Text("\(month_list[on_month]) \(day_list[on_day])")
+                                    Text("\(month_list[on_month-1]) \(day_list[on_day])")
                                 }
                                
                             }

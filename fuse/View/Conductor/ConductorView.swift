@@ -17,7 +17,13 @@ struct ConductorView: View {
                 
                 VStack{
                     Text("Next").font(.footnote).foregroundColor(.green)
-                    Text(formatDate(date:conductor.nextToPay ?? Date(), formatStr: "M.d"))
+                    if withinThisYear(date: conductor.nextToPay ?? Date()) {
+                        Text(formatDate(date:conductor.nextToPay ?? Date(), formatStr: "M.d"))
+                    } else{
+                        Text(formatDate(date:conductor.nextToPay ?? Date(), formatStr: "yyyy")).font(.caption2).foregroundColor(.gray)
+                        Text(formatDate(date:conductor.nextToPay ?? Date(), formatStr: "M.d"))
+                    }
+                    
                     
                 }.frame(width:46)
                 
@@ -58,7 +64,19 @@ struct ConductorView: View {
     
     
     
-    
+    private func withinThisYear(date: Date) -> Bool {
+        let today = Date()
+        
+        let this_year = Calendar.current.component(.year, from: today)
+        
+        let year = Calendar.current.component(.year, from: date)
+        
+        if this_year == year {
+            return true
+        } else {
+            return false
+        }
+    }
     
 }
 

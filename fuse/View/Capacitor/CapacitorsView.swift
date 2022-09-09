@@ -115,7 +115,7 @@ struct CapacitorsView: View {
 //                                            }
                                             
                                         } label: {
-                                            Image(systemName: "pencil")
+                                            Image(systemName: "square.and.pencil")
                                         }.tint(.orange)
                                     }
                                     .alert(isPresented: $showingDeleteAlert) {

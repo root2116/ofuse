@@ -41,10 +41,10 @@ struct CapacitorView: View {
     @State private var showingAddView = false
    
     
+    @State private var selectionValues: Set<Flow> = []
     
-    
-    
-    
+    @State private var sum: Int = 0
+    @Environment(\.editMode) var editMode
     
     
     
@@ -55,17 +55,23 @@ struct CapacitorView: View {
                 Text("Current balance: \(currentBalance()) yen")
                     .foregroundColor(.gray)
                     .padding(.horizontal)
-                List {
+                
+                if editMode?.wrappedValue.isEditing == true {
+                    Text("Sum: \(sumFlows(flows:selectionValues)) yen")
+                        .foregroundColor(.gray)
+                        .padding(.horizontal)
+                }
+                List(selection: $selectionValues) {
                     
                     ForEach(flowSections){ section in
                         Section(section.id) {
-                            ForEach(section) { flowEntry in
+                            ForEach(section, id: \.self) { flowEntry in
                                 
-                                if flowEntry.status == Status.uncertain.rawValue {
+                                if flowEntry.status == Status.pending.rawValue {
                                     FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
                                         .swipeActions(edge: .leading) {
                                         Button {
-                                            DataController().toggleUncertain(flow: flowEntry, context: managedObjContext)
+                                            DataController().togglePending(flow: flowEntry, context: managedObjContext)
                                         } label: {
                                             Image(systemName: "link")
                                         }.tint(.cyan)
@@ -84,7 +90,7 @@ struct CapacitorView: View {
                                     FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
                                         .swipeActions(edge: .leading) {
                                         Button {
-                                            DataController().toggleUncertain(flow: flowEntry, context: managedObjContext)
+                                            DataController().togglePending(flow: flowEntry, context: managedObjContext)
                                         } label: {
                                             Image(systemName: "questionmark")
                                         }.tint(.gray)
@@ -99,8 +105,36 @@ struct CapacitorView: View {
                                             }
                                         }
                                     
+                                } else if flowEntry.status == Status.coming.rawValue {
+                                    FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
+                                        .swipeActions(edge: .leading) {
+                                        Button {
+                                            DataController().toggleComing(flow: flowEntry, context: managedObjContext)
+                                        } label: {
+                                            Image(systemName: "checkmark")
+                                        }.tint(.green)
+                                    
+                                        }
+                                        .swipeActions(edge: .trailing){
+                                        Button(role: .destructive) {
+                                            
+//                                                capacitorToDelete = capacitor
+//                                                showingDeleteAlert = true
+                                            self.deleteFlow(flow: flowEntry)
+                                        } label: {
+                                            Image(systemName: "trash.fill")
+                                        }
+                                    }
                                 } else {
                                     FlowView(flow: flowEntry, capacitor_id: capacitor_id, balance: balance_of_the_day(flow: flowEntry,date: flowEntry.date!))
+                                        .swipeActions(edge: .leading) {
+                                        Button {
+                                            DataController().toggleComing(flow: flowEntry, context: managedObjContext)
+                                        } label: {
+                                            Image(systemName: "hourglass")
+                                        }.tint(.orange)
+                                    
+                                        }
                                         .swipeActions(edge: .trailing){
                                         Button(role: .destructive) {
                                             
@@ -128,15 +162,32 @@ struct CapacitorView: View {
             .navigationTitle(self.capacitor_name)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing){
+                    
+                    
+                    Button(action: {
+                        withAnimation() {
+                            if editMode?.wrappedValue.isEditing == true {
+                                editMode?.wrappedValue = .inactive
+                            } else {
+                                editMode?.wrappedValue = .active
+                            }
+                        }
+                    }) {
+                        if editMode?.wrappedValue.isEditing == true {
+                            Text("Done")
+                        } else {
+                            Text("Sum")
+                        }
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing){
                     Button {
                         showingAddView.toggle()
                     } label: {
                         Label("Add Flow", systemImage: "plus")
                     }
                 }
-//                ToolbarItem(placement: .navigationBarLeading){
-//                    EditButton()
-//                }
+                
             }
             .sheet(isPresented: $showingAddView){
                 AddFlowView(from: capacitor_id)
@@ -159,6 +210,22 @@ struct CapacitorView: View {
             
             DataController().save(context: managedObjContext)
         }
+    }
+    
+    private func sumFlows(flows: Set<Flow> ) -> Int {
+        var sum = 0
+        
+        print("Hello from sumFlows!!")
+       
+        for flow in flows {
+            if flow.from_id == capacitor_id {
+                sum -= Int(flow.amount)
+            } else{
+                sum += Int(flow.amount)
+            }
+        }
+        
+        return sum
     }
 //    private func deleteFlow(at offsets: IndexSet, in flow: SectionedFetchResults<String, Flow>.Element){
 //
@@ -214,7 +281,7 @@ struct CapacitorView: View {
                 if (flowEntry.date! < date) || ( flowEntry.date! == date && flowEntry.createdAt! < flow.createdAt!) || flowEntry.id == flow.id {
                     
                     
-                    if flowEntry.status != Status.uncertain.rawValue {
+                    if flowEntry.status != Status.pending.rawValue {
                         if flowEntry.from_id == self.capacitor_id {
                             balance -= Int(flowEntry.amount)
                         }else {

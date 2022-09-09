@@ -14,6 +14,7 @@ struct ConductorsView: View {
     @SectionedFetchRequest<String,Conductor>(
         sectionIdentifier: \.category!,
         sortDescriptors: [
+            SortDescriptor(\.category!),
             SortDescriptor(\.nextToPay),
             ]) private var conductors
     
@@ -66,10 +67,19 @@ struct ConductorsView: View {
     }
     
     
-    private func deleteConductor(at offsets: IndexSet, in conductor: SectionedFetchResults<String, Conductor>.Element) {
+    private func deleteConductor(at offsets: IndexSet, in conductors: SectionedFetchResults<String, Conductor>.Element) {
         withAnimation{
-            offsets.map { conductor[$0] }.forEach(managedObjContext.delete)
-
+            
+            
+            for offset in offsets {
+                DataController().deleteRelevantFlows(conductor: conductors[offset], context: managedObjContext)
+            }
+            
+            
+            
+            offsets.map { conductors[$0] }.forEach(managedObjContext.delete)
+            
+            
             DataController().save(context: managedObjContext)
         }
         
@@ -91,8 +101,8 @@ struct ConductorsView: View {
     }
 }
 
-struct ConductorsView_Previews: PreviewProvider {
-    static var previews: some View {
-        ConductorsView()
-    }
-}
+//struct ConductorsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ConductorsView()
+//    }
+//}

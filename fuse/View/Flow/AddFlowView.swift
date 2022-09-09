@@ -32,7 +32,7 @@ struct AddFlowView: View {
     @State var enable: Bool = true
 //    @State private var to_name = "Outside"
 //    @State private var from_name = ""
-    let status_list = ["Confirmed", "Pending", "Uncertain"]
+    let status_list = ["Confirmed", "Coming", "Pending"]
     
 //    var capacitors_list = [String]()
     
@@ -64,13 +64,13 @@ struct AddFlowView: View {
             Section {
                 Picker("Status", selection: $status) {
                             Text("Confirmed").tag(Status.confirmed.rawValue)
+                            Text("Coming").tag(Status.coming.rawValue)
                             Text("Pending").tag(Status.pending.rawValue)
-                            Text("Uncertain").tag(Status.uncertain.rawValue)
                                     
                                     }
                                     .pickerStyle(SegmentedPickerStyle())
                 
-                if status == Status.uncertain.rawValue || status == Status.tentative.rawValue {
+                if status == Status.pending.rawValue || status == Status.tentative.rawValue {
                     Toggle(isOn: $isTentative) {
                         Label("Includes in the balance", systemImage: "link")
                     }
@@ -78,17 +78,7 @@ struct AddFlowView: View {
                 TextField("Flow name", text: $name).focused($focusedField, equals: .name)
                 HStack{
                     
-//                    Button {
-//                        isSpending.toggle()
-//                        let tmp = from
-//                        from = to
-//                        to = tmp
-//                    } label: {
-//                        Label("", systemImage: isSpending ?  "minus.circle" : "plus.circle").font(.system(size: 25))
-//                    }
-                    
-//                    Text("Amount")
-//                    Divider()
+
                     Text("¥ ")
                     TextField("Amount", value: $amount,format: .number).keyboardType(.numberPad).focused($focusedField, equals: .amount)
                 }
@@ -181,7 +171,7 @@ struct AddFlowView: View {
                     Spacer()
                     Button("Save"){
                         enable = false
-                        DataController().addFlow(name: name, amount: Int32(amount ?? 0), date: date, status: Int16((isTentative && status == Status.uncertain.rawValue) ? Status.tentative.rawValue : status) , from: right ? from! : to!, to: right ? to! : from! , note: note, context: managedObjContext)
+                        DataController().addFlow(name: name, amount: Int32(amount ?? 0), date: date, status: Int16((isTentative && status == Status.pending.rawValue) ? Status.tentative.rawValue : status) , from: right ? from! : to!, to: right ? to! : from! , note: note, context: managedObjContext)
                         dismiss()
                     }.disabled(!enable)
                     Spacer()

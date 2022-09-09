@@ -65,6 +65,7 @@ func tempNext(every: Int, span: String, on_day: Int, on_month: Int, on_weekday: 
             on_day = theLastDayOfTheMonth(month: month)
         }
         
+        
         if on_day >= day {
             
             return calendar.date(from: DateComponents(year: year, month: month, day: on_day , hour: 0, minute: 0, second: 0))!
@@ -79,11 +80,21 @@ func tempNext(every: Int, span: String, on_day: Int, on_month: Int, on_weekday: 
             on_day = theLastDayOfTheMonth(month: on_month+1)
         }
         
-        if on_month >= month {
-            return calendar.date(from: DateComponents(year: year, month: on_month + 1, day: on_day , hour: 0, minute: 0, second: 0))!
+        
+        
+        
+        if on_month == month {
+            if on_day >= day {
+                return calendar.date(from: DateComponents(year: year, month: on_month, day: on_day , hour: 0, minute: 0, second: 0))!
+            } else{
+                return calendar.date(from: DateComponents(year: year + 1, month: on_month, day: on_day , hour: 0, minute: 0, second: 0))!
+            }
+        } else if on_month < month {
+            return calendar.date(from: DateComponents(year: year + 1, month: on_month, day: on_day , hour: 0, minute: 0, second: 0))!
         } else {
-            return calendar.date(from: DateComponents(year: year + 1, month: on_month + 1, day: on_day , hour: 0, minute: 0, second: 0))!
+            return calendar.date(from: DateComponents(year: year, month: on_month, day: on_day , hour: 0, minute: 0, second: 0))!
         }
+        
     }
 }
 
@@ -108,6 +119,7 @@ func calcNext(previous: Date, every: Int, span: String, on_day: Int, on_month: I
     } else if span == "month" {
         return Calendar.current.date(from: DateComponents(year:prev_year,month: prev_month+every, day: on_day))!
     } else {
+        print("Every year!!")
         return Calendar.current.date(from: DateComponents(year:prev_year + every,month: on_month, day: on_day))!
     }
 }
@@ -154,6 +166,19 @@ func nearestFlow(conductor: Conductor) -> Flow? {
     return nil
 }
 
+func nearestComingFlow(conductor: Conductor) -> Flow? {
+    let flows = flowArray(conductor.flows)
+    
+    
+    for flow in flows {
+        if flow.status == Status.coming.rawValue {
+            return flow
+        }
+    }
+    
+    return nil
+}
+
 func nearestPayment(conductor: Conductor) -> Date {
     let nearest = nearestFlow(conductor: conductor)
     
@@ -162,3 +187,15 @@ func nearestPayment(conductor: Conductor) -> Date {
     
     
 }
+
+func nearestComingPayment(conductor: Conductor) -> Date {
+    let nearest = nearestComingFlow(conductor: conductor)
+    
+    if nearest != nil {
+        return nearest!.date!
+    } else{
+        // まだCapacitor内に実体としてなかったら
+        return conductor.nextToConduct!
+    }
+}
+

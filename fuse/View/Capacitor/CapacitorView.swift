@@ -128,7 +128,7 @@ struct CapacitorView: View {
         
         
             VStack(alignment: .leading) {
-                Text("Balance: \(DataController().fetchCapBalance(capId: capacitorId, context: managedObjContext)) yen")
+                Text("Balance: \(DataController().fetchCapBalance(capId: capacitorId, context: managedObjContext)) yen as of \(formatDate(date:Date(),formatStr:"M/d"))")
                     .foregroundColor(.gray)
                     .padding(.horizontal)
 

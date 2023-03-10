@@ -1,5 +1,5 @@
 //
-//  ConductorView.swift
+//  CurrentView.swift
 //  fuse
 //
 //  Created by araragi943 on 2022/08/18.
@@ -7,29 +7,29 @@
 
 import SwiftUI
 
-struct ConductorView: View {
-    @ObservedObject var conductor : Conductor
+struct CurrentView: View {
+    @ObservedObject var current : Current
+    @Environment(\.managedObjectContext) var managedObjContext
+    
+    @State private var nearest = Date()
     
     
     var body: some View {
-        NavigationLink(destination:EditConductorView(conductor: conductor) ){
+        NavigationLink(destination:EditCurrentView(current: current) ){
             HStack{
                 
                 VStack{
                     Text("Next").font(.footnote).foregroundColor(.green)
-                    if withinThisYear(date: conductor.nextToPay ?? Date()) {
-                        Text(formatDate(date:conductor.nextToPay ?? Date(), formatStr: "M.d"))
-                    } else{
-                        Text(formatDate(date:conductor.nextToPay ?? Date(), formatStr: "yyyy")).font(.caption2).foregroundColor(.gray)
-                        Text(formatDate(date:conductor.nextToPay ?? Date(), formatStr: "M.d"))
-                    }
-                    
+                    Text(formatDate(date:nearest, formatStr: "M.d"))
+                        .onAppear{
+                            nearest = DataController().nearestUpcomingPayment(current: current, context: managedObjContext) ?? Date()
+                        }
                     
                 }.frame(width:46)
                 
                 VStack(alignment: .leading){
                    
-                    Text(conductor.name ?? "").padding(EdgeInsets(
+                    Text(current.name ?? "").padding(EdgeInsets(
                         top: 5,
                         leading: 10,
                         bottom: 2,
@@ -38,12 +38,11 @@ struct ConductorView: View {
                         
                     
                     HStack{
-                        if conductor.from != nil && conductor.to != nil {
+                        if let from = current.from, let to = current.to {
                             
-                        
-                        Text(conductor.from!.name!).font(.footnote).foregroundColor(.gray)
-                        Image(systemName: "arrow.right").foregroundColor(.gray).font(.system(size: 12))
-                        Text(conductor.to!.name!).font(.footnote).foregroundColor(.gray)
+                            Text(from.name ?? "").font(.footnote).foregroundColor(.gray)
+                            Image(systemName: "arrow.right").foregroundColor(.gray).font(.system(size: 12))
+                            Text(to.name ?? "").font(.footnote).foregroundColor(.gray)
                             
                         }
                     }.padding(.leading,10)
@@ -53,16 +52,19 @@ struct ConductorView: View {
                 Spacer()
                 
                 
-                Text("¥ \(conductor.amount)")
+                Text("¥ \(current.amount)")
                
                 
                 
                 
             }
         }
+        
+        
     }
     
     
+
     
     private func withinThisYear(date: Date) -> Bool {
         let today = Date()
@@ -80,12 +82,12 @@ struct ConductorView: View {
     
 }
 
-//struct ConductorView_Previews: PreviewProvider {
+//struct CurrentView_Previews: PreviewProvider {
 //
 //
 //    static var previews: some View {
-//        let conductor  =
+//        let current  =
 //
-//        ConductorView(conductor: conductor)
+//        CurrentView(current: current)
 //    }
 //}

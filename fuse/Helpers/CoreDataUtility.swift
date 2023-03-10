@@ -23,31 +23,38 @@ func getName(items: FetchedResults<Capacitor>, id: UUID) -> String {
 }
 
 
-func get_a_bank_capacitor(context:NSManagedObjectContext ) -> UUID {
-    
-    let fetchRequestCapacitor : NSFetchRequest<Capacitor>
-    fetchRequestCapacitor = Capacitor.fetchRequest()
+//func get_a_bank_capacitor(context:NSManagedObjectContext ) -> UUID {
+//    
+//    let fetchRequestCapacitor : NSFetchRequest<Capacitor>
+//    fetchRequestCapacitor = Capacitor.fetchRequest()
+//
+//
+//    let items = try? context.fetch(fetchRequestCapacitor)
+//    
+////    if items!.count > 0{
+////        for item in items! {
+//////            if item.type == CapType.bank.rawValue {
+//////                return item.id!
+//////            }
+////        }
+////    }
+//   
+//    
+//    return UUID(uuidString: "CE130F1C-3B2F-42CA-8339-1549531E0102")!
+//}
 
 
-    let items = try? context.fetch(fetchRequestCapacitor)
-    
-    if items!.count > 0{
-        for item in items! {
-            if item.type == CapType.bank.rawValue {
-                return item.id!
-            }
-        }
-    }
-   
-    
-    return UUID(uuidString: "CE130F1C-3B2F-42CA-8339-1549531E0102")!
-}
 
-
-
-func flowArray(_ flows: NSSet?) -> [Flow] {
-    let set = flows as? Set<Flow> ?? []
+func chargeArray(_ charges: NSSet?) -> [Charge] {
+    let set = charges as? Set<Charge> ?? []
     return set.sorted {
         $0.date! < $1.date!
+    }
+}
+
+func tagArray(_ tags: NSSet?) -> [Tag] {
+    let set = tags as? Set<Tag> ?? []
+    return set.sorted {
+        $0.createdAt! < $1.createdAt!
     }
 }

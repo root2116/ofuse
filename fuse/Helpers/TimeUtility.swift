@@ -149,16 +149,16 @@ func formatDate(date: Date, formatStr: String) -> String {
 
 
 
-func nearestFlow(conductor: Conductor) -> Flow? {
-    let flows = flowArray(conductor.flows)
+func nearestCharge(current: Current) -> Charge? {
+    let charges = chargeArray(current.charges)
     
     let today = Date()
-    var old : Flow?
+    var old : Charge?
     
-    for flow in flows {
-        old = flow
+    for charge in charges {
+        old = charge
         
-        if flow.date! > today {
+        if charge.date! > today {
             return old!
         }
     }
@@ -166,36 +166,102 @@ func nearestFlow(conductor: Conductor) -> Flow? {
     return nil
 }
 
-func nearestComingFlow(conductor: Conductor) -> Flow? {
-    let flows = flowArray(conductor.flows)
+func nearestUpcomingCharge(current: Current) -> Charge? {
+    let charges = chargeArray(current.charges)
     
     
-    for flow in flows {
-        if flow.status == Status.coming.rawValue {
-            return flow
+    for charge in charges {
+        if charge.status == Status.upcoming.rawValue {
+            return charge
         }
     }
     
     return nil
 }
 
-func nearestPayment(conductor: Conductor) -> Date {
-    let nearest = nearestFlow(conductor: conductor)
-    
-    
-    return nearest!.date!
-    
-    
-}
+//func nearestPayment(current: Current) -> Date {
+//    let nearest = nearestCharge(current: current)
+//
+//
+//    return nearest!.date!
+//
+//
+//}
 
-func nearestComingPayment(conductor: Conductor) -> Date {
-    let nearest = nearestComingFlow(conductor: conductor)
+func nearestUpcomingPayment(current: Current) -> Date {
+    let nearest = nearestUpcomingCharge(current: current)
     
     if nearest != nil {
         return nearest!.date!
     } else{
         // まだCapacitor内に実体としてなかったら
-        return conductor.nextToConduct!
+//        return current.nextToConduct!
+        return Date()
     }
 }
 
+
+
+func isFutureDate(_ date: Date) -> Bool {
+    let calendar = Calendar.current
+    let today = calendar.startOfDay(for: Date())
+    let otherDate = calendar.startOfDay(for: date)
+    return today < otherDate
+}
+
+
+func lastDayOfMonth(for date: Date) -> Date? {
+    let calendar = Calendar.current
+    let components = DateComponents(year: calendar.component(.year, from: date), month: calendar.component(.month, from: date))
+    if let date = calendar.date(from: components), let range = calendar.range(of: .day, in: .month, for: date) {
+        let lastDay = range.upperBound - 1
+        let lastDayComponents = DateComponents(year: calendar.component(.year, from: date), month: calendar.component(.month, from: date), day: lastDay)
+        return calendar.date(from: lastDayComponents)
+    }
+    return nil
+}
+
+func nearestPayment(every: Int, span: String, on_day: Int, on_month: Int, on_weekday: Int) -> Date {
+    let today = Date()
+    
+   
+    if span == "week" {
+        
+        let weekday = Calendar.current.component(.weekday, from: today) - 1
+        let offset = (Int(on_weekday) - weekday) %% 7
+        return Calendar.current.date(byAdding: .day, value: offset, to: today)!
+        
+    } else if span == "month" {
+        
+        if on_day == 0 || on_day == 31 {
+            if let lastDay = lastDayOfMonth(for: today) {
+                return lastDay
+            } else {
+                print("lastDayOfMonth returned nil")
+                return Date()
+            }
+        } else {
+            
+            return Calendar.current.date(bySetting: .day, value: Int(on_day), of: today)!
+        }
+        
+        
+    } else if span == "year" {
+ 
+        let newNext = Calendar.current.date(bySetting: .month, value: Int(on_month), of: today)!
+        
+        if on_day == 0 || on_day == 31 {
+            if let lastDay = lastDayOfMonth(for: newNext){
+                return lastDay
+            } else {
+                print("lastDayOfMonth returned nil")
+                return Date()
+            }
+        } else {
+            return Calendar.current.date(bySetting: .day, value: Int(on_day), of: newNext)!
+        }
+    } else {
+        return today
+    }
+    
+}

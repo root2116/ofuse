@@ -12,9 +12,8 @@ import UserNotifications
 
 enum Status: Int {
     case confirmed = 0
-    case coming = 1
+    case upcoming = 1
     case pending = 2
-    case tentative = 3
 }
 
 enum CapType: Int16 {
@@ -22,23 +21,42 @@ enum CapType: Int16 {
     case bank = 1
     case card = 2
 }
-struct OutsideId: EnvironmentKey {
+struct CapId: EnvironmentKey {
     static var defaultValue: UUID = UUID()
 }
 
 extension EnvironmentValues {
-    var outsideId: UUID {
-        get { self[OutsideId.self] }
-        set { self[OutsideId.self] = newValue}
+    var gndId: UUID {
+        get { self[CapId.self] }
+        set { self[CapId.self] = newValue}
+    }
+    var srcId: UUID {
+        get { self[CapId.self] }
+        set { self[CapId.self] = newValue}
     }
 }
 
+var srcId = UUID(uuidString: "CE130F1C-3B2F-42CA-8339-1549531E0102")
+var gndId = UUID(uuidString: "466762d8-0419-e4b5-6e57-c972e05bd2a6")
+var newId = UUID(uuidString: "2a2c5eec-bef1-11ed-afa1-0242ac120002")
+var uncatId = UUID(uuidString: "bafdfb88-bef1-11ed-afa1-0242ac120002")
 
 
 struct ContentView: View {
     
     @State var timer :Timer?
     @Environment(\.managedObjectContext) var managedObjContext
+   
+
+    init() {
+      // 文字色
+      UITabBar.appearance().unselectedItemTintColor = .gray
+//      // 背景色
+       
+        UITabBar.appearance().backgroundColor = .systemBackground
+        
+        
+    }
     
     var body: some View {
         
@@ -48,24 +66,24 @@ struct ContentView: View {
                         Image(systemName: "macpro.gen2.fill")
                         Text("Capacitors")
                     }
-                ConductorsView() //2枚目の子ビュー
+//                    .environment(\.srcId, srcId!).environment(\.gndId, gndId!)
+                CurrentsView() //2枚目の子ビュー
                     .tabItem {
                         Image(systemName: "arrow.triangle.pull")
-                        Text("Conductors")
+                        Text("Currents")
                     }
             }.onAppear{
-//                registSampleData(context: managedObjContext)
-                registerOutside(context: managedObjContext)
+
+                //　Core Dataの初期化をするならこれをコメントアウトする
+//                initCoreData(context: managedObjContext)
+                init_cap(context: managedObjContext, capId: srcId!, capName: "Source")
+                init_cap(context: managedObjContext, capId: gndId!, capName: "Ground")
+                init_tag(context: managedObjContext)
+                init_cat(context: managedObjContext, catId: uncatId!, catName: "Uncategorized")
                 
                 
                 
-                
-                timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-                    // Conductorから追加するべきFlowがあればCapacitorに追加する。
-                    DataController().applyConductors(context: managedObjContext)
-                    
-                    
-                }
+               
             }
         }
     
@@ -80,7 +98,7 @@ struct ContentView: View {
 //}
 
 
-extension Flow {
+extension Charge {
     @objc
     var dateText: String {
         guard let date = self.date else {
@@ -93,18 +111,18 @@ extension Flow {
     }
 }
 
-extension Capacitor {
-    @objc
-    var typeText: String {
-        if self.type == CapType.bank.rawValue {
-            return "Account"
-        } else if self.type == CapType.cash.rawValue {
-            return "Cash"
-        } else {
-            return "Credit Card"
-        }
-    }
-}
+//extension Capacitor {
+//    @objc
+//    var typeText: String {
+//        if self.type == CapType.bank.rawValue {
+//            return "Account"
+//        } else if self.type == CapType.cash.rawValue {
+//            return "Cash"
+//        } else {
+//            return "Credit Card"
+//        }
+//    }
+//}
 
 //extension Color {
 //        static var backgroundColor: Color {

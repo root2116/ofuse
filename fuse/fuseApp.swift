@@ -14,7 +14,6 @@ struct FuseApp: App {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext,dataController.container.viewContext)
-                .environment(\.outsideId, UUID(uuidString: "CE130F1C-3B2F-42CA-8339-1549531E0102")!)
                 
         }
     }

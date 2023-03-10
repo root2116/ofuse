@@ -1,5 +1,5 @@
 //
-//  CategoryView.swift
+//  TagView.swift
 //  fuse
 //
 //  Created by araragi943 on 2022/08/18.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CategoriesView: View {
+struct TagsView: View {
     
     @Environment (\.managedObjectContext) var managedObjContext
     @Environment(\.dismiss) var dismiss
@@ -16,7 +16,7 @@ struct CategoriesView: View {
     @FetchRequest(
         sortDescriptors: [
             SortDescriptor(\.createdAt, order: .reverse),
-            ]) var categories : FetchedResults<Category>
+            ]) var tags : FetchedResults<Tag>
     
     @Binding var selection : String
     @State private var showingAddView = false
@@ -28,12 +28,12 @@ struct CategoriesView: View {
             VStack {
                 
                 Menu(selection) {
-                    Button("New Category ...") {
+                    Button("New Tag ...") {
                             showingAddView = true
                         }
 
-                    ForEach(categories) { category in
-                        Button(category.name!) { selection = category.name! }
+                    ForEach(tags) { tag in
+                        Button(tag.name!) { selection = tag.name! }
                     }
                 }
             }
@@ -45,12 +45,12 @@ struct CategoriesView: View {
                     
                     Form{
                         Section {
-                            TextField("New category name", text: $newName)
+                            TextField("New tag name", text: $newName)
                             HStack{
                                 Spacer()
                                 Button("Save"){
                                     enable = false
-                                    DataController().addCategory(name: newName, context: managedObjContext)
+                                    DataController().addTag(name: newName, context: managedObjContext)
                                     selection = newName
                                     showingAddView = false
                                 }.disabled(!enable)
@@ -58,7 +58,7 @@ struct CategoriesView: View {
                             }
                             
                         }
-                    }.navigationTitle("Add a Category")
+                    }.navigationTitle("Add a Tag")
                         
                     }
                     
@@ -72,28 +72,28 @@ struct CategoriesView: View {
 
 
     
-//    private func categoryList() -> [CategoryItem] {
-//        var category_set: Set<String> = []
+//    private func tagList() -> [TagItem] {
+//        var tag_set: Set<String> = []
 //
 //        for conductor in conductors {
 //
-//            if !category_set.contains(conductor.category!) {
-//                category_set.insert(conductor.category!)
+//            if !tag_set.contains(conductor.tag!) {
+//                tag_set.insert(conductor.tag!)
 //            }
 //
 //        }
 //
-//        return Array(category_set).map{ CategoryItem(name: $0)}
+//        return Array(tag_set).map{ TagItem(name: $0)}
 //    }
     
-//    struct CategoryItem: Identifiable, Hashable {
+//    struct TagItem: Identifiable, Hashable {
 //            let id = UUID()
 //            var name: String
 //    }
 }
 
-//struct CategoryView_Previews: PreviewProvider {
+//struct TagView_Previews: PreviewProvider {
 //    static var previews: some View {
-//        CategoryView()
+//        TagView()
 //    }
 //}

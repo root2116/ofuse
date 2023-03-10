@@ -128,8 +128,6 @@ struct CapacitorsView: View {
 
 
                                             }))   // 破壊的変更用
-                                    }.onTapGesture {
-                                        DataController().updateChargeBalances(capId: capacitor.id!, context: managedObjContext)
                                     }
 //                                    .confirmationDialog(
 //                                        Text("Are you sure?"),

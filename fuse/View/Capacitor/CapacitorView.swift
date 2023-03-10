@@ -248,8 +248,9 @@ struct CapacitorView: View {
             }
             .sheet(isPresented: $showingAddView){
                 AddChargeView(openedCapId: capacitorId)
+            }.onAppear {
+                DataController().updateChargeBalances(capId: capacitorId, context: managedObjContext)
             }
-//            .background(Color.background)
 
 
         

@@ -116,14 +116,14 @@ struct CapacitorsView: View {
                                                     let out_charges = capacitor.out_charges
                                                     
                                                     for in_charge in chargeArray(in_charges) {
-                                                        DataController().deleteCharge(charge: in_charge, context: managedObjContext)
+                                                        DataController.shared.deleteCharge(charge: in_charge, context: managedObjContext)
                                                     }
                                                     
                                                     for out_charge in chargeArray(out_charges){
-                                                        DataController().deleteCharge(charge: out_charge, context: managedObjContext)
+                                                        DataController.shared.deleteCharge(charge: out_charge, context: managedObjContext)
                                                     }
                                                     managedObjContext.delete(capacitor)
-                                                    DataController().save(context: managedObjContext)
+                                                    DataController.shared.save(context: managedObjContext)
                                                 }
 
 
@@ -139,7 +139,7 @@ struct CapacitorsView: View {
 ////                                         self.deleteCapacitor(at: toDeleteAt!, in: toDeleteIn!)
 //                                             withAnimation {
 //                                                 managedObjContext.delete(capacitorToDelete!)
-//                                                 DataController().save(context: managedObjContext)
+//                                                 DataController.shared.save(context: managedObjContext)
 //
 //                                            }
 //
@@ -207,7 +207,7 @@ struct CapacitorsView: View {
             
             offsets.map { capacitor[$0] }.forEach(managedObjContext.delete)
 
-            DataController().save(context: managedObjContext)
+            DataController.shared.save(context: managedObjContext)
             
         }
     }

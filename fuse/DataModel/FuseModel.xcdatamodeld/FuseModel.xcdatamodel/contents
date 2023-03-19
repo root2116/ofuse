@@ -1,64 +1,90 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21D62" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="22A400" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Capacitor" representedClassName="Capacitor" syncable="YES" codeGenerationType="class">
         <attribute name="balance" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="init_balance" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="modificationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="payment" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="settlement" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="type" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="in_conductors" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Conductor" inverseName="to" inverseEntity="Conductor"/>
-        <relationship name="in_flows" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Flow" inverseName="to" inverseEntity="Flow"/>
-        <relationship name="out_conductors" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Conductor" inverseName="from" inverseEntity="Conductor"/>
-        <relationship name="out_flows" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Flow" inverseName="from" inverseEntity="Flow"/>
-        <relationship name="payment_conductor" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Conductor" inverseName="capacitor" inverseEntity="Conductor"/>
+        <attribute name="recordName" optional="YES" attributeType="String"/>
+        <attribute name="recordType" optional="YES" attributeType="String"/>
+        <relationship name="in_charges" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Charge" inverseName="to" inverseEntity="Charge"/>
+        <relationship name="in_currents" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Current" inverseName="to" inverseEntity="Current"/>
+        <relationship name="out_charges" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Charge" inverseName="from" inverseEntity="Charge"/>
+        <relationship name="out_currents" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Current" inverseName="from" inverseEntity="Current"/>
     </entity>
     <entity name="Category" representedClassName="Category" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="modificationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="recordName" optional="YES" attributeType="String"/>
+        <attribute name="recordType" optional="YES" attributeType="String"/>
+        <relationship name="charges" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Charge" inverseName="category" inverseEntity="Charge"/>
+        <relationship name="currents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Current" inverseName="category" inverseEntity="Current"/>
     </entity>
-    <entity name="Conductor" representedClassName="Conductor" syncable="YES" codeGenerationType="class">
+    <entity name="Charge" representedClassName="Charge" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="category" optional="YES" attributeType="String"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="end" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="from_balance" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="from_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="included" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="is_variable" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="modificationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="note" optional="YES" attributeType="String"/>
+        <attribute name="notification_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="recordName" optional="YES" attributeType="String"/>
+        <attribute name="recordType" optional="YES" attributeType="String"/>
+        <attribute name="start" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="to_balance" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="to_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="vfrom_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="vto_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="charges" inverseEntity="Category"/>
+        <relationship name="current" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Current" inverseName="charges" inverseEntity="Current"/>
+        <relationship name="from" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="out_charges" inverseEntity="Capacitor"/>
+        <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="charges" inverseEntity="Tag"/>
+        <relationship name="to" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="in_charges" inverseEntity="Capacitor"/>
+    </entity>
+    <entity name="Current" representedClassName="Current" syncable="YES" codeGenerationType="class">
+        <attribute name="amount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="day" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="every" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="from_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="modificationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="month" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="nextToConduct" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="nextToPay" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="next" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="recordName" optional="YES" attributeType="String"/>
+        <attribute name="recordType" optional="YES" attributeType="String"/>
         <attribute name="span" optional="YES" attributeType="String"/>
         <attribute name="to_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="weekday" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="capacitor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="payment_conductor" inverseEntity="Capacitor"/>
-        <relationship name="flows" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Flow" inverseName="conductor" inverseEntity="Flow"/>
-        <relationship name="from" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="out_conductors" inverseEntity="Capacitor"/>
-        <relationship name="to" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="in_conductors" inverseEntity="Capacitor"/>
+        <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Category" inverseName="currents" inverseEntity="Category"/>
+        <relationship name="charges" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Charge" inverseName="current" inverseEntity="Charge"/>
+        <relationship name="from" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="out_currents" inverseEntity="Capacitor"/>
+        <relationship name="to" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="in_currents" inverseEntity="Capacitor"/>
     </entity>
-    <entity name="Flow" representedClassName="Flow" syncable="YES" codeGenerationType="class">
-        <attribute name="amount" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+    <entity name="Tag" representedClassName="Tag" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="from_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="modificationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="note" optional="YES" attributeType="String"/>
-        <attribute name="notification_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="to_id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <relationship name="conductor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Conductor" inverseName="flows" inverseEntity="Conductor"/>
-        <relationship name="from" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="out_flows" inverseEntity="Capacitor"/>
-        <relationship name="to" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Capacitor" inverseName="in_flows" inverseEntity="Capacitor"/>
+        <attribute name="recordName" optional="YES" attributeType="String"/>
+        <attribute name="recordType" optional="YES" attributeType="String"/>
+        <relationship name="charges" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Charge" inverseName="tags" inverseEntity="Charge"/>
     </entity>
-    <elements>
-        <element name="Capacitor" positionX="-27" positionY="18" width="128" height="224"/>
-        <element name="Category" positionX="18" positionY="126" width="128" height="74"/>
-        <element name="Conductor" positionX="54" positionY="153" width="128" height="299"/>
-        <element name="Flow" positionX="18" positionY="180" width="128" height="224"/>
-    </elements>
 </model>

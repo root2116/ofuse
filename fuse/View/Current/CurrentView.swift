@@ -22,7 +22,7 @@ struct CurrentView: View {
                     Text("Next").font(.footnote).foregroundColor(.green)
                     Text(formatDate(date:nearest, formatStr: "M.d"))
                         .onAppear{
-                            nearest = DataController().nearestUpcomingPayment(current: current, context: managedObjContext) ?? Date()
+                            nearest = DataController.shared.nearestUpcomingPayment(current: current, context: managedObjContext) ?? Date()
                         }
                     
                 }.frame(width:46)

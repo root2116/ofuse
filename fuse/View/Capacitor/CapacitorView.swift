@@ -122,13 +122,13 @@ struct CapacitorView: View {
     
     
     var body: some View {
-        let initBalance = DataController().fetchCapInitBalance(capId: capacitorId, context: managedObjContext)
+        let initBalance = DataController.shared.fetchCapInitBalance(capId: capacitorId, context: managedObjContext)
         
         
         
         
             VStack(alignment: .leading) {
-                Text("Balance: \(DataController().fetchCapBalance(capId: capacitorId, context: managedObjContext)) yen as of \(formatDate(date:Date(),formatStr:"M/d"))")
+                Text("Balance: \(DataController.shared.fetchCapBalance(capId: capacitorId, context: managedObjContext)) yen as of \(formatDate(date:Date(),formatStr:"M/d"))")
                     .foregroundColor(.gray)
                     .padding(.horizontal)
 
@@ -143,7 +143,7 @@ struct CapacitorView: View {
                     
                     
                     Button(action: {
-                        DataController().generateNextCharges(capId: capacitorId, context: managedObjContext)
+                        DataController.shared.generateNextCharges(capId: capacitorId, context: managedObjContext)
                     }){
                         HStack{
                             Spacer()
@@ -166,7 +166,7 @@ struct CapacitorView: View {
                                         ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
                                             .swipeActions(edge: .leading) {
                                                 Button {
-                                                    DataController().togglePending(charge: chargeEntry, context: managedObjContext)
+                                                    DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
                                                 } label: {
                                                     Image(systemName: "questionmark")
                                                 }.tint(.gray)
@@ -175,7 +175,7 @@ struct CapacitorView: View {
                                         ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
                                             .swipeActions(edge: .leading) {
                                                 Button {
-                                                    DataController().togglePending(charge: chargeEntry, context: managedObjContext)
+                                                    DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
                                                 } label: {
                                                     Image(systemName: "link")
                                                 }.tint(.cyan)
@@ -186,7 +186,7 @@ struct CapacitorView: View {
                                     ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
                                         .swipeActions(edge: .leading) {
                                             Button {
-                                                DataController().toggleUpcoming(charge: chargeEntry, context: managedObjContext)
+                                                DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
                                             } label: {
                                                 Image(systemName: "checkmark")
                                             }.tint(.green)
@@ -195,7 +195,7 @@ struct CapacitorView: View {
                                     ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
                                         .swipeActions(edge: .leading) {
                                             Button {
-                                                DataController().toggleUpcoming(charge: chargeEntry, context: managedObjContext)
+                                                DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
                                             } label: {
                                                 Image(systemName: "hourglass")
                                             }.tint(.orange)
@@ -249,7 +249,7 @@ struct CapacitorView: View {
             .sheet(isPresented: $showingAddView){
                 AddChargeView(openedCapId: capacitorId)
             }.onAppear {
-                DataController().updateChargeBalances(capId: capacitorId, context: managedObjContext)
+                DataController.shared.updateChargeBalances(capId: capacitorId, context: managedObjContext)
             }
 
 
@@ -274,107 +274,25 @@ struct CapacitorView: View {
         
         for offset in offsets {
             let charge = section[offset]
-            
+
             guard let from_cap = charge.from else { print("from is nil"); return }
             guard let to_cap = charge.to else { print("to is nil"); return }
-            
-            
-//            if let from_pred = charge.from_pred {
-//                if let from_next = charge.from_next { // 先行chargeと後続chargeがどちらも存在
-//                    from_pred.from_next = from_next
-//                    from_next.from_pred = from_pred
-//                    if from_next.from_id == from_cap.id {
-//                        from_next.from_balance += charge.amount
-//                    } else {
-//                        from_next.to_balance -= charge.amount
-//                    }
-//
-//                    guard let from_id = from_cap.id else { print("from_id is nil"); return }
-//                    guard let to_id = to_cap.id else { print("to_id is nil"); return }
-//                    DataController().updateBalances(charge: from_next, from: from_id, to: to_id)
-//
-//                } else { // 先行はあるが後続が存在しない(カレンダー上で最新のcharge)
-//                    from_pred.from_next = nil
-//                }
-//            } else {
-//                if let from_next = charge.from_next { // 先行はないが後続はある(一番古いcharge)
-//
-//                    from_next.from_pred = nil
-//
-//                    if from_next.from_id == from_cap.id {
-//                        from_next.from_balance += charge.amount
-//                    } else {
-//                        from_next.to_balance -= charge.amount
-//                    }
-//
-//                    guard let from_id = from_cap.id else { print("from_id is nil"); return }
-//                    guard let to_id = to_cap.id else { print("to_id is nil"); return }
-//                    DataController().updateBalances(charge: from_next, from: from_id, to: to_id)
-//
-//                } else { // 先行も後続もない(capacitorに一つしかchargeがない状態)
-//                    // Nothing to do
-//                }
-//            }
-//
-//
-//            if let to_pred = charge.to_pred {
-//                if let to_next = charge.to_next { // 先行chargeと後続chargeがどちらも存在
-//                    to_pred.to_next = to_next
-//                    to_next.from_pred = to_pred
-//
-//                    if to_next.to_id == to_cap.id {
-//                        to_next.to_balance -= charge.amount
-//                    } else {
-//                        to_next.from_balance += charge.amount
-//                    }
-//
-//                    guard let from_id = from_cap.id else { print("from_id is nil"); return }
-//                    guard let to_id = to_cap.id else { print("to_id is nil"); return }
-//
-//                    DataController().updateBalances(charge: to_next, from: from_id, to: to_id)
-//                } else { // 先行はあるが後続が存在しない(カレンダー上で最新のcharge)
-//                    to_pred.to_next = nil
-//                }
-//            } else {
-//                if let to_next = charge.to_next { // 先行はないが後続はある(一番古いcharge)
-//
-//                    to_next.to_pred = nil
-//
-//                    if to_next.to_id == to_cap.id {
-//                        to_next.to_balance -= charge.amount
-//                    } else {
-//                        to_next.from_balance += charge.amount
-//                    }
-//
-//                    guard let from_id = from_cap.id else { print("from_id is nil"); return }
-//                    guard let to_id = to_cap.id else { print("to_id is nil"); return }
-//                    DataController().updateBalances(charge: to_next, from: from_id, to: to_id)
-//
-//                } else { // 先行も後続もない(capacitorに一つしかchargeがない状態)
-//                    // Nothing to do
-//                }
-//            }
-//
-//
-//
-            
+
+
             if charge.status == Status.confirmed.rawValue {
                 from_cap.balance += charge.amount
                 to_cap.balance -= charge.amount
             }
-            
-            
+
+
             managedObjContext.delete(charge)
-            DataController().save(context: managedObjContext)
-            DataController().updateChargeBalances(capId: from_cap.id!, context: managedObjContext)
-            DataController().updateChargeBalances(capId: to_cap.id!, context: managedObjContext)
-            
+            DataController.shared.save(context: managedObjContext)
+
         }
-        
-        
-        DataController().updateVariableCharge(context: managedObjContext)
-            
-        DataController().save(context: managedObjContext)
+
+//        DataController.shared.updateVariableCharge(context: managedObjContext)
+//            
+//        DataController.shared.save(context: managedObjContext)
        
         
     }
@@ -409,21 +327,21 @@ struct CapacitorView: View {
 //                let from_cap = Charge[offset].from
 //                let to_cap = Charge[offset].to
 //
-//                DataController().updateBalance(capacitor: from_cap!, context: managedObjContext)
-//                DataController().updateBalance(capacitor: to_cap!, context: managedObjContext)
+//                DataController.shared.updateBalance(capacitor: from_cap!, context: managedObjContext)
+//                DataController.shared.updateBalance(capacitor: to_cap!, context: managedObjContext)
 //            }
 //
 //
 //
 //
-//            DataController().save(context: managedObjContext)
+//            DataController.shared.save(context: managedObjContext)
 //        }
 //    }
     private func balance_of_the_day(charge: Charge) -> Int {
         if let node = chargeTable[charge.id!] {
             return node.balance
         } else {
-            if let pred = DataController().predCharge(targetCharge: charge, capId: capacitorId, context: managedObjContext) {
+            if let pred = DataController.shared.predCharge(targetCharge: charge, capId: capacitorId, context: managedObjContext) {
                 
                 if let pred_node = chargeTable[pred.id!] {
                     var node : Node
@@ -467,7 +385,7 @@ struct CapacitorView: View {
     
 //    private func balance_of_the_day(charge: Charge, date: Date) -> Int {
 //
-//        var balance = DataController().fetchCapBalance(capId: capacitorId, context: managedObjContext)
+//        var balance = DataController.shared.fetchCapBalance(capId: capacitorId, context: managedObjContext)
 //
 //
 //        for chargeSection in chargeSections {

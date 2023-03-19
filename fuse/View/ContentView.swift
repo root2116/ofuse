@@ -76,10 +76,7 @@ struct ContentView: View {
 
                 //　Core Dataの初期化をするならこれをコメントアウトする
 //                initCoreData(context: managedObjContext)
-                init_cap(context: managedObjContext, capId: srcId!, capName: "Source")
-                init_cap(context: managedObjContext, capId: gndId!, capName: "Ground")
-                init_tag(context: managedObjContext)
-                init_cat(context: managedObjContext, catId: uncatId!, catName: "Uncategorized")
+
                 
                 
                 

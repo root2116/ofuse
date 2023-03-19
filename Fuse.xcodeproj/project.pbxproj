@@ -70,6 +70,7 @@
 		E97A1C1629B9E03200383D11 /* FuseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FuseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E97A1C1829B9E03200383D11 /* FuseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuseTests.swift; sourceTree = "<group>"; };
 		E97B5F2E28A3FE2E005802AF /* AddChargeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddChargeView.swift; sourceTree = "<group>"; };
+		E986771929C5CF6200787114 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = Info.plist; path = Fuse/Info.plist; sourceTree = "<group>"; };
 		E9BD09F329B16569007613A3 /* VariableCurrentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableCurrentView.swift; sourceTree = "<group>"; };
 		E9BD09F529B17369007613A3 /* PeriodPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeriodPickerView.swift; sourceTree = "<group>"; };
 		E9BD09F729B17EF2007613A3 /* WeekdayPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekdayPickerView.swift; sourceTree = "<group>"; };
@@ -78,12 +79,14 @@
 		E9CE1A0928A425100019975E /* EditChargeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditChargeView.swift; sourceTree = "<group>"; };
 		E9D73D7028BB9D4300F813C0 /* FuseModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FuseModel.xcdatamodel; sourceTree = "<group>"; };
 		E9D73D7228C2B93200F813C0 /* EditCapacitorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCapacitorView.swift; sourceTree = "<group>"; };
+		E9E9E70B29C5B75C009BE3DC /* Fuse.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Fuse.entitlements; path = Fuse/Fuse.entitlements; sourceTree = "<group>"; };
 		E9EA36C72851404600529C5E /* Fuse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Fuse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9EA36CA2851404600529C5E /* fuseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fuseApp.swift; sourceTree = "<group>"; };
 		E9EA36CC2851404600529C5E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E9EA36CE2851404700529C5E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E9EA36D12851404700529C5E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E9EA36DC28517AA400529C5E /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
+		E9F8677C29C6031200D82FB6 /* FuseDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = FuseDebug.entitlements; path = Fuse/FuseDebug.entitlements; sourceTree = "<group>"; };
 		F6D639681E829755A7AE7A77 /* Pods-Fuse.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fuse.release.xcconfig"; path = "Target Support Files/Pods-Fuse/Pods-Fuse.release.xcconfig"; sourceTree = "<group>"; };
 		FCD40D5F0BEB6718A2703BB8 /* Pods-Fuse.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fuse.debug.xcconfig"; path = "Target Support Files/Pods-Fuse/Pods-Fuse.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -168,6 +171,9 @@
 		E9EA36BE2851404600529C5E = {
 			isa = PBXGroup;
 			children = (
+				E9F8677C29C6031200D82FB6 /* FuseDebug.entitlements */,
+				E986771929C5CF6200787114 /* Info.plist */,
+				E9E9E70B29C5B75C009BE3DC /* Fuse.entitlements */,
 				E9EA36C92851404600529C5E /* fuse */,
 				E97A1C1729B9E03200383D11 /* FuseTests */,
 				E9EA36C82851404600529C5E /* Products */,
@@ -597,12 +603,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Fuse/FuseDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"fuse/Preview Content\"";
 				DEVELOPMENT_TEAM = 49M244H4W8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Fuse/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = oFuse;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -614,7 +622,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tadanoasile.fuse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -629,12 +637,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Fuse/Fuse.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"fuse/Preview Content\"";
 				DEVELOPMENT_TEAM = 49M244H4W8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Fuse/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = oFuse;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -646,7 +656,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tadanoasile.fuse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

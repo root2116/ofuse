@@ -67,7 +67,7 @@ struct EditCapacitorView: View {
                     Spacer()
                     Button("Save"){
                         enable = false
-                        DataController().editCapacitor(capacitor: capacitor, name: name, init_balance: Int32(init_balance ?? 0), context: managedObjContext)
+                        DataController.shared.editCapacitor(capacitor: capacitor, name: name, init_balance: Int32(init_balance ?? 0), context: managedObjContext)
                         dismiss()
                     }.disabled(!enable)
                     Spacer()

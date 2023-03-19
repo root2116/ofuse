@@ -218,7 +218,7 @@ struct EditCurrentView: View {
                                 Text(capacitor.name ?? "").tag(capacitor)
                             }
                         }.onAppear{
-                            if let cap = DataController().getOneCapacitor(context: managedObjContext) {
+                            if let cap = DataController.shared.getOneCapacitor(context: managedObjContext) {
                                 from = cap
                             } else {
                                 from = gndId
@@ -255,7 +255,7 @@ struct EditCurrentView: View {
                     
                     ToolbarItem(placement: .navigationBarTrailing){
                         Button {
-                            DataController().editCurrent(current: current, name: name, amount: Int32(amount ?? 0), from: from ?? gndId!, to: to ?? gndId!, every: Int16(every), span: span, day: Int16(on_day), month: Int16(on_month), weekday: Int16(on_weekday), next: next, category: category ?? uncatId!, context: managedObjContext)
+                            DataController.shared.editCurrent(current: current, name: name, amount: Int32(amount ?? 0), from: from ?? gndId!, to: to ?? gndId!, every: Int16(every), span: span, day: Int16(on_day), month: Int16(on_month), weekday: Int16(on_weekday), next: next, category: category ?? uncatId!, context: managedObjContext)
                             
                             dismiss()
                         } label: {

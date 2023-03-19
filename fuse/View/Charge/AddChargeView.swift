@@ -152,7 +152,7 @@ struct AddChargeView: View {
                                         showingAddCategoryView = true
                                     }
                                 }.onAppear{
-                                   let cat = DataController().fetchUncategorized(context: managedObjContext)
+                                   let cat = DataController.shared.fetchUncategorized(context: managedObjContext)
                                     category = cat.id!
                                 }
                             }
@@ -226,19 +226,19 @@ struct AddChargeView: View {
                             
                         }.navigationTitle("New Charge")
                             .onChange(of: start){ newStart in
-                                amount = DataController().calcAmount(start: newStart, end: end, from: vfrom!, to: vto!, context: managedObjContext)
+                                amount = DataController.shared.calcAmount(start: newStart, end: end, from: vfrom!, to: vto!, context: managedObjContext)
                             }.onChange(of: end){ newEnd in
-                                amount = DataController().calcAmount(start: start, end: newEnd, from: vfrom!, to: vto!, context: managedObjContext)
+                                amount = DataController.shared.calcAmount(start: start, end: newEnd, from: vfrom!, to: vto!, context: managedObjContext)
                             }.onChange(of: vfrom){ newVfrom in
-                                amount = DataController().calcAmount(start: start, end: end, from: newVfrom!, to: vto!, context: managedObjContext)
+                                amount = DataController.shared.calcAmount(start: start, end: end, from: newVfrom!, to: vto!, context: managedObjContext)
                             }.onChange(of: vto){ newVto in
-                                amount = DataController().calcAmount(start: start, end: end, from: vfrom!, to: newVto!, context: managedObjContext)
+                                amount = DataController.shared.calcAmount(start: start, end: end, from: vfrom!, to: newVto!, context: managedObjContext)
                             }.toolbar{
                                 
                                 ToolbarItem(placement: .navigationBarTrailing){
                                     Button {
                                         if let from = from, let to = to, let category = category {
-                                            let _ = DataController().addCharge(name: name, amount: Int32(amount ?? 0), date: date, status: Int16(status), from: from, to: to, note: note, included: included, is_variable: is_variable, start: start, end: end, vfrom_id: vfrom!, vto_id: vto!, category: category,  context: managedObjContext)
+                                            let _ = DataController.shared.addCharge(name: name, amount: Int32(amount ?? 0), date: date, status: Int16(status), from: from, to: to, note: note, included: included, is_variable: is_variable, start: start, end: end, vfrom_id: vfrom!, vto_id: vto!, category: category,  context: managedObjContext)
                                         }else{
                                             print("from or to is nil")
                                         }
@@ -307,7 +307,7 @@ struct AddChargeView: View {
 }
 
 //struct AddChargeView_Previews: PreviewProvider {
-//    static let context = DataController().container.viewContext
+//    static let context = DataController.shared.container.viewContext
 //
 //    static var previews: some View {
 //

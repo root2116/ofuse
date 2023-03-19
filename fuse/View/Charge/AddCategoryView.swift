@@ -29,7 +29,7 @@ struct AddCategoryView: View {
                 ToolbarItem(placement: .navigationBarTrailing){
                     Button {
                         
-                        let cat = DataController().addCategory(name: categoryName, context: managedObjContext)
+                        let cat = DataController.shared.addCategory(name: categoryName, context: managedObjContext)
                         category = cat.id
                         dismiss()
                     } label: {

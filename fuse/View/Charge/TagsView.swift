@@ -50,7 +50,7 @@ struct TagsView: View {
                                 Spacer()
                                 Button("Save"){
                                     enable = false
-                                    DataController().addTag(name: newName, context: managedObjContext)
+                                    DataController.shared.addTag(name: newName, context: managedObjContext)
                                     selection = newName
                                     showingAddView = false
                                 }.disabled(!enable)

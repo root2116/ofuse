@@ -103,7 +103,7 @@ struct CurrentsView: View {
             offsets.map { currents[$0] }.forEach(managedObjContext.delete)
             
             
-            DataController().save(context: managedObjContext)
+            DataController.shared.save(context: managedObjContext)
         }
         
     }

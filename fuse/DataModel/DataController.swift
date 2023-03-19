@@ -36,9 +36,12 @@ func init_cap(context: NSManagedObjectContext, capId: UUID, capName: String){
 //    }
 //
         
-    let fetchRequestCapacitor = NSFetchRequest<NSFetchRequestResult>()
-    fetchRequestCapacitor.entity = Capacitor.entity()
-    guard let capacitors = try? context.fetch(fetchRequestCapacitor) as? [Capacitor] else {
+   
+    
+    let fetchRequestCapacitor : NSFetchRequest<Capacitor>
+    fetchRequestCapacitor = Capacitor.fetchRequest()
+    
+    guard let capacitors = try? context.fetch(fetchRequestCapacitor) else {
         print("Failed to fetch capacitors")
         return
     }
@@ -68,12 +71,13 @@ func init_cap(context: NSManagedObjectContext, capId: UUID, capName: String){
 func init_cat(context: NSManagedObjectContext, catId: UUID, catName: String){
   
     
-    let fetchRequestCategory = NSFetchRequest<NSFetchRequestResult>()
-    fetchRequestCategory.entity = Category.entity()
+
     
+    let fetchRequestCategory : NSFetchRequest<Category>
+    fetchRequestCategory = Category.fetchRequest()
     
     var hasUncategorized = false
-    let categories = try? context.fetch(fetchRequestCategory) as? [Category]
+    let categories = try? context.fetch(fetchRequestCategory)
     
 //    for category in categories! {
 //        context.delete(category)
@@ -99,12 +103,14 @@ func init_cat(context: NSManagedObjectContext, catId: UUID, catName: String){
 func init_tag(context: NSManagedObjectContext) {
     
     // Untaggedというタグが存在しなければ追加する
-    let fetchRequestTag = NSFetchRequest<NSFetchRequestResult>()
-    fetchRequestTag.entity = Tag.entity()
+
+    
+    let fetchRequestTag : NSFetchRequest<Tag>
+    fetchRequestTag = Tag.fetchRequest()
     
     
     var hasUntagged = false
-    let tags = try? context.fetch(fetchRequestTag) as? [Tag]
+    let tags = try? context.fetch(fetchRequestTag)
     if tags!.count > 0 {
         for tag in tags! {
             if tag.name == "Untagged" {
@@ -125,35 +131,45 @@ func init_tag(context: NSManagedObjectContext) {
 }
 
 func initCoreData(context: NSManagedObjectContext){
-        let fetchRequestCapacitor = NSFetchRequest<NSFetchRequestResult>()
-        fetchRequestCapacitor.entity = Capacitor.entity()
-        let capacitors = try? context.fetch(fetchRequestCapacitor) as? [Capacitor]
+    
+        
+        let fetchRequestCapacitor : NSFetchRequest<Capacitor>
+        fetchRequestCapacitor = Capacitor.fetchRequest()
+        let capacitors = try? context.fetch(fetchRequestCapacitor)
         for capacitor in capacitors! {
             context.delete(capacitor)
         }
         
-        let fetchRequestCharge = NSFetchRequest<NSFetchRequestResult>()
-        fetchRequestCharge.entity = Charge.entity()
-        let charges = try? context.fetch(fetchRequestCharge) as? [Charge]
+        let fetchRequestCharge : NSFetchRequest<Charge>
+        fetchRequestCharge = Charge.fetchRequest()
+        let charges = try? context.fetch(fetchRequestCharge)
         for charge in charges! {
             context.delete(charge)
         }
         
-        let fetchRequestCurrent = NSFetchRequest<NSFetchRequestResult>()
-        fetchRequestCurrent.entity = Current.entity()
-        let currents = try? context.fetch(fetchRequestCurrent) as? [Current]
+        let fetchRequestCurrent : NSFetchRequest<Current>
+        fetchRequestCurrent = Current.fetchRequest()
+        let currents = try? context.fetch(fetchRequestCurrent)
         for current in currents! {
             context.delete(current)
         }
         
-        let fetchRequestTag = NSFetchRequest<NSFetchRequestResult>()
-        fetchRequestTag.entity = Tag.entity()
-        let tags = try? context.fetch(fetchRequestTag) as? [Tag]
+        let fetchRequestTag : NSFetchRequest<Tag>
+        fetchRequestTag = Tag.fetchRequest()
+        let tags = try? context.fetch(fetchRequestTag)
         for tag in tags! {
             context.delete(tag)
         }
     
-        DataController().save(context: context)
+        let fetchRequestCategory : NSFetchRequest<Category>
+        fetchRequestCategory = Category.fetchRequest()
+        let categories = try? context.fetch(fetchRequestCategory)
+        for category in categories! {
+            context.delete(category)
+        }
+        
+    
+        DataController.shared.save(context: context)
     
     
 }
@@ -350,25 +366,95 @@ func initCoreData(context: NSManagedObjectContext){
 //
 
 class DataController: ObservableObject {
-    let container = NSPersistentContainer(name: "FuseModel")
     
-    init(){
-        container.loadPersistentStores{ desc, error in
-            if let error = error {
-                print("Failed to lead the data \(error.localizedDescription)")
-            }
+    static let shared = DataController()
+    
+    
+    lazy var container: NSPersistentContainer = {
+        
+        var containerIdentifier: String = ""
+        #if DEBUG
+            containerIdentifier = "iCloud.com.tadanoasile.fuse.debug"
+        #else
+            containerIdentifier = "iCloud.com.tadanoasile.fuse.release"
+        #endif
+
+        let container = NSPersistentCloudKitContainer(name: "FuseModel")
+                container.viewContext.automaticallyMergesChangesFromParent = true
+                container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+
+                let storeURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!.appendingPathComponent("oFuseModel.sqlite")
+                
+                let description = NSPersistentStoreDescription(url: storeURL)
+                description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: containerIdentifier)
+                description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+                description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+
+                container.persistentStoreDescriptions = [description]
+
+                container.loadPersistentStores { storeDescription, error in
+                    if let error = error {
+                        print("Failed to load the data: \(error.localizedDescription)")
+                        print("Error: \(error)")
+                        print("Store description: \(storeDescription)")
+                    }
+                }
+                
+                return container
+        }()
+    
+    
+    init() {
+        
+       
+                
+
+        init_cap(context: self.container.viewContext, capId: srcId!, capName: "Source")
+        init_cap(context: self.container.viewContext, capId: gndId!, capName: "Ground")
+        init_tag(context: self.container.viewContext)
+        init_cat(context: self.container.viewContext, catId: uncatId!, catName: "Uncategorized")
+
+                
+
             
+        
+        self.setupRemoteChangeHandling()
+            
+    }
+    
+    func isFirstLaunch() -> Bool {
+        let launchedBefore = UserDefaults.standard.bool(forKey: "launchedBefore")
+        if launchedBefore {
+            return false
+        } else {
+            UserDefaults.standard.set(true, forKey: "launchedBefore")
+            return true
         }
     }
     
+    func setupRemoteChangeHandling() {
+            NotificationCenter.default.addObserver(self, selector: #selector(self.processRemoteChanges), name: .NSPersistentStoreRemoteChange, object: nil)
+        }
+    
+    @objc func processRemoteChanges(_ notification: Notification) {
+            DispatchQueue.main.async {
+                self.container.viewContext.perform {
+                    self.container.viewContext.mergeChanges(fromContextDidSave: notification)
+                }
+            }
+        }
     func save(context: NSManagedObjectContext){
         do {
-            try context.save()
-            print("Data saved!!! WUHU!!!")
+            if context.hasChanges {
+                try context.save()
+                print("Data saved!!! WUHU!!!")
+            }
         } catch {
             print("We could not save the data...")
         }
     }
+    
+   
     
    
     
@@ -499,66 +585,66 @@ class DataController: ObservableObject {
         return nil
     }
     
-    func updateBalances(charge: Charge, from: UUID, to: UUID){
-        var from_after = charge.from_next
-        var from_after_pred = charge
-        var to_after = charge.to_next
-        var to_after_pred = charge
-        
-        if from_after == nil {
-            return
-        }
-        
-        
-        // 後続のchargeのfrom_balanceとto_balanceを更新する
-        while from_after != nil {
-            
-            
-            if from_after!.from_id == from {
-                if from_after!.status != Status.pending.rawValue {
-                    from_after!.from_balance = from_after_pred.from_balance - from_after!.amount
-                } else {
-                    from_after!.from_balance = from_after_pred.from_balance
-                }
-                from_after_pred = from_after!
-                from_after = from_after!.from_next
-            } else {
-                if from_after!.status != Status.pending.rawValue {
-                    from_after!.to_balance = from_after_pred.from_balance + from_after!.amount
-                } else {
-                    from_after!.to_balance = from_after_pred.from_balance
-                }
-                from_after_pred = from_after!
-                from_after = from_after!.to_next
-            }
-        }
-        
-        if to_after == nil {
-            return
-        }
-        
-        while to_after != nil {
-            if to_after!.to_id == to {
-                if to_after!.status != Status.pending.rawValue {
-                    to_after!.to_balance = to_after_pred.to_balance - to_after!.amount
-                } else {
-                    to_after!.to_balance = to_after_pred.to_balance
-                }
-                to_after_pred = to_after!
-                to_after = to_after!.to_next
-            } else {
-                if to_after!.status != Status.pending.rawValue {
-                    to_after!.from_balance = to_after_pred.to_balance + to_after!.amount
-                } else {
-                    to_after!.from_balance = to_after_pred.to_balance
-                }
-                to_after_pred = to_after!
-                to_after = to_after!.from_next
-            }
-        }
-        
-    }
-    
+//    func updateBalances(charge: Charge, from: UUID, to: UUID){
+//        var from_after = charge.from_next
+//        var from_after_pred = charge
+//        var to_after = charge.to_next
+//        var to_after_pred = charge
+//
+//        if from_after == nil {
+//            return
+//        }
+//
+//
+//        // 後続のchargeのfrom_balanceとto_balanceを更新する
+//        while from_after != nil {
+//
+//
+//            if from_after!.from_id == from {
+//                if from_after!.status != Status.pending.rawValue {
+//                    from_after!.from_balance = from_after_pred.from_balance - from_after!.amount
+//                } else {
+//                    from_after!.from_balance = from_after_pred.from_balance
+//                }
+//                from_after_pred = from_after!
+//                from_after = from_after!.from_next
+//            } else {
+//                if from_after!.status != Status.pending.rawValue {
+//                    from_after!.to_balance = from_after_pred.from_balance + from_after!.amount
+//                } else {
+//                    from_after!.to_balance = from_after_pred.from_balance
+//                }
+//                from_after_pred = from_after!
+//                from_after = from_after!.to_next
+//            }
+//        }
+//
+//        if to_after == nil {
+//            return
+//        }
+//
+//        while to_after != nil {
+//            if to_after!.to_id == to {
+//                if to_after!.status != Status.pending.rawValue {
+//                    to_after!.to_balance = to_after_pred.to_balance - to_after!.amount
+//                } else {
+//                    to_after!.to_balance = to_after_pred.to_balance
+//                }
+//                to_after_pred = to_after!
+//                to_after = to_after!.to_next
+//            } else {
+//                if to_after!.status != Status.pending.rawValue {
+//                    to_after!.from_balance = to_after_pred.to_balance + to_after!.amount
+//                } else {
+//                    to_after!.from_balance = to_after_pred.to_balance
+//                }
+//                to_after_pred = to_after!
+//                to_after = to_after!.from_next
+//            }
+//        }
+//
+//    }
+//
     func extractHashtags(from text: String) -> [String] {
         // 正規表現パターンでハッシュタグを検索
         let pattern = "(?<=#)[^#\\s]+"
@@ -1117,43 +1203,8 @@ class DataController: ObservableObject {
     }
     
     func deleteCharge(charge: Charge, context: NSManagedObjectContext){
-        
-        switch (charge.from_pred, charge.from_next) {
-            case (let pred, let next) where pred == nil && next == nil:
-                break
-            case (let pred, let next?) where pred == nil:
-                next.from_pred = nil
-                
-                updateBalances(charge: next, from: charge.from_id!, to: charge.to_id!)
-                
-            case (let pred?, let next) where next == nil:
-                pred.from_next = nil
-            case (let pred?, let next?):
-                pred.from_next = next
-                next.from_pred = pred
-            
-                updateBalances(charge: next, from: charge.from_id!, to: charge.to_id!)
-            default:
-                break
-        }
-        
-        switch (charge.to_pred, charge.to_next) {
-            case (let pred, let next) where pred == nil && next == nil:
-                break
-            case (let pred, let next?) where pred == nil:
-                next.to_pred = nil
-                updateBalances(charge: next, from: charge.from_id!, to: charge.to_id!)
-                
-            case (let pred?, let next) where next == nil:
-                pred.to_next = nil
-            case (let pred?, let next?):
-                pred.to_next = next
-                next.to_pred = pred
-                updateBalances(charge: next, from: charge.from_id!, to: charge.to_id!)
-            default:
-                break
-        }
-        
+
+    
         if charge.status == Status.confirmed.rawValue {
             if let from = charge.from, let to = charge.to {
                 from.balance += charge.amount
@@ -1161,7 +1212,7 @@ class DataController: ObservableObject {
             }
             
         }
-        
+
         save(context: context)
     }
     
@@ -1185,22 +1236,22 @@ class DataController: ObservableObject {
     }
     
     // Currentによって生まれたChargeの中ですでにConfirmedになったもの以外のChargeを消す
-    func deleteRelevantCharges(current: Current, context: NSManagedObjectContext){
-        let charges = chargeArray(current.charges)
-        
-        for charge in charges{
-            if charge.status != Status.confirmed.rawValue {
-                context.delete(charge)
-            }
-        }
-        
-        
-        save(context: context)
-        
-        updateBalance(capacitor: current.from!, context: context)
-        updateBalance(capacitor: current.to!, context: context)
-        
-    }
+//    func deleteRelevantCharges(current: Current, context: NSManagedObjectContext){
+//        let charges = chargeArray(current.charges)
+//
+//        for charge in charges{
+//            if charge.status != Status.confirmed.rawValue {
+//                context.delete(charge)
+//            }
+//        }
+//
+//
+//        save(context: context)
+//
+//        updateBalance(capacitor: current.from!, context: context)
+//        updateBalance(capacitor: current.to!, context: context)
+//
+//    }
     
     func addCapacitor(name:String, init_balance: Int32, context: NSManagedObjectContext){
         let capacitor = Capacitor(context: context)

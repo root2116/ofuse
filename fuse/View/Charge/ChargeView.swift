@@ -208,7 +208,7 @@ struct ChargeView: View {
 
 struct ChargeView_Previews: PreviewProvider {
     
-    static let context = DataController().container.viewContext
+    static let context = DataController.shared.container.viewContext
     
     static var previews: some View {
         let charge = Charge.oneCharge(moc: ChargeView_Previews.context)

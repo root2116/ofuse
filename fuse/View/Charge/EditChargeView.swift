@@ -50,6 +50,7 @@ struct EditChargeView: View {
     
     @State private var showingAddCategoryView = false
     
+    @State private var didAppearAlready = false
     
 
     
@@ -198,26 +199,26 @@ struct EditChargeView: View {
         }.navigationTitle("Edit Charge")
             .onChange(of: start){ newStart in
                 if is_variable {
-                    amount = DataController().calcAmount(start: newStart, end: end, from: vfrom!, to: vto!, context: managedObjContext)
+                    amount = DataController.shared.calcAmount(start: newStart, end: end, from: vfrom!, to: vto!, context: managedObjContext)
                 }
             }.onChange(of: end){ newEnd in
                 if is_variable {
-                    amount = DataController().calcAmount(start: start, end: newEnd, from: vfrom!, to: vto!, context: managedObjContext)
+                    amount = DataController.shared.calcAmount(start: start, end: newEnd, from: vfrom!, to: vto!, context: managedObjContext)
                 }
             }.onChange(of: vfrom){ newVfrom in
                 if is_variable {
-                    amount = DataController().calcAmount(start: start, end: end, from: newVfrom!, to: vto!, context: managedObjContext)
+                    amount = DataController.shared.calcAmount(start: start, end: end, from: newVfrom!, to: vto!, context: managedObjContext)
                 }
             }.onChange(of: vto){ newVto in
                 if is_variable {
-                    amount = DataController().calcAmount(start: start, end: end, from: vfrom!, to: newVto!, context: managedObjContext)
+                    amount = DataController.shared.calcAmount(start: start, end: end, from: vfrom!, to: newVto!, context: managedObjContext)
                 }
             }.toolbar{
                 
                 ToolbarItem(placement: .navigationBarTrailing){
                     Button {
                         if let from = from, let to = to, let category = category {
-                            DataController().editCharge(charge: charge, name: name, amount: Int32(amount), date: date, status: Int16(status), from: from, to: to, note: note, included: included, is_variable: is_variable, start: start, end: end, vfrom_id: vfrom!, vto_id: vto!, category: category,context: managedObjContext)
+                            DataController.shared.editCharge(charge: charge, name: name, amount: Int32(amount), date: date, status: Int16(status), from: from, to: to, note: note, included: included, is_variable: is_variable, start: start, end: end, vfrom_id: vfrom!, vto_id: vto!, category: category,context: managedObjContext)
                         }else{
                             print("from or to is nil")
                         }
@@ -230,20 +231,28 @@ struct EditChargeView: View {
                 
                 
             }.onAppear{
-                name = charge.name ?? ""
-                amount = Int(charge.amount)
-                date = charge.date ?? Date()
-                status = Int(charge.status)
-                from = charge.from_id ?? gndId!
-                to = charge.to_id ?? gndId!
-                note = charge.note ?? ""
-                included = charge.included
-                is_variable = charge.is_variable
-                start = charge.start ?? Date()
-                end = charge.end ?? Date()
-                vfrom = charge.vfrom_id ?? gndId!
-                vto = charge.vto_id ?? gndId!
-                category = charge.category?.id ?? uncatId!
+                
+                if !didAppearAlready {
+                            
+                    name = charge.name ?? ""
+                    amount = Int(charge.amount)
+                    date = charge.date ?? Date()
+                    status = Int(charge.status)
+                    from = charge.from_id ?? gndId!
+                    to = charge.to_id ?? gndId!
+                    note = charge.note ?? ""
+                    included = charge.included
+                    is_variable = charge.is_variable
+                    category = charge.category?.id ?? uncatId!
+                    
+                    start = charge.start ?? Date()
+                    end = charge.end ?? Date()
+                    vfrom = charge.vfrom_id ?? gndId!
+                    vto = charge.vto_id ?? gndId!
+                                
+                    didAppearAlready = true
+                }
+                
                 
             }.sheet(isPresented: $showingAddCategoryView){
                 AddCategoryView(category: $category)

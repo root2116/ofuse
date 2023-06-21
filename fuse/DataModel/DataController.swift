@@ -370,14 +370,15 @@ class DataController: ObservableObject {
     static let shared = DataController()
     
     
-    lazy var container: NSPersistentContainer = {
+    lazy var container: NSPersistentCloudKitContainer = {
         
-        var containerIdentifier: String = ""
-        #if DEBUG
-            containerIdentifier = "iCloud.com.tadanoasile.fuse.debug"
-        #else
-            containerIdentifier = "iCloud.com.tadanoasile.fuse.release"
-        #endif
+//        var containerIdentifier: String = ""
+//        #if DEBUG
+//            containerIdentifier = "iCloud.com.tadanoasile.fuse.debug"
+//        #else
+//            containerIdentifier = "iCloud.com.tadanoasile.fuse.release"
+//        #endif
+        let containerIdentifier = "iCloud.com.tadanoasile.fuse"
 
         let container = NSPersistentCloudKitContainer(name: "FuseModel")
                 container.viewContext.automaticallyMergesChangesFromParent = true
@@ -1218,12 +1219,16 @@ class DataController: ObservableObject {
     
     func calcAmount(start: Date, end: Date, from: UUID, to: UUID, context: NSManagedObjectContext) -> Int {
         
+        var calendar = Calendar.current
+        let startDate = calendar.startOfDay(for: start)
+        let endDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: end))!
+        
         let fetchRequestCharge : NSFetchRequest<Charge>
         fetchRequestCharge = Charge.fetchRequest()
         
-        fetchRequestCharge.predicate = NSPredicate(format: "from_id == %@ && to_id == %@ && date >= %@ && date <= %@", from as CVarArg, to as CVarArg, start as CVarArg, end as CVarArg)
-        var sum = 0
+        fetchRequestCharge.predicate = NSPredicate(format: "from_id == %@ && to_id == %@ && date >= %@ && date < %@", from as CVarArg, to as CVarArg, startDate as CVarArg, endDate as CVarArg)
         
+        var sum = 0
         let charges = try? context.fetch(fetchRequestCharge)
         
         if charges!.count > 0 {
@@ -1234,6 +1239,7 @@ class DataController: ObservableObject {
         
         return sum
     }
+
     
     // Currentによって生まれたChargeの中ですでにConfirmedになったもの以外のChargeを消す
 //    func deleteRelevantCharges(current: Current, context: NSManagedObjectContext){

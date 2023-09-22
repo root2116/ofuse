@@ -61,6 +61,11 @@ struct ContentView: View {
     var body: some View {
         
             TabView{
+                HomeView()
+                    .tabItem {
+                        Image(systemName: "arrow.up.arrow.down")
+                        Text("Balances")
+                    }
                 CapacitorsView() //1枚目の子ビュー
                     .tabItem {
                         Image(systemName: "macpro.gen2.fill")

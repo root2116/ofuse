@@ -56,6 +56,7 @@ struct EditCurrentView: View {
     
     @State var spans = ["day","week","month","year"]
     
+    @Binding var isButtonVisible: Bool
 
     
     let days: [Int] = Array(0...31)
@@ -263,12 +264,12 @@ struct EditCurrentView: View {
                         }
                     }
                 }
-//                .onAppear {
-//                  UITableView.appearance().backgroundColor = .clear
-//                }
-//                .onDisappear {
-//                  UITableView.appearance().backgroundColor = .systemGroupedBackground
-//                }
+                .onAppear {
+                    isButtonVisible = false
+                }
+                .onDisappear {
+                    isButtonVisible = true
+                }
             
             
         

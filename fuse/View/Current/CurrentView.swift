@@ -12,10 +12,11 @@ struct CurrentView: View {
     @Environment(\.managedObjectContext) var managedObjContext
     
     @State private var nearest = Date()
+    @Binding var isButtonVisible: Bool
     
     
     var body: some View {
-        NavigationLink(destination:EditCurrentView(current: current) ){
+        NavigationLink(destination:EditCurrentView(current: current, isButtonVisible: $isButtonVisible) ){
             HStack{
                 
                 VStack{

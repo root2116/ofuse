@@ -35,54 +35,84 @@ struct CurrentsView: View {
     @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
     
     @State private var showingAddView = false
+    @State private var isButtonVisible = true
+    @State private var showingAddChargeView = false
     
     var body: some View {
-        NavigationView {
-            VStack(alignment: .leading) {
-//                Text("Balance: \(totalBalance()) yen")
-//                    .foregroundColor(.gray)
-//                    .padding(.horizontal)
-                List {
-                    ForEach(currents) { section in
-                        Section(header: HStack{
-                            Text("\(section.id)")
-                            Spacer()
-                            Text("Total: ¥ \(sumCurrent(currents:section))")
-                        }){
-                            ForEach(section){ current in
-                                CurrentView(current: current)
-                                
-                            }.onDelete{
-                                self.deleteCurrent(at: $0, in: section)
+        ZStack {
+            NavigationView {
+                VStack(alignment: .leading) {
+    //                Text("Balance: \(totalBalance()) yen")
+    //                    .foregroundColor(.gray)
+    //                    .padding(.horizontal)
+                    List {
+                        ForEach(currents) { section in
+                            Section(header: HStack{
+                                Text("\(section.id)")
+                                Spacer()
+                                Text("Total: ¥ \(sumCurrent(currents:section))")
+                            }){
+                                ForEach(section){ current in
+                                    CurrentView(current: current, isButtonVisible: $isButtonVisible)
+                                    
+                                }.onDelete{
+                                    self.deleteCurrent(at: $0, in: section)
+                                }
                             }
                         }
-                    }
-//                    .listRowBackground(Color.background)
-//                    .onDelete(perform: deleteCapacitor)
-        }
-                .listStyle(.plain)
-//                .background(Color.background)
-
+    //                    .listRowBackground(Color.background)
+    //                    .onDelete(perform: deleteCapacitor)
             }
-            .navigationTitle("Currents")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing){
-                    Button {
-                        showingAddView.toggle()
-                    } label: {
-                        Label("Add a current", systemImage: "plus")
+                    .listStyle(.plain)
+    //                .background(Color.background)
+
+                }
+                .navigationTitle("Currents")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing){
+                        Button {
+                            showingAddView.toggle()
+                        } label: {
+                            Label("Add a current", systemImage: "plus")
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarLeading){
+                        EditButton()
                     }
                 }
-                ToolbarItem(placement: .navigationBarLeading){
-                    EditButton()
+                .sheet(isPresented: $showingAddView){
+
+                    AddCurrentView()
                 }
             }
-            .sheet(isPresented: $showingAddView){
-
-                AddCurrentView()
+            .navigationViewStyle(.stack)
+            .sheet(isPresented: $showingAddChargeView){
+                AddChargeView(openedCapId: DataController.shared.getOneCapacitor(context: managedObjContext)!)
             }
+            
+            if isButtonVisible {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            self.showingAddChargeView.toggle()
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(Color.green)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .padding()
+                        }
+                    }
+                }
+            }
+            
         }
-        .navigationViewStyle(.stack)
+        
         
     }
     

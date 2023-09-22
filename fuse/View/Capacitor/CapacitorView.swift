@@ -88,7 +88,7 @@ struct CapacitorView: View {
     @State private var chargeTable : [UUID: Node] = [:]
   
 
-    init(capacitorId: UUID, capacitorName: String){
+    init(capacitorId: UUID, capacitorName: String, isButtonVisible: Binding<Bool>){
         self.capacitorId = capacitorId
         self.capacitorName = capacitorName
         
@@ -103,13 +103,12 @@ struct CapacitorView: View {
                                 animation: nil)
         
         
-        
+        self._isButtonVisible = isButtonVisible
     }
 
 
     @State private var showingAddView = false
-    
-    
+    @Binding var isButtonVisible: Bool
 //    @State private var selectionValues: Set<Charge> = []
     
     
@@ -163,7 +162,7 @@ struct CapacitorView: View {
                                 
                                 if chargeEntry.status == Status.pending.rawValue {
                                     if chargeEntry.included {
-                                        ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
+                                        ChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
                                             .swipeActions(edge: .leading) {
                                                 Button {
                                                     DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
@@ -172,7 +171,7 @@ struct CapacitorView: View {
                                                 }.tint(.gray)
                                             }
                                     } else {
-                                        ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
+                                        ChargeView(charge: chargeEntry,  isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
                                             .swipeActions(edge: .leading) {
                                                 Button {
                                                     DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
@@ -183,7 +182,7 @@ struct CapacitorView: View {
                                     }
                                     
                                 } else if chargeEntry.status == Status.upcoming.rawValue {
-                                    ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
+                                    ChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
                                         .swipeActions(edge: .leading) {
                                             Button {
                                                 DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
@@ -192,7 +191,7 @@ struct CapacitorView: View {
                                             }.tint(.green)
                                         }
                                 } else {
-                                    ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
+                                    ChargeView(charge: chargeEntry,  isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
                                         .swipeActions(edge: .leading) {
                                             Button {
                                                 DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
@@ -249,24 +248,31 @@ struct CapacitorView: View {
             }.onAppear {
                 DataController.shared.updateChargeBalances(capId: capacitorId, context: managedObjContext)
             }
-            VStack {
-                            Spacer()
-                            HStack {
-                                Spacer()
-                                Button(action: {
-                                    self.showingAddView.toggle()
-                                }) {
-                                    Image(systemName: "plus.circle.fill")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 60, height: 60)
-                                        .foregroundColor(Color.green)
-                                        .background(Color.white)
-                                        .clipShape(Circle())
-                                        .padding()
-                                }
-                            }
-                        }
+            
+//            if isButtonVisible {
+//                VStack {
+//                                Spacer()
+//                                HStack {
+//                                    Spacer()
+//                                    
+//                                    Button(action: {
+//                                        self.showingAddView.toggle()
+//                                    }) {
+//                                        Image(systemName: "plus.circle.fill")
+//                                            .resizable()
+//                                            .scaledToFit()
+//                                            .frame(width: 60, height: 60)
+//                                            .foregroundColor(Color.green)
+//                                            .background(Color.white)
+//                                            .clipShape(Circle())
+//                                            .padding()
+//                                    }
+//                                
+//                                    
+//                                }
+//                }
+//            }
+            
             
         }
 

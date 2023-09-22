@@ -50,7 +50,7 @@ struct EditChargeView: View {
     @State private var showingAddCategoryView = false
     
     @State private var didAppearAlready = false
-    
+    @Binding var isButtonVisible: Bool
 
     
     var body: some View {
@@ -230,7 +230,8 @@ struct EditChargeView: View {
                 
                 
             }.onAppear{
-                
+                isButtonVisible = false
+                print("isButtonVisible", isButtonVisible)
                 if !didAppearAlready {
                             
                     name = charge.name ?? ""
@@ -253,6 +254,9 @@ struct EditChargeView: View {
                 }
                 
                 
+            }.onDisappear{
+                isButtonVisible = true
+                print("isButtonVisible", isButtonVisible)
             }.sheet(isPresented: $showingAddCategoryView){
                 AddCategoryView(category: $category)
             }

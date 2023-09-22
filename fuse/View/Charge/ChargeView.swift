@@ -10,15 +10,16 @@ import CoreData
 
 struct ChargeView: View {
     @ObservedObject var charge: Charge
-    
+    @Binding var isButtonVisible: Bool
     var openedCapId : UUID
     var balance: Int
     @Environment(\.managedObjectContext) private var managedObjectContext
-
+    
+    
     
     var body: some View {
         
-            NavigationLink(destination: EditChargeView(charge: charge)) {
+        NavigationLink(destination: EditChargeView(charge: charge, isButtonVisible: $isButtonVisible)) {
                 HStack {
                     VStack {
                         Text(getYearAndMonth(charge:charge))
@@ -147,7 +148,7 @@ struct ChargeView: View {
                 
                     
                 }
-            }
+        }
     }
     
     private func getDay(charge: FetchedResults<Charge>.Element) -> String{
@@ -206,15 +207,15 @@ struct ChargeView: View {
     
 }
 
-struct ChargeView_Previews: PreviewProvider {
-    
-    static let context = DataController.shared.container.viewContext
-    
-    static var previews: some View {
-        let charge = Charge.oneCharge(moc: ChargeView_Previews.context)
-        ChargeView(charge: charge, openedCapId: UUID(), balance: 1000).environment(\.managedObjectContext, context)
-    }
-}
+//struct ChargeView_Previews: PreviewProvider {
+//
+//    static let context = DataController.shared.container.viewContext
+//
+//    static var previews: some View {
+//        let charge = Charge.oneCharge(moc: ChargeView_Previews.context)
+//        ChargeView(charge: charge, openedCapId: UUID(), balance: 1000).environment(\.managedObjectContext, context)
+//    }
+//}
 
 extension Charge {
     static func oneCharge(moc:NSManagedObjectContext) -> Charge {

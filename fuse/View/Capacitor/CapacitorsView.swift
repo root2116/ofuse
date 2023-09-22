@@ -43,7 +43,7 @@ struct CapacitorsView: View {
     @State private var capacitorToDelete:Capacitor?
     
     @State private var capacitorToEdit: Capacitor? = nil
-    
+    @State private var isButtonVisible = true
     
     @State private var page: Int? = 0
     var body: some View {
@@ -61,7 +61,7 @@ struct CapacitorsView: View {
                         ForEach(capacitors, id: \.id){ capacitor in
                             
                             
-                            NavigationLink(destination: CapacitorView(capacitorId: capacitor.id!,capacitorName: capacitor.name!)) {
+                            NavigationLink(destination: CapacitorView(capacitorId: capacitor.id!,capacitorName: capacitor.name!, isButtonVisible: $isButtonVisible)) {
                                 HStack {
                                     //                                        Text(getDay(date: ChargeEntry.date!))
                                     //                                            .foregroundColor(.gray).font(.title3)
@@ -203,24 +203,26 @@ struct CapacitorsView: View {
                 AddChargeView(openedCapId: DataController.shared.getOneCapacitor(context: managedObjContext)!)
             }
             
-            VStack {
-                            Spacer()
-                            HStack {
-                                Spacer()
-                                Button(action: {
-                                    self.showingAddChargeView.toggle()
-                                }) {
-                                    Image(systemName: "plus.circle.fill")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 60, height: 60)
-                                        .foregroundColor(Color.green)
-                                        .background(Color.white)
-                                        .clipShape(Circle())
-                                        .padding()
-                                }
-                            }
+            if isButtonVisible {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            self.showingAddChargeView.toggle()
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(Color.green)
+                                .background(Color.white)
+                                .clipShape(Circle())
+                                .padding()
                         }
+                    }
+                }
+            }
         }
 //
     }

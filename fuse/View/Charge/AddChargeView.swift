@@ -8,6 +8,8 @@
 import SwiftUI
 import CoreData
 
+
+
 struct AddChargeView: View {
     
     
@@ -24,13 +26,39 @@ struct AddChargeView: View {
     
     
     
+    let dateFilter: Date = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy, hh:mm:ss.SSS a"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        return dateFormatter.date(from: "03/20/2023, 05:20:10.000 AM") ?? Date()
+    }()
 
     
-    @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var capacitors: FetchedResults<Capacitor>
+    @FetchRequest var capacitors: FetchedResults<Capacitor>
     
     
-    @FetchRequest(sortDescriptors: [SortDescriptor(\.createdAt, order: .reverse)]) var categories: FetchedResults<Category>
     
+    @FetchRequest var categories: FetchedResults<Category>
+    
+    
+    init(openedCapId: UUID){
+        self.openedCapId = openedCapId
+        
+        self._capacitors = FetchRequest<Capacitor>(
+                                sortDescriptors: [
+                                    SortDescriptor(\.createdAt, order: .reverse)
+           
+                                ],
+                                predicate: NSPredicate(format: "createdAt >= %@", dateFilter as NSDate),
+                                animation: nil)
+        
+        self._categories = FetchRequest<Category>(
+                            sortDescriptors: [
+                                SortDescriptor(\.createdAt, order: .reverse)
+
+                            ],
+                            animation: nil)
+    }
     
 //    @FocusState private var focusedField: ChargeField?
     @State private var is_variable = false
@@ -63,11 +91,8 @@ struct AddChargeView: View {
     
     @State private var showingAddCategoryView = false
     
-//    init(from: UUID){
-//        _from = State(initialValue: from)
-//        _to = State(initialValue: from)
-//    }
 
+    
  
     var body: some View {
         NavigationView{
@@ -160,7 +185,8 @@ struct AddChargeView: View {
                             Section{
                                 
                                 Picker(selection: $from, label: Text("From")) {
-                                
+                                    
+                                    
                                     ForEach(capacitors, id: \.id) { capacitor in
                                         Text(capacitor.name ?? "").tag(capacitor)
                                     }
@@ -328,3 +354,14 @@ extension UUID: RawRepresentable {
         self.init(uuidString: rawValue)
     }
 }
+
+extension Array where Element: Capacitor {
+    var uniqueByName: [Element] {
+        return self.reduce(into: [Element]()) { (result, capacitor) in
+            if !result.contains(where: { $0.name == capacitor.name }) {
+                result.append(capacitor)
+            }
+        }
+    }
+}
+

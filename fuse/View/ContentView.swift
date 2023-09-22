@@ -56,6 +56,8 @@ struct ContentView: View {
         UITabBar.appearance().backgroundColor = .systemBackground
         
         
+        
+        
     }
     
     var body: some View {
@@ -81,7 +83,24 @@ struct ContentView: View {
 
                 //　Core Dataの初期化をするならこれをコメントアウトする
 //                initCoreData(context: managedObjContext)
+                
+                
+                if DataController.shared.isFirstLaunch() {
+                    print("initialization!")
+                    // Wait for initial sync to complete
+                    _ = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { timer in
+                        
+                        timer.invalidate()
 
+                        // Execute your desired action
+                        print("Initial sync completed!")
+                        DataController.shared.init_cap(context: managedObjContext, capId: srcId!, capName: "Source")
+                        DataController.shared.init_cap(context: managedObjContext, capId: gndId!, capName: "Ground")
+                        DataController.shared.init_tag(context: managedObjContext)
+                        DataController.shared.init_cat(context: managedObjContext, catId: uncatId!, catName: "Uncategorized")
+                        
+                    }
+                }
                 
                 
                 

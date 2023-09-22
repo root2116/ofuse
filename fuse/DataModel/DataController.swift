@@ -10,126 +10,6 @@ import CoreData
 import SwiftUI
 
 
-
-
-func init_cap(context: NSManagedObjectContext, capId: UUID, capName: String){
-    print("\(capName): \(capId.uuidString)")
-//    let fetchRequestCurrent = NSFetchRequest<NSFetchRequestResult>()
-//    fetchRequestCurrent.entity = Current.entity()
-//    let currents = try? context.fetch(fetchRequestCurrent) as? [Current]
-//
-//    for current in currents! {
-//        if current.charges!.count > 0 {
-//            print("\(current.name!) has charges")
-//        }else {
-//            print("\(current.name!) doesn't have charges")
-//        }
-//
-//    }
-//
-//    / Capacitorテーブル全消去
-//    let fetchRequestCapacitor = NSFetchRequest<NSFetchRequestResult>()
-//    fetchRequestCapacitor.entity = Capacitor.entity()
-//    let capacitors = try? context.fetch(fetchRequestCapacitor) as? [Capacitor]
-//    for capacitor in capacitors! {
-//        context.delete(capacitor)
-//    }
-//
-        
-   
-    
-    let fetchRequestCapacitor : NSFetchRequest<Capacitor>
-    fetchRequestCapacitor = Capacitor.fetchRequest()
-    
-    guard let capacitors = try? context.fetch(fetchRequestCapacitor) else {
-        print("Failed to fetch capacitors")
-        return
-    }
-    
-   
-    for capacitor in capacitors {
-        if capacitor.id == capId {
-            return
-        }
-    }
-    
-    
-   
-    let newCapacitor = Capacitor(context: context)
-    newCapacitor.id = capId
-    newCapacitor.createdAt = Date()
-    newCapacitor.name = capName
-    newCapacitor.balance = 0
-    
-    
-    
-
-    try? context.save()
-    
-}
-
-func init_cat(context: NSManagedObjectContext, catId: UUID, catName: String){
-  
-    
-
-    
-    let fetchRequestCategory : NSFetchRequest<Category>
-    fetchRequestCategory = Category.fetchRequest()
-    
-    var hasUncategorized = false
-    let categories = try? context.fetch(fetchRequestCategory)
-    
-//    for category in categories! {
-//        context.delete(category)
-//    }
-    if categories!.count > 0 {
-        for category in categories! {
-            if category.name == catName {
-                hasUncategorized = true
-            }
-        }
-    }
-    
-    if hasUncategorized == false {
-        let newCategory = Category(context: context)
-        newCategory.id = catId
-        newCategory.createdAt = Date()
-        newCategory.name =  catName
-    }
-    
-    try? context.save()
-}
-
-func init_tag(context: NSManagedObjectContext) {
-    
-    // Untaggedというタグが存在しなければ追加する
-
-    
-    let fetchRequestTag : NSFetchRequest<Tag>
-    fetchRequestTag = Tag.fetchRequest()
-    
-    
-    var hasUntagged = false
-    let tags = try? context.fetch(fetchRequestTag)
-    if tags!.count > 0 {
-        for tag in tags! {
-            if tag.name == "Untagged" {
-                hasUntagged = true
-            }
-        }
-    }
-    
-    if hasUntagged == false {
-        let newTag = Tag(context: context)
-        newTag.id = UUID()
-        newTag.createdAt = Date()
-        newTag.name = "Untagged"
-    }
-    
-    try? context.save()
-    
-}
-
 func initCoreData(context: NSManagedObjectContext){
     
         
@@ -388,7 +268,7 @@ func initCoreData(context: NSManagedObjectContext){
 class DataController: ObservableObject {
     
     static let shared = DataController()
-    
+    @Published var initialSyncCompleted: Bool = false
     
     lazy var container: NSPersistentCloudKitContainer = {
         
@@ -430,18 +310,197 @@ class DataController: ObservableObject {
        
                 
 
-        init_cap(context: self.container.viewContext, capId: srcId!, capName: "Source")
-        init_cap(context: self.container.viewContext, capId: gndId!, capName: "Ground")
-        init_tag(context: self.container.viewContext)
-        init_cat(context: self.container.viewContext, catId: uncatId!, catName: "Uncategorized")
-//        init_orderindex(context: self.container.viewContext)
-                
-
             
         
         self.setupRemoteChangeHandling()
             
     }
+    
+    func fixBug(context: NSManagedObjectContext){
+        
+        // gnd, srcを一つ取得
+        
+        let fetchRequestCapacitor : NSFetchRequest<Capacitor>
+        fetchRequestCapacitor = Capacitor.fetchRequest()
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", gndId! as CVarArg)
+        guard let gnd_capacitors = try? context.fetch(fetchRequestCapacitor) else {
+            print("Failed to fetch capacitors")
+            return
+        }
+        
+        
+        let gnd_capacitor = gnd_capacitors.first!
+    
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", srcId! as CVarArg)
+        guard let src_capacitors = try? context.fetch(fetchRequestCapacitor) else {
+            print("Failed to fetch capacitors")
+            return
+        }
+        let src_capacitor = src_capacitors.first!
+       
+    //
+    //
+    //
+    //
+        // 全chargeを取得
+        let fetchRequestCharge : NSFetchRequest<Charge>
+        fetchRequestCharge = Charge.fetchRequest()
+    
+    
+    
+        guard let charges = try? context.fetch(fetchRequestCharge) else {
+            print("Failed to fetch capacitors")
+            return
+        }
+    
+        //リレーションを統一
+    
+        for charge in charges {
+            
+            if let from = charge.from {
+                if from.id! == srcId! {
+                    charge.from = src_capacitor
+                }
+            }
+            
+            
+            if let to = charge.to {
+                if to.id! == gndId! {
+                    charge.to = gnd_capacitor
+                }
+            }
+        }
+    
+        // 全currentを取得
+    
+        let fetchRequestCurrent : NSFetchRequest<Current>
+        fetchRequestCurrent = Current.fetchRequest()
+    
+        guard let currents = try? context.fetch(fetchRequestCurrent) else {
+            print("Failed to fetch capacitors")
+            return
+        }
+    
+        for current in currents {
+            if let from = current.from {
+                if from.id! == srcId! {
+                    current.from = src_capacitor
+                }
+            }
+            
+            
+            if let to = current.to {
+                if to.id! == gndId! {
+                    current.to = gnd_capacitor
+                }
+            }
+        }
+        
+        updateBalance(capacitor: gnd_capacitor, context: context)
+        updateBalance(capacitor: src_capacitor, context: context)
+        
+        try? context.save()
+    
+    
+    
+    
+
+
+    }
+    
+    
+    func init_cap(context: NSManagedObjectContext, capId: UUID, capName: String) {
+        print("\(capName): \(capId.uuidString)")
+        
+        // Set up a fetch request to only get Capacitors with the provided capId
+        let fetchRequestCapacitor: NSFetchRequest<Capacitor> = Capacitor.fetchRequest()
+        fetchRequestCapacitor.predicate = NSPredicate(format: "id == %@", capId as CVarArg)
+
+        // Attempt to fetch Capacitors that match the predicate
+        let matchingCapacitors = try? context.fetch(fetchRequestCapacitor)
+
+        // If the fetch did not return any results, create a new Capacitor
+        if matchingCapacitors?.isEmpty ?? true {
+            
+            print("add a capacitor")
+            let newCapacitor = Capacitor(context: context)
+            newCapacitor.id = capId
+            newCapacitor.createdAt = Date()
+            newCapacitor.name = capName
+            newCapacitor.balance = 0
+
+            try? context.save()
+        } else {
+            print("Nothing to add")
+        }
+        
+        
+    }
+
+
+
+
+    func init_cat(context: NSManagedObjectContext, catId: UUID, catName: String){
+      
+        
+
+        
+        let fetchRequestCategory : NSFetchRequest<Category>
+        fetchRequestCategory = Category.fetchRequest()
+        
+        var hasUncategorized = false
+        let categories = try? context.fetch(fetchRequestCategory)
+        
+
+        if categories!.count > 0 {
+            for category in categories! {
+                if category.name == catName {
+                    hasUncategorized = true
+                }
+            }
+        }
+        
+        if hasUncategorized == false {
+            let newCategory = Category(context: context)
+            newCategory.id = catId
+            newCategory.createdAt = Date()
+            newCategory.name =  catName
+        }
+        
+        try? context.save()
+    }
+
+    func init_tag(context: NSManagedObjectContext) {
+        
+        // Untaggedというタグが存在しなければ追加する
+
+        
+        let fetchRequestTag : NSFetchRequest<Tag>
+        fetchRequestTag = Tag.fetchRequest()
+        
+        
+        var hasUntagged = false
+        let tags = try? context.fetch(fetchRequestTag)
+        if tags!.count > 0 {
+            for tag in tags! {
+                if tag.name == "Untagged" {
+                    hasUntagged = true
+                }
+            }
+        }
+        
+        if hasUntagged == false {
+            let newTag = Tag(context: context)
+            newTag.id = UUID()
+            newTag.createdAt = Date()
+            newTag.name = "Untagged"
+        }
+        
+        try? context.save()
+        
+    }
+
+
     
     func isFirstLaunch() -> Bool {
         let launchedBefore = UserDefaults.standard.bool(forKey: "launchedBefore")
@@ -461,9 +520,20 @@ class DataController: ObservableObject {
             DispatchQueue.main.async {
                 self.container.viewContext.perform {
                     self.container.viewContext.mergeChanges(fromContextDidSave: notification)
+                    
+                    
                 }
             }
         }
+    
+    
+    func isAllDataPopulated() -> Bool {
+
+        let fetch: NSFetchRequest<Capacitor> = Capacitor.fetchRequest()
+        let count = try? container.viewContext.count(for: fetch)
+        return count ?? 0 > 0  // Placeholder condition
+    }
+    
     func save(context: NSManagedObjectContext){
         do {
             if context.hasChanges {

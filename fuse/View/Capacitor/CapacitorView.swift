@@ -97,7 +97,7 @@ struct CapacitorView: View {
                                 sortDescriptors: [
                                     SortDescriptor(\.date, order: .reverse),
                                     SortDescriptor(\.createdAt, order: .reverse)
-                                
+           
                                 ],
                                 predicate: NSPredicate(format: "from_id == %@ || to_id == %@", capacitorId as CVarArg, capacitorId as CVarArg ),
                                 animation: nil)
@@ -110,7 +110,7 @@ struct CapacitorView: View {
     @State private var showingAddView = false
     
     
-    @State private var selectionValues: Set<Charge> = []
+//    @State private var selectionValues: Set<Charge> = []
     
     
     
@@ -126,24 +126,24 @@ struct CapacitorView: View {
         
         
         
-        
+        ZStack{
             VStack(alignment: .leading) {
                 Text("Balance: \(DataController.shared.fetchCapBalance(capId: capacitorId, context: managedObjContext)) yen as of \(formatDate(date:Date(),formatStr:"M/d"))")
                     .foregroundColor(.gray)
                     .padding(.horizontal)
-
-//                if editMode?.wrappedValue.isEditing == true {
-//                    Text("Sum: \(sumCharges(charges:selectionValues)) yen")
-//                        .foregroundColor(.gray)
-//                        .padding(.horizontal)
-//                }
+                
+                //                if editMode?.wrappedValue.isEditing == true {
+                //                    Text("Sum: \(sumCharges(charges:selectionValues)) yen")
+                //                        .foregroundColor(.gray)
+                //                        .padding(.horizontal)
+                //                }
                 
                 
-                List(selection: $selectionValues) {
+                List {
                     
                     
                     Button(action: {
-                        DataController.shared.generateNextCharges(capId: capacitorId, context: managedObjContext)
+                        DataController.shared.generateNextCharge(capId: capacitorId, context: managedObjContext)
                     }){
                         HStack{
                             Spacer()
@@ -157,8 +157,8 @@ struct CapacitorView: View {
                             ForEach(section, id: \.self) { chargeEntry in
                                 
                                 
-//                                ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (chargeEntry.from_id == capacitorId) ? Int(chargeEntry.from_balance) + initBalance : Int(chargeEntry.to_balance) + initBalance)
-                                    
+                                //                                ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (chargeEntry.from_id == capacitorId) ? Int(chargeEntry.from_balance) + initBalance : Int(chargeEntry.to_balance) + initBalance)
+                                
                                 
                                 
                                 if chargeEntry.status == Status.pending.rawValue {
@@ -201,57 +201,74 @@ struct CapacitorView: View {
                                             }.tint(.orange)
                                         }
                                 }
-
-
+                                
+                                
                             }
                             .onDelete {
-
                                 self.deleteCharge(at: $0, in: section)
-                            }
-                        }
+                            }.onMove { indices, newOffset in
+                                self.moveCharge(from: indices, to: newOffset, in: section)
+                            }                        }
                     }
-//                    .listRowBackground(Color.background)
+                    //                    .listRowBackground(Color.background)
                 }
                 .listStyle(.plain)
-//                .background(Color.background)
-
+               
+//                .toolbar {
+//                    EditButton()
+//                }
+                //                .background(Color.background)
+                
             }
             .navigationTitle(self.capacitorName)
             .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing){
-//
-//
-//                    Button(action: {
-//                        withAnimation() {
-//                            if editMode?.wrappedValue.isEditing == true {
-//                                editMode?.wrappedValue = .inactive
-//                            } else {
-//                                editMode?.wrappedValue = .active
-//                            }
-//                        }
-//                    }) {
-//                        if editMode?.wrappedValue.isEditing == true {
-//                            Text("Done")
-//                        } else {
-//                            Text("Sum")
-//                        }
-//                    }
-//                }
-                ToolbarItem(placement: .navigationBarTrailing){
-                    Button {
-                        showingAddView.toggle()
-                    } label: {
-                        Label("Add Charge", systemImage: "plus")
-                    }
-                }
-
+                //                ToolbarItem(placement: .navigationBarTrailing){
+                //
+                //
+                //                    Button(action: {
+                //                        withAnimation() {
+                //                            if editMode?.wrappedValue.isEditing == true {
+                //                                editMode?.wrappedValue = .inactive
+                //                            } else {
+                //                                editMode?.wrappedValue = .active
+                //                            }
+                //                        }
+                //                    }) {
+                //                        if editMode?.wrappedValue.isEditing == true {
+                //                            Text("Done")
+                //                        } else {
+                //                            Text("Sum")
+                //                        }
+                //                    }
+                //                }
+               
+                
             }
             .sheet(isPresented: $showingAddView){
                 AddChargeView(openedCapId: capacitorId)
             }.onAppear {
                 DataController.shared.updateChargeBalances(capId: capacitorId, context: managedObjContext)
             }
-
+            VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    self.showingAddView.toggle()
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 60, height: 60)
+                                        .foregroundColor(Color.green)
+                                        .background(Color.white)
+                                        .clipShape(Circle())
+                                        .padding()
+                                }
+                            }
+                        }
+            
+        }
 
         
     }
@@ -287,6 +304,7 @@ struct CapacitorView: View {
 
             managedObjContext.delete(charge)
             DataController.shared.save(context: managedObjContext)
+            
 
         }
 
@@ -294,6 +312,29 @@ struct CapacitorView: View {
 //            
 //        DataController.shared.save(context: managedObjContext)
        
+        
+    }
+    private func moveCharge(from source: IndexSet, to destination: Int, in section: SectionedFetchResults<String, Charge>.Element) {
+        // sourceから移動するChargeを取得
+        
+        managedObjContext.perform {
+            let movingCharge = section[source.first!]
+            
+            let previousCharge = (destination - 1 >= 0) ? section[destination - 1] : nil
+            let nextCharge = (destination < section.count) ? section[destination] : nil
+            
+            if let prevDate = previousCharge?.date, let nextDate = nextCharge?.date {
+                let interval = nextDate.timeIntervalSince(prevDate) / 2
+                movingCharge.date = prevDate.addingTimeInterval(interval)
+            } else if let prevDate = previousCharge?.date {
+                movingCharge.date = prevDate.addingTimeInterval(-1) // 1日後
+            } else if let nextDate = nextCharge?.date {
+                movingCharge.date = nextDate.addingTimeInterval(1) // 1日前
+            }
+
+            // データベースの変更を保存
+            DataController.shared.save(context: managedObjContext)
+        }
         
     }
     

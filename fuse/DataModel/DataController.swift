@@ -173,6 +173,26 @@ func initCoreData(context: NSManagedObjectContext){
     
     
 }
+
+//func init_orderindex(context: NSManagedObjectContext){
+//    let fetchRequestCharge: NSFetchRequest<Charge> = Charge.fetchRequest()
+//    fetchRequestCharge.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
+//
+//    // fetchRequestを実行して結果を取得
+//    if let charges = try? context.fetch(fetchRequestCharge) {
+//        // chargesリストの各エンティティに順番にインデックスを設定
+//        for (index, charge) in charges.enumerated() {
+//            charge.orderIndex = Int32(index)
+//        }
+//        
+//        // 変更をデータベースに保存
+//        try? context.save()
+//    }
+//    
+//    
+//
+//    
+//}
 //func registSampleData(context: NSManagedObjectContext) {
 //
 //    print("Register!!")
@@ -414,7 +434,7 @@ class DataController: ObservableObject {
         init_cap(context: self.container.viewContext, capId: gndId!, capName: "Ground")
         init_tag(context: self.container.viewContext)
         init_cat(context: self.container.viewContext, catId: uncatId!, catName: "Uncategorized")
-
+//        init_orderindex(context: self.container.viewContext)
                 
 
             
@@ -702,19 +722,28 @@ class DataController: ObservableObject {
         let charges = allCharges(capId: capId, context: context)
         
         var balance = 0
+        
         for charge in charges{
             if charge.from_id! == capId {
-                if charge.status != Status.pending.rawValue {
+                
+                if charge.status == Status.pending.rawValue && !charge.included {
+                    charge.from_balance = Int32(balance)
+                }else {
                     balance = balance - Int(charge.amount)
                     charge.from_balance = Int32(balance)
+                    
                 }
             } else {
-                if charge.status != Status.pending.rawValue {
+                if charge.status == Status.pending.rawValue && !charge.included{
+                    charge.to_balance = Int32(balance)
+                } else {
                     balance = balance + Int(charge.amount)
                     charge.to_balance = Int32(balance)
                 }
             }
         }
+        
+        print("updated charge balances!!")
         
        
         
@@ -1217,6 +1246,8 @@ class DataController: ObservableObject {
         save(context: context)
     }
     
+    
+    
     func calcAmount(start: Date, end: Date, from: UUID, to: UUID, context: NSManagedObjectContext) -> Int {
         
         var calendar = Calendar.current
@@ -1480,7 +1511,20 @@ class DataController: ObservableObject {
         }
         
     }
-    
+        
+    func generateNextCharge(capId: UUID, context: NSManagedObjectContext){
+        let fetchRequestCurrent: NSFetchRequest<Current> = Current.fetchRequest()
+        fetchRequestCurrent.predicate = NSPredicate(format: "from_id == %@ || to_id == %@", capId as CVarArg, capId as CVarArg)
+        fetchRequestCurrent.sortDescriptors = [NSSortDescriptor(key: "next", ascending: true)]
+        
+        guard let currents = try? context.fetch(fetchRequestCurrent), currents.count > 0 else {
+            return
+        }
+            
+        generateCharge(current: currents.first!, context: context)
+        
+        
+    }
     func generateNextCharges(capId: UUID, context: NSManagedObjectContext){
         
         let fetchRequestCurrent : NSFetchRequest<Current>
@@ -1642,6 +1686,7 @@ class DataController: ObservableObject {
         fetchRequestCategory.predicate = NSPredicate(format: "name == 'Uncategorized'")
 
         let result = try? context.fetch(fetchRequestCategory)
+        print(result![0])
 
         return result![0]
 

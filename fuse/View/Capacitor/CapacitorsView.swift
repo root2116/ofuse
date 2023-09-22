@@ -38,6 +38,7 @@ struct CapacitorsView: View {
 //                           )  private var capacitors
 //
     @State private var showingDeleteAlert = false
+    @State private var showingAddChargeView = false
     
     @State private var capacitorToDelete:Capacitor?
     
@@ -46,158 +47,181 @@ struct CapacitorsView: View {
     
     @State private var page: Int? = 0
     var body: some View {
-       
-        NavigationView {
-            VStack(alignment: .leading) {
-//                Text("Balance: \(totalBalance()) yen")
-//                    .foregroundColor(.gray)
-//                    .padding(.horizontal)
-                List {
-
-//                    ForEach(capacitors) { section in
-//                        Section(section.id) {
-//                            ForEach(section) { capacitor in
-                    ForEach(capacitors, id: \.id){ capacitor in
-
-
-                                    NavigationLink(destination: CapacitorView(capacitorId: capacitor.id!,capacitorName: capacitor.name!)) {
-                                        HStack {
-            //                                        Text(getDay(date: ChargeEntry.date!))
-            //                                            .foregroundColor(.gray).font(.title3)
-            //                                            .padding(.leading,5)
-            //                                            .frame(width:30)
-
-                                            VStack(alignment: .leading, spacing: 6){
-
-                                             Text(capacitor.name!)
-
-
-                                            }
-
-
-                                            Spacer()
-
-                                            if capacitor.balance > 0 {
-                                                Text("¥ ") + Text("\(capacitor.balance)").foregroundColor(.green)
-                                            } else if capacitor.balance < 0 {
-                                                Text("¥ ") + Text("\(capacitor.balance)").foregroundColor(.red)
-                                            } else {
-                                                Text("¥ ") + Text("\(capacitor.balance)")
-                                            }
-
-
-                                        }
-                                    }.contextMenu {
-                                              Button {
-//                                                  capacitorToEdit = capacitor
-                                                  capacitorToEdit = capacitor
-                                                  
-                                                  
-                
-                                               } label: {
-                                                   Text("Edit")
-                                               }
-                                                Button(role: .destructive) {
-
-                                                    
-                                                    capacitorToDelete = capacitor
-                                                } label: {
-                                                    Text("Delete")
-                                                }
-                                           }
-                                    .alert(item: $capacitorToDelete) { capacitor in
-                                            Alert(title: Text("Warning"),
-                                                  message: Text("Are you sure you want to delete this capacitor?"),
-                                                  primaryButton: .cancel(Text("Cancel")),    // キャンセル用
-                                                  secondaryButton: .destructive(Text("Delete"),action: {
-                                                withAnimation{
-                                                    
-                                                    let in_charges = capacitor.in_charges
-                                                    let out_charges = capacitor.out_charges
-                                                    
-                                                    for in_charge in chargeArray(in_charges) {
-                                                        DataController.shared.deleteCharge(charge: in_charge, context: managedObjContext)
-                                                    }
-                                                    
-                                                    for out_charge in chargeArray(out_charges){
-                                                        DataController.shared.deleteCharge(charge: out_charge, context: managedObjContext)
-                                                    }
-                                                    managedObjContext.delete(capacitor)
-                                                    DataController.shared.save(context: managedObjContext)
-                                                }
-
-
-                                            }))   // 破壊的変更用
-                                    }
-//                                    .confirmationDialog(
-//                                        Text("Are you sure?"),
-//                                        isPresented: $showingDeleteAlert,
-//                                        titleVisibility: .visible
-//                                    ) {
-//                                         Button("Delete", role: .destructive) {
-//
-////                                         self.deleteCapacitor(at: toDeleteAt!, in: toDeleteIn!)
-//                                             withAnimation {
-//                                                 managedObjContext.delete(capacitorToDelete!)
-//                                                 DataController.shared.save(context: managedObjContext)
-//
-//                                            }
-//
-//
-//
-//
-//                                    }
-//                                }
-
-                                
-
-
-
+        ZStack {
+            NavigationView {
+                VStack(alignment: .leading) {
+                    //                Text("Balance: \(totalBalance()) yen")
+                    //                    .foregroundColor(.gray)
+                    //                    .padding(.horizontal)
+                    List {
+                        
+                        //                    ForEach(capacitors) { section in
+                        //                        Section(section.id) {
+                        //                            ForEach(section) { capacitor in
+                        ForEach(capacitors, id: \.id){ capacitor in
                             
-//                            .onDelete(perform: editMode.isEditing ? {
-//                                toDeleteAt = $0
-//                                toDeleteIn = section
-//                                showingDeleteAlert = true
-////                                self.deleteCapacitor(at: $0, in: section)
-//
-//
-//                            }: nil)
+                            
+                            NavigationLink(destination: CapacitorView(capacitorId: capacitor.id!,capacitorName: capacitor.name!)) {
+                                HStack {
+                                    //                                        Text(getDay(date: ChargeEntry.date!))
+                                    //                                            .foregroundColor(.gray).font(.title3)
+                                    //                                            .padding(.leading,5)
+                                    //                                            .frame(width:30)
+                                    
+                                    VStack(alignment: .leading, spacing: 6){
+                                        
+                                        Text(capacitor.name!)
+                                        
+                                        
+                                    }
+                                    
+                                    
+                                    Spacer()
+                                    
+                                    if capacitor.balance > 0 {
+                                        Text("¥ ") + Text("\(capacitor.balance)").foregroundColor(.green)
+                                    } else if capacitor.balance < 0 {
+                                        Text("¥ ") + Text("\(capacitor.balance)").foregroundColor(.red)
+                                    } else {
+                                        Text("¥ ") + Text("\(capacitor.balance)")
+                                    }
+                                    
+                                    
+                                }
+                            }.contextMenu {
+                                Button {
+                                    //                                                  capacitorToEdit = capacitor
+                                    capacitorToEdit = capacitor
+                                    
+                                    
+                                    
+                                } label: {
+                                    Text("Edit")
+                                }
+                                Button(role: .destructive) {
+                                    
+                                    
+                                    capacitorToDelete = capacitor
+                                } label: {
+                                    Text("Delete")
+                                }
+                            }
+                            .alert(item: $capacitorToDelete) { capacitor in
+                                Alert(title: Text("Warning"),
+                                      message: Text("Are you sure you want to delete this capacitor?"),
+                                      primaryButton: .cancel(Text("Cancel")),    // キャンセル用
+                                      secondaryButton: .destructive(Text("Delete"),action: {
+                                    withAnimation{
+                                        
+                                        let in_charges = capacitor.in_charges
+                                        let out_charges = capacitor.out_charges
+                                        
+                                        for in_charge in chargeArray(in_charges) {
+                                            DataController.shared.deleteCharge(charge: in_charge, context: managedObjContext)
+                                        }
+                                        
+                                        for out_charge in chargeArray(out_charges){
+                                            DataController.shared.deleteCharge(charge: out_charge, context: managedObjContext)
+                                        }
+                                        managedObjContext.delete(capacitor)
+                                        DataController.shared.save(context: managedObjContext)
+                                    }
+                                    
+                                    
+                                }))   // 破壊的変更用
+                            }
+                            //                                    .confirmationDialog(
+                            //                                        Text("Are you sure?"),
+                            //                                        isPresented: $showingDeleteAlert,
+                            //                                        titleVisibility: .visible
+                            //                                    ) {
+                            //                                         Button("Delete", role: .destructive) {
+                            //
+                            ////                                         self.deleteCapacitor(at: toDeleteAt!, in: toDeleteIn!)
+                            //                                             withAnimation {
+                            //                                                 managedObjContext.delete(capacitorToDelete!)
+                            //                                                 DataController.shared.save(context: managedObjContext)
+                            //
+                            //                                            }
+                            //
+                            //
+                            //
+                            //
+                            //                                    }
+                            //                                }
+                            
+                            
+                            
+                            
+                            
+                            
+                            //                            .onDelete(perform: editMode.isEditing ? {
+                            //                                toDeleteAt = $0
+                            //                                toDeleteIn = section
+                            //                                showingDeleteAlert = true
+                            ////                                self.deleteCapacitor(at: $0, in: section)
+                            //
+                            //
+                            //                            }: nil)
+                            
+                        }
+                        //                    .listRowBackground(Color.background)
+                        
+                        
+                        
                         
                     }
-//                    .listRowBackground(Color.background)
-
-
-
-
-        }
-                .listStyle(.plain)
-//                .background(Color.background)
-
-            }
-            .navigationTitle("Capacitors")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing){
-                    Button {
-                        showingAddView.toggle()
-                    } label: {
-                        Label("Add Capacitor", systemImage: "plus")
-                    }
+                    .listStyle(.plain)
+                    //                .background(Color.background)
+                    
                 }
-//                ToolbarItem(placement: .navigationBarLeading){
-//                    EditButton()
-//                }
+                .navigationTitle("Capacitors")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing){
+                        Button {
+                            showingAddView.toggle()
+                        } label: {
+                            Label("Add Capacitor", systemImage: "plus")
+                        }
+                    }
+                    //                ToolbarItem(placement: .navigationBarLeading){
+                    //                    EditButton()
+                    //                }
+                }
+                .environment(\.editMode, $editMode)
+                .sheet(isPresented: $showingAddView){
+                    AddCapacitorView()
+                }.sheet(item: self.$capacitorToEdit){
+                    EditCapacitorView(capacitor: $0)
+                    
+                }
+                
+                
             }
-            .environment(\.editMode, $editMode)
-            .sheet(isPresented: $showingAddView){
-                AddCapacitorView()
-            }.sheet(item: self.$capacitorToEdit){
-                EditCapacitorView(capacitor: $0)
-
+            .navigationViewStyle(.stack)
+            .sheet(isPresented: $showingAddChargeView){
+                AddChargeView(openedCapId: DataController.shared.getOneCapacitor(context: managedObjContext)!)
             }
-
-
+            
+            VStack {
+                            Spacer()
+                            HStack {
+                                Spacer()
+                                Button(action: {
+                                    self.showingAddChargeView.toggle()
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 60, height: 60)
+                                        .foregroundColor(Color.green)
+                                        .background(Color.white)
+                                        .clipShape(Circle())
+                                        .padding()
+                                }
+                            }
+                        }
         }
-        .navigationViewStyle(.stack)
 //
     }
         

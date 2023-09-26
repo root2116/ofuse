@@ -37,6 +37,7 @@ struct CurrentsView: View {
     @State private var showingAddView = false
     @State private var isButtonVisible = true
     @State private var showingAddChargeView = false
+    @State private var lastUsedCapacitorId: UUID?
     
     var body: some View {
         ZStack {
@@ -87,7 +88,7 @@ struct CurrentsView: View {
             }
             .navigationViewStyle(.stack)
             .sheet(isPresented: $showingAddChargeView){
-                AddChargeView(openedCapId: DataController.shared.getOneCapacitor(context: managedObjContext)!)
+                AddChargeView(openedCapId: $lastUsedCapacitorId)
             }
             
             if isButtonVisible {
@@ -111,6 +112,8 @@ struct CurrentsView: View {
                 }
             }
             
+        }.onAppear {
+            self.lastUsedCapacitorId = DataController.shared.getLastUsedCapacitor(context: managedObjContext)
         }
         
         

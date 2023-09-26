@@ -17,6 +17,7 @@ struct HomeView: View {
     @State private var isButtonVisible = true
     @State private var showingAddChargeView = false
     
+    @State private var lastUsedCapacitorId: UUID?
     
     init(){
         let dailyStartDate = Calendar.current.startOfDay(for: Date())
@@ -175,7 +176,7 @@ struct HomeView: View {
                     }.listStyle(.plain)
                 }.navigationTitle("Balances")
             }.sheet(isPresented: $showingAddChargeView){
-                AddChargeView(openedCapId: DataController.shared.getOneCapacitor(context: managedObjContext)!)
+                AddChargeView(openedCapId: $lastUsedCapacitorId)
             }
             
             if isButtonVisible {
@@ -198,6 +199,8 @@ struct HomeView: View {
                     }
                 }
             }
+        }.onAppear{
+            self.lastUsedCapacitorId = DataController.shared.getLastUsedCapacitor(context: managedObjContext)
         }
         
         

@@ -86,9 +86,9 @@ struct CapacitorView: View {
     
     @State private var chargeList  = LinkedList()
     @State private var chargeTable : [UUID: Node] = [:]
-  
+    @Binding var selectedCapacitor: UUID?
 
-    init(capacitorId: UUID, capacitorName: String, isButtonVisible: Binding<Bool>){
+    init(capacitorId: UUID, capacitorName: String, isButtonVisible: Binding<Bool>, selectedCapacitor: Binding<UUID?> ){
         self.capacitorId = capacitorId
         self.capacitorName = capacitorName
         
@@ -104,12 +104,14 @@ struct CapacitorView: View {
         
         
         self._isButtonVisible = isButtonVisible
+        self._selectedCapacitor = selectedCapacitor
     }
 
 
     @State private var showingAddView = false
     @Binding var isButtonVisible: Bool
 //    @State private var selectionValues: Set<Charge> = []
+    
     
     
     
@@ -244,9 +246,10 @@ struct CapacitorView: View {
                 
             }
             .sheet(isPresented: $showingAddView){
-                AddChargeView(openedCapId: capacitorId)
+                AddChargeView(openedCapId: $selectedCapacitor)
             }.onAppear {
                 DataController.shared.updateChargeBalances(capId: capacitorId, context: managedObjContext)
+                self.selectedCapacitor = capacitorId
             }
             
 //            if isButtonVisible {

@@ -44,6 +44,8 @@ struct CapacitorsView: View {
     
     @State private var capacitorToEdit: Capacitor? = nil
     @State private var isButtonVisible = true
+    @State private var selectedCapacitor: UUID? = gndId!
+    
     
     @State private var page: Int? = 0
     var body: some View {
@@ -61,7 +63,7 @@ struct CapacitorsView: View {
                         ForEach(capacitors, id: \.id){ capacitor in
                             
                             
-                            NavigationLink(destination: CapacitorView(capacitorId: capacitor.id!,capacitorName: capacitor.name!, isButtonVisible: $isButtonVisible)) {
+                            NavigationLink(destination: CapacitorView(capacitorId: capacitor.id!,capacitorName: capacitor.name!, isButtonVisible: $isButtonVisible, selectedCapacitor: $selectedCapacitor)) {
                                 HStack {
                                     //                                        Text(getDay(date: ChargeEntry.date!))
                                     //                                            .foregroundColor(.gray).font(.title3)
@@ -200,7 +202,7 @@ struct CapacitorsView: View {
             }
             .navigationViewStyle(.stack)
             .sheet(isPresented: $showingAddChargeView){
-                AddChargeView(openedCapId: DataController.shared.getOneCapacitor(context: managedObjContext)!)
+                AddChargeView(openedCapId: $selectedCapacitor)
             }
             
             if isButtonVisible {

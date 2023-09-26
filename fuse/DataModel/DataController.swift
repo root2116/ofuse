@@ -1980,13 +1980,29 @@ class DataController: ObservableObject {
     }
     
     
-    
+    func getLastUsedCapacitor(context: NSManagedObjectContext) -> UUID? {
+        let fetchRequestCharge : NSFetchRequest<Charge>
+        fetchRequestCharge = Charge.fetchRequest()
+        
+        let items = try? context.fetch(fetchRequestCharge)
+        
+        if let first = items?.first {
+            if first.from_id == srcId! {
+                return first.to_id
+            } else if first.to_id == gndId! {
+                return first.from_id
+            }
+        }
+        
+        return gndId
+        
+    }
     
     func getOneCapacitor(context:NSManagedObjectContext ) -> UUID? {
     
         let fetchRequestCapacitor : NSFetchRequest<Capacitor>
         fetchRequestCapacitor = Capacitor.fetchRequest()
-    
+        
     
         let items = try? context.fetch(fetchRequestCapacitor)
         
@@ -1999,7 +2015,7 @@ class DataController: ObservableObject {
         }
     
     
-        return nil
+        return gndId
     }
 
 }

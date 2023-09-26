@@ -13,7 +13,7 @@ import CoreData
 struct AddChargeView: View {
     
     
-    var openedCapId : UUID
+    @Binding var openedCapId : UUID?
     
     enum Field: Hashable {
             case amount
@@ -41,8 +41,8 @@ struct AddChargeView: View {
     @FetchRequest var categories: FetchedResults<Category>
     
     
-    init(openedCapId: UUID){
-        self.openedCapId = openedCapId
+    init(openedCapId: Binding<UUID?>){
+        self._openedCapId = openedCapId
         
         self._capacitors = FetchRequest<Capacitor>(
                                 sortDescriptors: [

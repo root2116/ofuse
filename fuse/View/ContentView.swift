@@ -68,6 +68,12 @@ struct ContentView: View {
                         Image(systemName: "arrow.up.arrow.down")
                         Text("Balances")
                     }
+                
+                StatsView()
+                    .tabItem {
+                        Image(systemName: "chart.bar.xaxis")
+                        Text("Stats")
+                    }
                 CapacitorsView() //1枚目の子ビュー
                     .tabItem {
                         Image(systemName: "macpro.gen2.fill")

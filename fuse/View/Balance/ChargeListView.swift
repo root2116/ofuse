@@ -14,11 +14,11 @@ struct ChargeListView: View {
     @Environment(\.managedObjectContext) var managedObjContext
     @Binding var isButtonVisible : Bool
     
-    @Binding var currentTab: TabSelection
+    @Binding var currentTab: PeriodSelection
     
     @State private var income: Int32 = 0
     @State private var outgo: Int32 = 0
-    init(range: (start: Date, end: Date), currentTab: Binding<TabSelection>,  isButtonVisible: Binding<Bool>){
+    init(range: (start: Date, end: Date), currentTab: Binding<PeriodSelection>,  isButtonVisible: Binding<Bool>){
         self.dateRange = range
         
         
@@ -77,7 +77,7 @@ struct ChargeListView: View {
                     
                     if chargeEntry.status == Status.pending.rawValue {
                         if chargeEntry.included {
-                            HomeChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible)
+                            BalanceChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible)
                                 .swipeActions(edge: .leading) {
                                     Button {
                                         DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
@@ -86,7 +86,7 @@ struct ChargeListView: View {
                                     }.tint(.gray)
                                 }
                         } else {
-                            HomeChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible)
+                            BalanceChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible)
                                 .swipeActions(edge: .leading) {
                                     Button {
                                         DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
@@ -97,7 +97,7 @@ struct ChargeListView: View {
                         }
                     } else {
                         if chargeEntry.status == Status.confirmed.rawValue {
-                            HomeChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible)
+                            BalanceChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible)
                                 .swipeActions(edge: .leading) {
                                     Button {
                                         DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
@@ -106,7 +106,7 @@ struct ChargeListView: View {
                                     }.tint(.orange)
                                 }
                         } else if chargeEntry.status == Status.upcoming.rawValue {
-                            HomeChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible)
+                            BalanceChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible)
                                 .swipeActions(edge: .leading) {
                                     Button {
                                         DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)

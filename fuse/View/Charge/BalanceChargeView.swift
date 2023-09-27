@@ -9,7 +9,7 @@
 import SwiftUI
 import CoreData
 
-struct HomeChargeView: View {
+struct BalanceChargeView: View {
     @ObservedObject var charge: Charge
     @Binding var isButtonVisible: Bool
     

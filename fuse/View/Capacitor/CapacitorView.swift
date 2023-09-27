@@ -125,159 +125,166 @@ struct CapacitorView: View {
     var body: some View {
         let initBalance = DataController.shared.fetchCapInitBalance(capId: capacitorId, context: managedObjContext)
         
-        
-        
         ZStack{
-            VStack(alignment: .leading) {
-                Text("Balance: \(DataController.shared.fetchCapBalance(capId: capacitorId, context: managedObjContext)) yen as of \(formatDate(date:Date(),formatStr:"M/d"))")
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
+            
                 
-                //                if editMode?.wrappedValue.isEditing == true {
-                //                    Text("Sum: \(sumCharges(charges:selectionValues)) yen")
-                //                        .foregroundColor(.gray)
-                //                        .padding(.horizontal)
-                //                }
-                
-                
-                List {
-                    
-                    
-                    Button(action: {
-                        DataController.shared.generateNextCharge(capId: capacitorId, context: managedObjContext)
-                    }){
-                        HStack{
-                            Spacer()
-                            Image(systemName: "arrow.up.circle").foregroundColor(Color.blue)
-                            Spacer()
-                        }
+                    VStack(alignment: .leading) {
+                        Text("Balance: \(DataController.shared.fetchCapBalance(capId: capacitorId, context: managedObjContext)) yen as of \(formatDate(date:Date(),formatStr:"M/d"))")
+                            .foregroundColor(.gray)
+                            .padding(.horizontal)
                         
-                    }
-                    ForEach(chargeSections){ section in
-                        Section(section.id) {
-                            ForEach(section, id: \.self) { chargeEntry in
+                        //                if editMode?.wrappedValue.isEditing == true {
+                        //                    Text("Sum: \(sumCharges(charges:selectionValues)) yen")
+                        //                        .foregroundColor(.gray)
+                        //                        .padding(.horizontal)
+                        //                }
+                        
+                        ScrollViewReader { proxy in
+                            List {
                                 
                                 
-                                //                                ChargeView(charge: chargeEntry, openedCapId: capacitorId, balance: (chargeEntry.from_id == capacitorId) ? Int(chargeEntry.from_balance) + initBalance : Int(chargeEntry.to_balance) + initBalance)
-                                
-                                
-                                
-                                if chargeEntry.status == Status.pending.rawValue {
-                                    if chargeEntry.included {
-                                        ChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
-                                            .swipeActions(edge: .leading) {
-                                                Button {
-                                                    DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
-                                                } label: {
-                                                    Image(systemName: "questionmark")
-                                                }.tint(.gray)
-                                            }
-                                    } else {
-                                        ChargeView(charge: chargeEntry,  isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
-                                            .swipeActions(edge: .leading) {
-                                                Button {
-                                                    DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
-                                                } label: {
-                                                    Image(systemName: "link")
-                                                }.tint(.cyan)
-                                            }
+                                Button(action: {
+                                    DataController.shared.generateNextCharge(capId: capacitorId, context: managedObjContext)
+                                }){
+                                    HStack{
+                                        Spacer()
+                                        Image(systemName: "arrow.up.circle").foregroundColor(Color.blue)
+                                        Spacer()
                                     }
                                     
-                                } else if chargeEntry.status == Status.upcoming.rawValue {
-                                    ChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
-                                        .swipeActions(edge: .leading) {
-                                            Button {
-                                                DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
-                                            } label: {
-                                                Image(systemName: "checkmark")
-                                            }.tint(.green)
-                                        }
-                                } else {
-                                    ChargeView(charge: chargeEntry,  isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
-                                        .swipeActions(edge: .leading) {
-                                            Button {
-                                                DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
-                                            } label: {
-                                                Image(systemName: "hourglass")
-                                            }.tint(.orange)
-                                        }
                                 }
-                                
-                                
+                                ForEach(chargeSections){ section in
+                                    Section(section.id) {
+                                        ForEach(section, id: \.self) { chargeEntry in
+                                            
+                                            
+                                            
+                                            if chargeEntry.status == Status.pending.rawValue {
+                                                if chargeEntry.included {
+                                                    ChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
+                                                        .swipeActions(edge: .leading) {
+                                                            Button {
+                                                                DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
+                                                            } label: {
+                                                                Image(systemName: "questionmark")
+                                                            }.tint(.gray)
+                                                        }.id(chargeEntry.id)
+                                                } else {
+                                                    ChargeView(charge: chargeEntry,  isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
+                                                        .swipeActions(edge: .leading) {
+                                                            Button {
+                                                                DataController.shared.togglePending(charge: chargeEntry, context: managedObjContext)
+                                                            } label: {
+                                                                Image(systemName: "link")
+                                                            }.tint(.cyan)
+                                                        }.id(chargeEntry.id)
+                                                }
+                                                
+                                            } else if chargeEntry.status == Status.upcoming.rawValue {
+                                                ChargeView(charge: chargeEntry, isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
+                                                    .swipeActions(edge: .leading) {
+                                                        Button {
+                                                            DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
+                                                        } label: {
+                                                            Image(systemName: "checkmark")
+                                                        }.tint(.green)
+                                                    }.id(chargeEntry.id)
+                                            } else {
+                                                ChargeView(charge: chargeEntry,  isButtonVisible: $isButtonVisible, openedCapId: capacitorId, balance: (capacitorId == chargeEntry.from_id) ? Int(chargeEntry.from_balance) + initBalance: Int(chargeEntry.to_balance) + initBalance)
+                                                    .swipeActions(edge: .leading) {
+                                                        Button {
+                                                            DataController.shared.toggleUpcoming(charge: chargeEntry, context: managedObjContext)
+                                                        } label: {
+                                                            Image(systemName: "hourglass")
+                                                        }.tint(.orange)
+                                                    }.id(chargeEntry.id)
+                                            }
+                                            
+                                            
+                                        }
+                                        .onDelete {
+                                            self.deleteCharge(at: $0, in: section)
+                                        }.onMove { indices, newOffset in
+                                            self.moveCharge(from: indices, to: newOffset, in: section)
+                                        }                        }
+                                }
+                                //                    .listRowBackground(Color.background)
                             }
-                            .onDelete {
-                                self.deleteCharge(at: $0, in: section)
-                            }.onMove { indices, newOffset in
-                                self.moveCharge(from: indices, to: newOffset, in: section)
-                            }                        }
+                            .listStyle(.plain)
+                            .onAppear{
+                                proxy.scrollTo(nearestCharge(charges: chargeSections), anchor: .top)
+                            }
+                        }
+                        
+                        //                .toolbar {
+                        //                    EditButton()
+                        //                }
+                        //                .background(Color.background)
+                        
                     }
-                    //                    .listRowBackground(Color.background)
+                    .navigationTitle(self.capacitorName)
+                    .toolbar {
+                        //                ToolbarItem(placement: .navigationBarTrailing){
+                        //
+                        //
+                        //                    Button(action: {
+                        //                        withAnimation() {
+                        //                            if editMode?.wrappedValue.isEditing == true {
+                        //                                editMode?.wrappedValue = .inactive
+                        //                            } else {
+                        //                                editMode?.wrappedValue = .active
+                        //                            }
+                        //                        }
+                        //                    }) {
+                        //                        if editMode?.wrappedValue.isEditing == true {
+                        //                            Text("Done")
+                        //                        } else {
+                        //                            Text("Sum")
+                        //                        }
+                        //                    }
+                        //                }
+                        
+                        
+                    }
+                    .sheet(isPresented: $showingAddView){
+                        AddChargeView(openedCapId: $selectedCapacitor)
+                    }.onAppear {
+                        DataController.shared.updateChargeBalances(capId: capacitorId, context: managedObjContext)
+                        self.selectedCapacitor = capacitorId
+                        
+                        
+                    }
+                    
+                    //            if isButtonVisible {
+                    //                VStack {
+                    //                                Spacer()
+                    //                                HStack {
+                    //                                    Spacer()
+                    //
+                    //                                    Button(action: {
+                    //                                        self.showingAddView.toggle()
+                    //                                    }) {
+                    //                                        Image(systemName: "plus.circle.fill")
+                    //                                            .resizable()
+                    //                                            .scaledToFit()
+                    //                                            .frame(width: 60, height: 60)
+                    //                                            .foregroundColor(Color.green)
+                    //                                            .background(Color.white)
+                    //                                            .clipShape(Circle())
+                    //                                            .padding()
+                    //                                    }
+                    //
+                    //
+                    //                                }
+                    //                }
+                    //            }
+                    
+                    
                 }
-                .listStyle(.plain)
-               
-//                .toolbar {
-//                    EditButton()
-//                }
-                //                .background(Color.background)
-                
-            }
-            .navigationTitle(self.capacitorName)
-            .toolbar {
-                //                ToolbarItem(placement: .navigationBarTrailing){
-                //
-                //
-                //                    Button(action: {
-                //                        withAnimation() {
-                //                            if editMode?.wrappedValue.isEditing == true {
-                //                                editMode?.wrappedValue = .inactive
-                //                            } else {
-                //                                editMode?.wrappedValue = .active
-                //                            }
-                //                        }
-                //                    }) {
-                //                        if editMode?.wrappedValue.isEditing == true {
-                //                            Text("Done")
-                //                        } else {
-                //                            Text("Sum")
-                //                        }
-                //                    }
-                //                }
-               
-                
-            }
-            .sheet(isPresented: $showingAddView){
-                AddChargeView(openedCapId: $selectedCapacitor)
-            }.onAppear {
-                DataController.shared.updateChargeBalances(capId: capacitorId, context: managedObjContext)
-                self.selectedCapacitor = capacitorId
-            }
-            
-//            if isButtonVisible {
-//                VStack {
-//                                Spacer()
-//                                HStack {
-//                                    Spacer()
-//                                    
-//                                    Button(action: {
-//                                        self.showingAddView.toggle()
-//                                    }) {
-//                                        Image(systemName: "plus.circle.fill")
-//                                            .resizable()
-//                                            .scaledToFit()
-//                                            .frame(width: 60, height: 60)
-//                                            .foregroundColor(Color.green)
-//                                            .background(Color.white)
-//                                            .clipShape(Circle())
-//                                            .padding()
-//                                    }
-//                                
-//                                    
-//                                }
-//                }
-//            }
             
             
-        }
+        
+        
 
         
     }
@@ -296,6 +303,26 @@ struct CapacitorView: View {
 //            }
 //        }
 //    }
+    
+    private func nearestCharge(charges: SectionedFetchResults<String, Charge>) -> UUID {
+        let currentDate = Date()
+        var nearestCharge: Charge? = nil
+            
+        for section in charges {
+            for charge in section {
+                if nearestCharge == nil ||
+                   abs(charge.date!.timeIntervalSince(currentDate)) <
+                   abs(nearestCharge!.date!.timeIntervalSince(currentDate)) {
+                    nearestCharge = charge
+                }
+            }
+        }
+        
+        
+        return nearestCharge?.id ?? UUID()
+        
+        
+    }
     private func deleteCharge(at offsets: IndexSet, in section: SectionedFetchResults<String, Charge>.Element){
         
         for offset in offsets {

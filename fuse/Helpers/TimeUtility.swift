@@ -284,3 +284,11 @@ func getMonthlyRange() -> (start: Date, end: Date) {
     let end = Calendar.current.date(byAdding: .month, value: 1, to: start)!
     return (start, end)
 }
+
+
+func getYearlyRange() -> (start: Date, end: Date) {
+    let calendar = Calendar.current
+    let start = calendar.date(from: calendar.dateComponents([.year], from: Date()))!
+    let end = calendar.date(byAdding: .year, value: 1, to: start)!
+    return (start, end.addingTimeInterval(-1)) // endは次の年の最初の日なので、1秒減算して今年の最後の日を取得
+}

@@ -25,6 +25,10 @@
 		E93DEE6A29AEE92A00683B26 /* VariableChargeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93DEE6929AEE92A00683B26 /* VariableChargeView.swift */; };
 		E93DEE6C29B03B8600683B26 /* TextEditorWithPlaceHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93DEE6B29B03B8600683B26 /* TextEditorWithPlaceHolder.swift */; };
 		E95AD9FD2AC36BA000F4FEFF /* ChargeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E95AD9FC2AC36BA000F4FEFF /* ChargeListView.swift */; };
+		E95ADA012AC3DC2600F4FEFF /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E95ADA002AC3DC2600F4FEFF /* StatsView.swift */; };
+		E95ADA032AC3E0FA00F4FEFF /* PieChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E95ADA022AC3E0FA00F4FEFF /* PieChartView.swift */; };
+		E95ADA062AC454C900F4FEFF /* CategoryStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E95ADA052AC454C900F4FEFF /* CategoryStatsView.swift */; };
+		E95ADA082AC45F5200F4FEFF /* CategoryChargeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E95ADA072AC45F5200F4FEFF /* CategoryChargeListView.swift */; };
 		E97A1C1929B9E03200383D11 /* FuseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97A1C1829B9E03200383D11 /* FuseTests.swift */; };
 		E97B5F2F28A3FE2E005802AF /* AddChargeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97B5F2E28A3FE2E005802AF /* AddChargeView.swift */; };
 		E9BD09F429B16569007613A3 /* VariableCurrentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BD09F329B16569007613A3 /* VariableCurrentView.swift */; };
@@ -40,7 +44,7 @@
 		E9EA36CF2851404700529C5E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9EA36CE2851404700529C5E /* Assets.xcassets */; };
 		E9EA36D22851404700529C5E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9EA36D12851404700529C5E /* Preview Assets.xcassets */; };
 		E9EA36DD28517AA400529C5E /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EA36DC28517AA400529C5E /* DataController.swift */; };
-		E9EF7A452ABDD12300CADC9E /* HomeCharge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EF7A442ABDD12300CADC9E /* HomeCharge.swift */; };
+		E9EF7A452ABDD12300CADC9E /* BalanceChargeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9EF7A442ABDD12300CADC9E /* BalanceChargeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +76,10 @@
 		E93DEE6929AEE92A00683B26 /* VariableChargeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableChargeView.swift; sourceTree = "<group>"; };
 		E93DEE6B29B03B8600683B26 /* TextEditorWithPlaceHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditorWithPlaceHolder.swift; sourceTree = "<group>"; };
 		E95AD9FC2AC36BA000F4FEFF /* ChargeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChargeListView.swift; sourceTree = "<group>"; };
+		E95ADA002AC3DC2600F4FEFF /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		E95ADA022AC3E0FA00F4FEFF /* PieChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartView.swift; sourceTree = "<group>"; };
+		E95ADA052AC454C900F4FEFF /* CategoryStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryStatsView.swift; sourceTree = "<group>"; };
+		E95ADA072AC45F5200F4FEFF /* CategoryChargeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryChargeListView.swift; sourceTree = "<group>"; };
 		E97A1C1629B9E03200383D11 /* FuseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FuseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E97A1C1829B9E03200383D11 /* FuseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuseTests.swift; sourceTree = "<group>"; };
 		E97B5F2E28A3FE2E005802AF /* AddChargeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddChargeView.swift; sourceTree = "<group>"; };
@@ -91,7 +99,7 @@
 		E9EA36CE2851404700529C5E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E9EA36D12851404700529C5E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E9EA36DC28517AA400529C5E /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
-		E9EF7A442ABDD12300CADC9E /* HomeCharge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeCharge.swift; sourceTree = "<group>"; };
+		E9EF7A442ABDD12300CADC9E /* BalanceChargeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceChargeView.swift; sourceTree = "<group>"; };
 		E9F8677C29C6031200D82FB6 /* FuseDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = FuseDebug.entitlements; path = Fuse/FuseDebug.entitlements; sourceTree = "<group>"; };
 		F6D639681E829755A7AE7A77 /* Pods-Fuse.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fuse.release.xcconfig"; path = "Target Support Files/Pods-Fuse/Pods-Fuse.release.xcconfig"; sourceTree = "<group>"; };
 		FCD40D5F0BEB6718A2703BB8 /* Pods-Fuse.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Fuse.debug.xcconfig"; path = "Target Support Files/Pods-Fuse/Pods-Fuse.debug.xcconfig"; sourceTree = "<group>"; };
@@ -134,7 +142,7 @@
 				E93DEE6929AEE92A00683B26 /* VariableChargeView.swift */,
 				E93DEE6B29B03B8600683B26 /* TextEditorWithPlaceHolder.swift */,
 				E923C30629BA2A7A00EAB08A /* AddCategoryView.swift */,
-				E9EF7A442ABDD12300CADC9E /* HomeCharge.swift */,
+				E9EF7A442ABDD12300CADC9E /* BalanceChargeView.swift */,
 			);
 			path = Charge;
 			sourceTree = "<group>";
@@ -176,6 +184,17 @@
 			path = Balance;
 			sourceTree = "<group>";
 		};
+		E95AD9FE2AC3DC0800F4FEFF /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				E95ADA002AC3DC2600F4FEFF /* StatsView.swift */,
+				E95ADA022AC3E0FA00F4FEFF /* PieChartView.swift */,
+				E95ADA052AC454C900F4FEFF /* CategoryStatsView.swift */,
+				E95ADA072AC45F5200F4FEFF /* CategoryChargeListView.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
 		E97A1C1729B9E03200383D11 /* FuseTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -210,6 +229,7 @@
 		E9EA36C92851404600529C5E /* fuse */ = {
 			isa = PBXGroup;
 			children = (
+				E95AD9FE2AC3DC0800F4FEFF /* Stats */,
 				E9EA36CA2851404600529C5E /* fuseApp.swift */,
 				E9EA36DF28517D7200529C5E /* Helpers */,
 				E9EA36DE28517D6700529C5E /* View */,
@@ -409,12 +429,13 @@
 				E9D73D7128BB9D4300F813C0 /* FuseModel.xcdatamodeld in Sources */,
 				E920732028A54F60004AB410 /* TimeUtility.swift in Sources */,
 				E97B5F2F28A3FE2E005802AF /* AddChargeView.swift in Sources */,
+				E95ADA062AC454C900F4FEFF /* CategoryStatsView.swift in Sources */,
 				E920732228A6B936004AB410 /* CapacitorsView.swift in Sources */,
 				E95AD9FD2AC36BA000F4FEFF /* ChargeListView.swift in Sources */,
 				E9BD09F429B16569007613A3 /* VariableCurrentView.swift in Sources */,
 				E93DEE6C29B03B8600683B26 /* TextEditorWithPlaceHolder.swift in Sources */,
 				E920732628A6BDC5004AB410 /* CapacitorView.swift in Sources */,
-				E9EF7A452ABDD12300CADC9E /* HomeCharge.swift in Sources */,
+				E9EF7A452ABDD12300CADC9E /* BalanceChargeView.swift in Sources */,
 				E9EA36CD2851404600529C5E /* ContentView.swift in Sources */,
 				E923C30729BA2A7A00EAB08A /* AddCategoryView.swift in Sources */,
 				E920733B28ADAD50004AB410 /* TagsView.swift in Sources */,
@@ -423,11 +444,14 @@
 				E920733428AD845E004AB410 /* CurrentView.swift in Sources */,
 				E93DEE6A29AEE92A00683B26 /* VariableChargeView.swift in Sources */,
 				E920732A28A6F34C004AB410 /* ChargeView.swift in Sources */,
+				E95ADA012AC3DC2600F4FEFF /* StatsView.swift in Sources */,
 				E9BD09FC29B18C5F007613A3 /* MonthDayPickerView.swift in Sources */,
+				E95ADA032AC3E0FA00F4FEFF /* PieChartView.swift in Sources */,
 				E920732828A6C0E8004AB410 /* AddCapacitorView.swift in Sources */,
 				E9D73D7328C2B93200F813C0 /* EditCapacitorView.swift in Sources */,
 				E9BD09F629B17369007613A3 /* PeriodPickerView.swift in Sources */,
 				E9BD09FA29B18BD7007613A3 /* DayPickerView.swift in Sources */,
+				E95ADA082AC45F5200F4FEFF /* CategoryChargeListView.swift in Sources */,
 				E9BD09F829B17EF2007613A3 /* WeekdayPickerView.swift in Sources */,
 				E9CE1A0A28A425100019975E /* EditChargeView.swift in Sources */,
 				E920732E28A93F4B004AB410 /* CoreDataUtility.swift in Sources */,
@@ -607,7 +631,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fuse/FuseDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"fuse/Preview Content\"";
 				DEVELOPMENT_TEAM = 49M244H4W8;
 				ENABLE_PREVIEWS = YES;
@@ -624,7 +648,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tadanoasile.fuse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -641,7 +665,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Fuse/Fuse.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"fuse/Preview Content\"";
 				DEVELOPMENT_TEAM = 49M244H4W8;
 				ENABLE_PREVIEWS = YES;
@@ -658,7 +682,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.2.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tadanoasile.fuse;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -6,13 +6,13 @@ import CoreData
 var dailyDateRange = getDailyRange()
 var weeklyDateRange = getWeeklyRange()
 var monthlyDateRange = getMonthlyRange()
-enum TabSelection {
-    case daily, weekly, monthly
+enum PeriodSelection {
+    case daily, weekly, monthly, yearly
 }
 struct BalancesView: View {
     
     
-    @State private var currentTab: TabSelection = .daily
+    @State private var currentTab: PeriodSelection = .daily
     @Environment(\.managedObjectContext) var managedObjContext
     
     @State private var dateRange: (start: Date, end: Date) = getDailyRange()
@@ -39,9 +39,10 @@ struct BalancesView: View {
                 VStack {
                     // Tab Selection
                     Picker("Duration", selection: $currentTab) {
-                        Text("Daily").tag(TabSelection.daily)
-                        Text("Weekly").tag(TabSelection.weekly)
-                        Text("Monthly").tag(TabSelection.monthly)
+                        Text("Daily").tag(PeriodSelection.daily)
+                        Text("Weekly").tag(PeriodSelection.weekly)
+                        Text("Monthly").tag(PeriodSelection.monthly)
+                        Text("Yearly").tag(PeriodSelection.yearly)
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .padding()
@@ -88,8 +89,10 @@ struct BalancesView: View {
                 self.dateRange = getDailyRange()
             } else if newTab == .weekly {
                 self.dateRange = getWeeklyRange()
-            } else {
+            } else if newTab == .monthly {
                 self.dateRange = getMonthlyRange()
+            } else {
+                self.dateRange = getYearlyRange()
             }
             
         }.onChange(of: currentDate) { _ in
@@ -97,8 +100,10 @@ struct BalancesView: View {
                 self.dateRange = getDailyRange()
             } else if currentTab == .weekly {
                 self.dateRange = getWeeklyRange()
-            } else {
+            } else if currentTab == .monthly {
                 self.dateRange = getMonthlyRange()
+            } else {
+                self.dateRange = getYearlyRange()
             }
         }
         

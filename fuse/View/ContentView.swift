@@ -63,7 +63,7 @@ struct ContentView: View {
     var body: some View {
         
             TabView{
-                HomeView()
+                BalancesView()
                     .tabItem {
                         Image(systemName: "arrow.up.arrow.down")
                         Text("Balances")

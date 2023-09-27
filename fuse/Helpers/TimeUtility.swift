@@ -265,3 +265,22 @@ func nearestPayment(every: Int, span: String, on_day: Int, on_month: Int, on_wee
     }
     
 }
+
+
+func getDailyRange() -> (start: Date, end: Date) {
+    let start = Calendar.current.startOfDay(for: Date())
+    let end = Calendar.current.date(byAdding: .day, value: 1, to: start)!
+    return (start, end)
+}
+
+func getWeeklyRange() -> (start: Date, end: Date) {
+    let start = Calendar.current.date(from: Calendar.current.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date()))!
+    let end = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: start)!
+    return (start, end)
+}
+
+func getMonthlyRange() -> (start: Date, end: Date) {
+    let start = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: Date()))!
+    let end = Calendar.current.date(byAdding: .month, value: 1, to: start)!
+    return (start, end)
+}

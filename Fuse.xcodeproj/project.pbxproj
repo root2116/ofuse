@@ -21,9 +21,10 @@
 		E920733B28ADAD50004AB410 /* TagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920733A28ADAD50004AB410 /* TagsView.swift */; };
 		E920733E28B28B9F004AB410 /* DatePickerPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E920733D28B28B9F004AB410 /* DatePickerPopupView.swift */; };
 		E923C30729BA2A7A00EAB08A /* AddCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E923C30629BA2A7A00EAB08A /* AddCategoryView.swift */; };
-		E92EF45A2ABD66DA00678193 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92EF4592ABD66DA00678193 /* HomeView.swift */; };
+		E92EF45A2ABD66DA00678193 /* BalancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92EF4592ABD66DA00678193 /* BalancesView.swift */; };
 		E93DEE6A29AEE92A00683B26 /* VariableChargeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93DEE6929AEE92A00683B26 /* VariableChargeView.swift */; };
 		E93DEE6C29B03B8600683B26 /* TextEditorWithPlaceHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E93DEE6B29B03B8600683B26 /* TextEditorWithPlaceHolder.swift */; };
+		E95AD9FD2AC36BA000F4FEFF /* ChargeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E95AD9FC2AC36BA000F4FEFF /* ChargeListView.swift */; };
 		E97A1C1929B9E03200383D11 /* FuseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97A1C1829B9E03200383D11 /* FuseTests.swift */; };
 		E97B5F2F28A3FE2E005802AF /* AddChargeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97B5F2E28A3FE2E005802AF /* AddChargeView.swift */; };
 		E9BD09F429B16569007613A3 /* VariableCurrentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9BD09F329B16569007613A3 /* VariableCurrentView.swift */; };
@@ -67,9 +68,10 @@
 		E920733A28ADAD50004AB410 /* TagsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsView.swift; sourceTree = "<group>"; };
 		E920733D28B28B9F004AB410 /* DatePickerPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerPopupView.swift; sourceTree = "<group>"; };
 		E923C30629BA2A7A00EAB08A /* AddCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategoryView.swift; sourceTree = "<group>"; };
-		E92EF4592ABD66DA00678193 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		E92EF4592ABD66DA00678193 /* BalancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalancesView.swift; sourceTree = "<group>"; };
 		E93DEE6929AEE92A00683B26 /* VariableChargeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableChargeView.swift; sourceTree = "<group>"; };
 		E93DEE6B29B03B8600683B26 /* TextEditorWithPlaceHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditorWithPlaceHolder.swift; sourceTree = "<group>"; };
+		E95AD9FC2AC36BA000F4FEFF /* ChargeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChargeListView.swift; sourceTree = "<group>"; };
 		E97A1C1629B9E03200383D11 /* FuseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FuseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E97A1C1829B9E03200383D11 /* FuseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuseTests.swift; sourceTree = "<group>"; };
 		E97B5F2E28A3FE2E005802AF /* AddChargeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddChargeView.swift; sourceTree = "<group>"; };
@@ -165,6 +167,15 @@
 			path = Current;
 			sourceTree = "<group>";
 		};
+		E95AD9FB2AC36B8000F4FEFF /* Balance */ = {
+			isa = PBXGroup;
+			children = (
+				E92EF4592ABD66DA00678193 /* BalancesView.swift */,
+				E95AD9FC2AC36BA000F4FEFF /* ChargeListView.swift */,
+			);
+			path = Balance;
+			sourceTree = "<group>";
+		};
 		E97A1C1729B9E03200383D11 /* FuseTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -229,11 +240,11 @@
 		E9EA36DE28517D6700529C5E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				E95AD9FB2AC36B8000F4FEFF /* Balance */,
 				E920733728AD8489004AB410 /* Current */,
 				E920733628AD8482004AB410 /* Capacitor */,
 				E920733528AD847C004AB410 /* Charge */,
 				E9EA36CC2851404600529C5E /* ContentView.swift */,
-				E92EF4592ABD66DA00678193 /* HomeView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -391,7 +402,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E920732428A6B9A8004AB410 /* CurrentsView.swift in Sources */,
-				E92EF45A2ABD66DA00678193 /* HomeView.swift in Sources */,
+				E92EF45A2ABD66DA00678193 /* BalancesView.swift in Sources */,
 				E9EA36DD28517AA400529C5E /* DataController.swift in Sources */,
 				E920733028AD827B004AB410 /* AddCurrentView.swift in Sources */,
 				E920733E28B28B9F004AB410 /* DatePickerPopupView.swift in Sources */,
@@ -399,6 +410,7 @@
 				E920732028A54F60004AB410 /* TimeUtility.swift in Sources */,
 				E97B5F2F28A3FE2E005802AF /* AddChargeView.swift in Sources */,
 				E920732228A6B936004AB410 /* CapacitorsView.swift in Sources */,
+				E95AD9FD2AC36BA000F4FEFF /* ChargeListView.swift in Sources */,
 				E9BD09F429B16569007613A3 /* VariableCurrentView.swift in Sources */,
 				E93DEE6C29B03B8600683B26 /* TextEditorWithPlaceHolder.swift in Sources */,
 				E920732628A6BDC5004AB410 /* CapacitorView.swift in Sources */,
